@@ -1,6 +1,5 @@
-/*
- * Memory allocator for TinyGL
- */
+// tgl_memory.cpp
+
 #include "tgl.h"
 
 /* modify these functions so that they suit your needs */

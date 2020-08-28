@@ -1,229 +1,367 @@
-/*
- * Texture Manager
- */
+// tgl_texture.cpp
 
 #include "tgl.h"
 
-static GLTexture *find_texture(GLContext *c,int h)
+GLTexture *find_texture(GLContext *c, int h)
 {
-  GLTexture *t;
+	GLTexture *t;
 
-  t=c->shared_state.texture_hash_table[h % TEXTURE_HASH_TABLE_SIZE];
-  while (t!=NULL) {
-    if (t->handle == h) return t;
-    t=t->next;
-  }
-  return NULL;
+	t = c->shared_state.texture_hash_table[h % TEXTURE_HASH_TABLE_SIZE];
+	while ( t != NULL )
+	{
+		if ( t->handle == h )
+		{
+			return t;
+		}
+		t = t->next;
+	}
+	return NULL;
 }
 
-static void free_texture(GLContext *c,int h)
+void free_texture(GLContext *c, int h)
 {
-  GLTexture *t,**ht;
-  GLImage *im;
-  int i;
+	GLTexture *t,**ht;
+	GLImage *im;
+	int i;
 
-  t=find_texture(c,h);
-  if (t->prev==NULL) {
-    ht=&c->shared_state.texture_hash_table
-      [t->handle % TEXTURE_HASH_TABLE_SIZE];
-    *ht=t->next;
-  } else {
-    t->prev->next=t->next;
-  }
-  if (t->next!=NULL) t->next->prev=t->prev;
+	t = find_texture(c,h);
+	if ( t->prev == NULL)
+	{
+		ht = &c->shared_state.texture_hash_table[t->handle % TEXTURE_HASH_TABLE_SIZE];
+		*ht = t->next;
+	}
+	else
+	{
+		t->prev->next = t->next;
+	}
+	if ( t->next != NULL )
+	{
+		t->next->prev = t->prev;
+	}
 
-  for(i=0;i<MAX_TEXTURE_LEVELS;i++) {
-    im=&t->images[i];
-    if (im->pixmap != NULL) gl_free(im->pixmap);
-  }
+	for(i=0;i<MAX_TEXTURE_LEVELS;i++)
+	{
+		im = &t->images[i];
+		if ( im->pixmap != NULL )
+		{
+			gl_free(im->pixmap);
+		}
+	}
 
-  gl_free(t);
+	gl_free(t);
 }
 
-GLTexture *alloc_texture(GLContext *c,int h)
+GLTexture *alloc_texture(GLContext *c, int h)
 {
-  GLTexture *t,**ht;
-  
-  t=gl_zalloc(sizeof(GLTexture));
+	GLTexture *t,**ht;
 
-  ht=&c->shared_state.texture_hash_table[h % TEXTURE_HASH_TABLE_SIZE];
+	t = (GLTexture*) gl_zalloc(sizeof(GLTexture));
 
-  t->next=*ht;
-  t->prev=NULL;
-  if (t->next != NULL) t->next->prev=t;
-  *ht=t;
+	ht = &c->shared_state.texture_hash_table[h % TEXTURE_HASH_TABLE_SIZE];
 
-  t->handle=h;
-  
-  return t;
+	t->next = *ht;
+	t->prev = NULL;
+	if ( t->next != NULL )
+	{
+		t->next->prev = t;
+	}
+	*ht = t;
+
+	t->handle = h;
+
+	return t;
 }
 
-
-void glInitTextures(GLContext *c)
+void gl_init_textures(GLContext *c)
 {
-  /* textures */
+	/* textures */
 
-  c->texture_2d_enabled=0;
-  c->current_texture=find_texture(c,0);
+	c->texture.enabled_2d = 0;
+	c->texture.current = find_texture(c,0);
 }
 
-void glGenTextures(int n, unsigned int *textures)
+void glGenTextures(GLsizei n, GLuint *textures)
 {
-  GLContext *c=gl_get_context();
-  int max,i;
-  GLTexture *t;
+	GLContext *c = gl_get_context();
+	int max,i;
+	GLTexture *t;
 
-  max=0;
-  for(i=0;i<TEXTURE_HASH_TABLE_SIZE;i++) {
-    t=c->shared_state.texture_hash_table[i];
-    while (t!=NULL) {
-      if (t->handle>max) max=t->handle;
-      t=t->next;
-    }
-
-  }
-  for(i=0;i<n;i++) {
-    textures[i]=max+i+1;
-  }
+	max = 0;
+	for(i=0;i<TEXTURE_HASH_TABLE_SIZE;i++)
+	{
+		t = c->shared_state.texture_hash_table[i];
+		while ( t != NULL )
+		{
+			if ( t->handle > max )
+			{
+				max = t->handle;
+			}
+			t = t->next;
+		}
+	}
+	for(i=0;i<n;i++)
+	{
+		textures[i] = max+i+1;
+	}
 }
 
-
-void glDeleteTextures(int n, const unsigned int *textures)
+void glDeleteTextures(GLsizei n, const GLuint *textures)
 {
-  GLContext *c=gl_get_context();
-  int i;
-  GLTexture *t;
+	GLContext *c = gl_get_context();
+	int i;
+	GLTexture *t;
 
-  for(i=0;i<n;i++) {
-    t=find_texture(c,textures[i]);
-    if (t!=NULL && t!=0) {
-      if (t==c->current_texture) {
-	glBindTexture(GL_TEXTURE_2D,0);
-      }
-      free_texture(c,textures[i]);
-    }
-  }
+	for(i=0;i<n;i++)
+	{
+		t = find_texture(c,textures[i]);
+		if ( t != NULL && t != 0 )
+		{
+			if ( t == c->texture.current )
+			{
+				glBindTexture(GL_TEXTURE_2D,0);
+			}
+			free_texture(c,textures[i]);
+		}
+	}
 }
 
-
-void glopBindTexture(GLContext *c,GLParam *p)
+void glBindTexture(GLenum target, GLuint texture)
 {
-  int target=p[1].i;
-  int texture=p[2].i;
-  GLTexture *t;
+	GLContext *c = gl_get_context();
+	GLTexture *t;
 
-  assert(target == GL_TEXTURE_2D && texture >= 0);
+	assert(target == GL_TEXTURE_2D && texture >= 0);
 
-  t=find_texture(c,texture);
-  if (t==NULL) {
-    t=alloc_texture(c,texture);
-  }
-  c->current_texture=t;
+	t = find_texture(c,texture);
+	if ( t == NULL )
+	{
+		t = alloc_texture(c,texture);
+	}
+	c->texture.current = t;
 }
 
-void glopTexImage2D(GLContext *c,GLParam *p)
+GLboolean glIsTexture(GLuint texture)
 {
-  int target=p[1].i;
-  int level=p[2].i;
-  int components=p[3].i;
-  int width=p[4].i;
-  int height=p[5].i;
-  int border=p[6].i;
-  int format=p[7].i;
-  int type=p[8].i;
-  void *pixels=p[9].p;
-  GLImage *im;
-  unsigned char *pixels1;
-  int do_free;
+	GLContext *c = gl_get_context();
+	GLTexture *t = find_texture(c, texture);
+	return t != NULL;
+}
 
-  if (!(target == GL_TEXTURE_2D && level == 0 && components == 3 && 
-        border == 0 && format == GL_RGB &&
-        type == GL_UNSIGNED_BYTE)) {
-    gl_fatal_error("glTexImage2D: combinaison of parameters not handled");
-  }
-  
-  do_free=0;
-  if (width != 256 || height != 256) {
-    pixels1 = gl_malloc(256 * 256 * 3);
-    /* no interpolation is done here to respect the original image aliasing ! */
-    gl_resizeImageNoInterpolate(pixels1,256,256,pixels,width,height);
-    do_free=1;
-    width=256;
-    height=256;
-  } else {
-    pixels1=pixels;
-  }
+void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height,
+				  GLint border, GLenum format, GLenum type, const GLvoid *pixels)
+{
+	GLContext *c = gl_get_context();
+	GLImage *im;
+	unsigned char *pixels_temp1 = NULL;
+	unsigned char *pixels_temp2 = NULL;
+	unsigned char *pixels_ready = NULL;
+	int width_original;
+	int height_original;
+	int _bitval;
 
-  im=&c->current_texture->images[level];
-  im->xsize=width;
-  im->ysize=height;
-  if (im->pixmap!=NULL) gl_free(im->pixmap);
-#if TGL_FEATURE_RENDER_BITS == 24 
-  im->pixmap=gl_malloc(width*height*3);
-  if(im->pixmap) {
-      memcpy(im->pixmap,pixels1,width*height*3);
-  }
-#elif TGL_FEATURE_RENDER_BITS == 32
-  im->pixmap=gl_malloc(width*height*4);
-  if(im->pixmap) {
-      gl_convertRGB_to_8A8R8G8B(im->pixmap,pixels1,width,height);
-  }
-#elif TGL_FEATURE_RENDER_BITS == 16
-  im->pixmap=gl_malloc(width*height*2);
-  if(im->pixmap) {
-      gl_convertRGB_to_5R6G5B(im->pixmap,pixels1,width,height);
-  }
-#else
-#error TODO
+	/*
+#ifdef _DEBUG
+	char _t[256];
+	FILE* ppmwriter;
 #endif
-  if (do_free) gl_free(pixels1);
-}
+	*/
 
+#ifdef GLQUAKE
+	if ( level )
+	{
+		return;
+	}
+	if ( internalFormat == 3 )
+	{
+		internalFormat = 4;
+	}
+#endif
+
+	pixels_ready = (unsigned char*) pixels;
+
+	im = &c->texture.current->images[level];
+
+	if ( target != GL_TEXTURE_2D || level != 0 || border != 0 || type != GL_UNSIGNED_BYTE )
+	{
+		tgl_fatal_error("%s combination of parameters not handled",__FUNCTION__);
+	}
+
+	// check format
+	if ( /*format == GL_RGB &&*/ (internalFormat == GL_RGB8 || internalFormat == 3) )
+	{
+		// nothing to do
+	} 
+	else if ( /*format == GL_RGBA && */ (internalFormat == GL_RGBA8 || internalFormat == 4) )
+	{
+		pixels_temp2 = (unsigned char*) gl_malloc(width * height * 3);
+		gl_convertRGBA32_to_RGB24(pixels_temp2,(unsigned char*)pixels,width,height);
+		pixels_ready = pixels_temp2;
+	}
+	else if ( internalFormat == 1 )
+	{
+		im->pixmap = NULL;
+		return; 
+	}
+	else
+	{
+		tgl_fatal_error("%s this texture format is not supported",__FUNCTION__);
+	}
+
+	if ( width != height || width < 64 || height < 64 )
+	{
+		// make suare texture
+		width_original = width;
+		height_original = height;
+		width = MAX(MAX(width,height),64);
+		height = width;
+		pixels_temp1 = (unsigned char*) gl_malloc(width * height * 3);
+		// no interpolation is done here to respect the original image aliasing ! 
+		gl_resizeImageNoInterpolate(
+			pixels_temp1,width,height,pixels_ready,width_original,height_original);
+		pixels_ready = pixels_temp1;
+	}
+
+	im->xsize = width;
+	im->ysize = height;
+
+	/*
+#ifdef _DEBUG
+	sprintf(_t,"texture_%04d.ppm",c->texture.current->handle);
+	ppmwriter = fopen(_t,"wb");
+	if ( ppmwriter )
+	{
+		width_original = sprintf(_t,"P6\n# Created by anchor\n%d %d\n255\n",width,height);
+		fwrite(_t,1,width_original,ppmwriter);
+		fwrite(pixels_ready,1,width*height*3,ppmwriter);
+		fclose(ppmwriter);
+	}
+#endif
+	*/
+
+#if TGL_FEATURE_RENDER_BITS == 16
+	_bitval = PSZSH;
+#elif TGL_FEATURE_RENDER_BITS == 24
+	_bitval = (PSZSH-2);
+#elif TGL_FEATURE_RENDER_BITS == 32
+	_bitval = PSZSH;
+#else
+# error unsupported internal format
+#endif
+	if ( width == 64 )
+	{
+		im->shift[0] = 6;
+		im->shift[1] = 19-_bitval;
+		im->uvmask   = 0x003F0000; // t,s
+	}
+	else if ( width == 128 )
+	{
+		im->shift[0] = 7;
+		im->shift[1] = 18-_bitval;
+		im->uvmask   = 0x003F8000; // t,s
+	}
+	else if ( width == 256 )
+	{
+		im->shift[0] = 8;
+		im->shift[1] = 17-_bitval;
+		im->uvmask   = 0x003FC000; // t,s
+	}
+	else if ( width == 512 )
+	{
+		im->shift[0] = 9;
+		im->shift[1] = 16-_bitval;
+		im->uvmask   = 0x003FE000; // t,s
+	}
+	else if ( width == 1024 )
+	{
+		im->shift[0] = 10;
+		im->shift[1] = 15-_bitval;
+		im->uvmask   = 0x003FF000; // t,s
+	}
+	else if ( width == 2048 )
+	{
+		im->shift[0] = 11;
+		im->shift[1] = 14-_bitval;
+		im->uvmask   = 0x003FF800; // t,s
+	}
+	else
+	{
+		tgl_fatal_error("%s invalid texture size",__FUNCTION__);
+	}
+
+	if ( im->pixmap != NULL )
+	{
+		gl_free(im->pixmap);
+	}
+#if TGL_FEATURE_RENDER_BITS == 24 
+	im->pixmap = gl_malloc(width*height*3);
+	if ( im->pixmap )
+	{
+		memcpy(im->pixmap,pixels_ready,width*height*3);
+	}
+#elif TGL_FEATURE_RENDER_BITS == 32
+	im->pixmap = gl_malloc(width*height*4);
+	if ( im->pixmap )
+	{
+		gl_convertRGB24_to_ARGB32((PIXEL*)im->pixmap,pixels_ready,width,height);
+	}
+#elif TGL_FEATURE_RENDER_BITS == 16
+	im->pixmap = gl_malloc(width*height*2);
+	if ( im->pixmap )
+	{
+		gl_convertRGB24_to_RGB16((unsigned short*)im->pixmap,pixels_ready,width,height);
+	}
+#else
+# error TODO
+#endif
+	if ( pixels_temp1 )
+	{
+		gl_free(pixels_temp1);
+	}
+	if ( pixels_temp2 )
+	{
+		gl_free(pixels_temp2);
+	}
+}
 
 /* TODO: not all tests are done */
-void glopTexEnv(GLContext *c,GLParam *p)
+void glTexEnvi(GLenum target, GLenum pname, GLint param)
 {
-  int target=p[1].i;
-  int pname=p[2].i;
-  int param=p[3].i;
+	if ( target != GL_TEXTURE_ENV || pname != GL_TEXTURE_ENV_MODE || param != GL_DECAL )
+	{
+		tgl_warning("%s unsupported option",__FUNCTION__);
+	}
+}
 
-  if (target != GL_TEXTURE_ENV) {
-  error:
-    gl_fatal_error("glTexParameter: unsupported option");
-  }
-
-  if (pname != GL_TEXTURE_ENV_MODE) goto error;
-
-  if (param != GL_DECAL) goto error;
+void glTexParameterf(GLenum target, GLenum pname, GLfloat param)
+{
+	int pi = (int) param;
+	glTexParameteri(target,pname,pi);
 }
 
 /* TODO: not all tests are done */
-void glopTexParameter(GLContext *c,GLParam *p)
+void glTexParameteri(GLenum target, GLenum pname, GLint param)
 {
-  int target=p[1].i;
-  int pname=p[2].i;
-  int param=p[3].i;
-  
-  if (target != GL_TEXTURE_2D) {
-  error:
-    gl_fatal_error("glTexParameter: unsupported option");
-  }
+	if ( target != GL_TEXTURE_2D )
+	{
+		tgl_warning("%s unsupported option",__FUNCTION__);
+	}
 
-  switch(pname) {
-  case GL_TEXTURE_WRAP_S:
-  case GL_TEXTURE_WRAP_T:
-    if (param != GL_REPEAT) goto error;
-    break;
-  }
+	switch ( pname )
+	{
+	case GL_TEXTURE_WRAP_S:
+	case GL_TEXTURE_WRAP_T:
+		if ( param != GL_REPEAT )
+		{
+			tgl_warning("%s unsupported option",__FUNCTION__);
+		}
+		break;
+	}
 }
 
-void glopPixelStore(GLContext *c,GLParam *p)
+void glPixelStorei(GLenum pname, GLint param) 
 {
-  int pname=p[1].i;
-  int param=p[2].i;
-
-  if (pname != GL_UNPACK_ALIGNMENT ||
-      param != 1) {
-    gl_fatal_error("glPixelStore: unsupported option");
-  }
+	if ( pname != GL_UNPACK_ALIGNMENT || param != 1 )
+	{
+		tgl_warning("%s unsupported option",__FUNCTION__);
+	}
 }

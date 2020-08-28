@@ -1,34 +1,39 @@
-#ifndef __ZMATH__
-#define __ZMATH__
+// tgl_math.h
+
+#ifndef __TGL_MAT_H_
+#define __TGL_MAT_H_
+
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 /* Matrix & Vertex */
 
-typedef struct {
+typedef struct
+{
 	float m[4][4];
 } M4;
 
-typedef struct {
+typedef struct
+{
 	float m[3][3];
 } M3;
 
-typedef struct {
+typedef struct
+{
 	 float m[3][4];
 } M34;
 
-
-#define X v[0]
-#define Y v[1]
-#define Z v[2]
-#define W v[3]
-
-typedef struct {
-	 float v[3];
+typedef struct
+{
+	float X,Y,Z;
 } V3;
 
-typedef struct {
-	 float v[4];
+typedef struct 
+{
+	float X,Y,Z,W;
 } V4;
-
+	
 void gl_M4_Id(M4 *a);
 int gl_M4_IsId(M4 *a);
 void gl_M4_Move(M4 *a,M4 *b);
@@ -50,4 +55,4 @@ V4 gl_V4_New(float x,float y,float z,float w);
 
 int gl_Matrix_Inv(float *r,float *m,int n);
 
-#endif  /*__ZMATH__*/
+#endif // __TGL_MAT_H_

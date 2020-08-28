@@ -1,147 +1,104 @@
+// tgl_misc.cpp
+
 #include "tgl.h"
-#include "tgl_msghandling.h"
 
-void glopViewport(GLContext *c,GLParam *p)
+void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
-  int xsize,ysize,xmin,ymin,xsize_req,ysize_req;
-  
-  xmin=p[1].i;
-  ymin=p[2].i;
-  xsize=p[3].i;
-  ysize=p[4].i;
+    GLContext *c = gl_get_context();
+    int xsize, ysize, xmin, ymin, xsize_req, ysize_req;
 
-  /* we may need to resize the zbuffer */
+    xmin = x;
+    ymin = y;
+    xsize = width;
+    ysize = height;
 
-  if (c->viewport.xmin != xmin ||
-      c->viewport.ymin != ymin ||
-      c->viewport.xsize != xsize ||
-      c->viewport.ysize != ysize) {
+    /* we may need to resize the zbuffer */
 
-    xsize_req=xmin+xsize;
-    ysize_req=ymin+ysize;
+    if ( c->viewport.xmin != xmin || c->viewport.ymin != ymin ||
+            c->viewport.xsize != xsize || c->viewport.ysize != ysize )
+	{
+        xsize_req = xmin + xsize;
+        ysize_req = ymin + ysize;
 
-    if (c->gl_resize_viewport && 
-        c->gl_resize_viewport(c,&xsize_req,&ysize_req) != 0) {
-      gl_fatal_error("glViewport: error while resizing display");
+        if ( c->gl_resize_viewport && c->gl_resize_viewport(c, &xsize_req, &ysize_req) != 0 )
+		{
+            tgl_warning("%s error while resizing display",__FUNCTION__);
+        }
+
+        xsize = xsize_req - xmin;
+        ysize = ysize_req - ymin;
+        if ( xsize <= 0 || ysize <= 0 )
+		{
+            tgl_warning("%s size too small",__FUNCTION__);
+        }
+
+        c->viewport.xmin  = xmin;
+        c->viewport.ymin  = ymin;
+        c->viewport.xsize = xsize;
+        c->viewport.ysize = ysize;
+
+        c->viewport.updated = 1;
     }
-
-    xsize=xsize_req-xmin;
-    ysize=ysize_req-ymin;
-    if (xsize <= 0 || ysize <= 0) {
-      gl_fatal_error("glViewport: size too small");
-    }
-
-    tgl_trace("glViewport: %d %d %d %d\n",
-              xmin, ymin, xsize, ysize);
-    c->viewport.xmin=xmin;
-    c->viewport.ymin=ymin;
-    c->viewport.xsize=xsize;
-    c->viewport.ysize=ysize;
-    
-    c->viewport.updated=1;
-  }
 }
 
-void glopEnableDisable(GLContext *c,GLParam *p)
+void glShadeModel(GLenum mode)
 {
-  int code=p[1].i;
-  int v=p[2].i;
-
-  switch(code) {
-  case GL_CULL_FACE:
-    c->cull_face_enabled=v;
-    break;
-  case GL_LIGHTING:
-    c->lighting_enabled=v;
-    break;
-  case GL_COLOR_MATERIAL:
-    c->color_material_enabled=v;
-      break;
-  case GL_TEXTURE_2D:
-    c->texture_2d_enabled=v;
-    break;
-  case GL_NORMALIZE:
-    c->normalize_enabled=v;
-    break;
-  case GL_DEPTH_TEST:
-    c->depth_test = v;
-    break;
-  case GL_POLYGON_OFFSET_FILL:
-    if (v) c->offset_states |= TGL_OFFSET_FILL;
-    else c->offset_states &= ~TGL_OFFSET_FILL;
-    break; 
-  case GL_POLYGON_OFFSET_POINT:
-    if (v) c->offset_states |= TGL_OFFSET_POINT;
-    else c->offset_states &= ~TGL_OFFSET_POINT;
-    break; 
-  case GL_POLYGON_OFFSET_LINE:
-    if (v) c->offset_states |= TGL_OFFSET_LINE;
-    else c->offset_states &= ~TGL_OFFSET_LINE;
-    break; 
-  default:
-    if (code>=GL_LIGHT0 && code<GL_LIGHT0+MAX_LIGHTS) {
-      gl_enable_disable_light(c,code - GL_LIGHT0, v);
-    } else {
-      /*
-      fprintf(stderr,"glEnableDisable: 0x%X not supported.\n",code);
-      */
-    }
-    break;
-  }
+    GLContext *c = gl_get_context();
+    assert(mode == GL_FLAT || mode == GL_SMOOTH);
+    c->current_shade_model = mode;
 }
 
-void glopShadeModel(GLContext *c,GLParam *p)
+void glCullFace(GLenum mode) 
 {
-  int code=p[1].i;
-  c->current_shade_model=code;
+    GLContext *c = gl_get_context();
+    assert(mode == GL_BACK || mode == GL_FRONT || mode == GL_FRONT_AND_BACK);
+    c->current_cull_face = mode;
 }
 
-void glopCullFace(GLContext *c,GLParam *p)
+void glFrontFace(GLenum mode)
 {
-  int code=p[1].i;
-  c->current_cull_face=code;
+    GLContext *c = gl_get_context();
+    assert(mode == GL_CCW || mode == GL_CW);
+    c->current_front_face = (mode != GL_CCW);
 }
 
-void glopFrontFace(GLContext *c,GLParam *p)
+void glPolygonMode(GLenum face, GLenum mode) 
 {
-  int code=p[1].i;
-  c->current_front_face=code;
+    GLContext *c = gl_get_context();
+
+	assert(face == GL_BACK || face == GL_FRONT || face == GL_FRONT_AND_BACK);
+    assert(mode == GL_POINT || mode == GL_LINE || mode == GL_FILL);
+
+	switch ( face ) 
+	{
+	case GL_BACK:
+		c->polygon_mode_back = mode;
+		break;
+	case GL_FRONT:
+		c->polygon_mode_front = mode;
+		break;
+	case GL_FRONT_AND_BACK:
+		c->polygon_mode_front = mode;
+		c->polygon_mode_back = mode;
+		break;
+	default:
+		tgl_warning("%s invalid face",__FUNCTION__);
+	}
 }
 
-void glopPolygonMode(GLContext *c,GLParam *p)
-{
-  int face=p[1].i;
-  int mode=p[2].i;
-  
-  switch(face) {
-  case GL_BACK:
-    c->polygon_mode_back=mode;
-    break;
-  case GL_FRONT:
-    c->polygon_mode_front=mode;
-    break;
-  case GL_FRONT_AND_BACK:
-    c->polygon_mode_front=mode;
-    c->polygon_mode_back=mode;
-    break;
-  default:
-    assert(0);
-  }
-}
-
-void glopHint(GLContext *c,GLParam *p)
+void glHint(GLenum target, GLenum mode)
 {
 #if 0
-  int target=p[1].i;
-  int mode=p[2].i;
+    int target = p[1].i;
+    int mode = p[2].i;
 
-  /* do nothing */
+    /* do nothing */
 #endif
 }
 
-void 
-glopPolygonOffset(GLContext *c, GLParam *p)
+void glPolygonOffset(GLfloat factor, GLfloat units)
 {
-  c->offset_factor = p[1].f;
-  c->offset_units = p[2].f;
+    GLContext *c = gl_get_context();
+    c->offset.factor = factor;
+    c->offset.units = units;
 }

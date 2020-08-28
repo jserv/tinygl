@@ -6,19 +6,19 @@ include_directories(
 set(tinygl_srcs
   tgl_api.c
   tgl_arrays.c
+  tgl_bitmap.c
+  tgl_blend.c
   tgl_clear.c
   tgl_clip.c
-  tgl_error.c
+  tgl_enable.c
   tgl_get.c
   tgl_image_util.c
   tgl_init.c
   tgl_light.c
-  tgl_list.c
   tgl_matrix.c
   tgl_memory.c
   tgl_misc.c
   tgl_msghandling.c
-  tgl_select.c
   tgl_specbuf.c
   tgl_texture.c
   tgl_vertex.c
