@@ -71,8 +71,12 @@ if (BUILD_STATIC_LIBS)
 endif (BUILD_STATIC_LIBS)
 
 set(ui_srcs
-  src/glx.c
-  examples/x11.c 
+  examples/glx.c
+  examples/x11.c
+  )
+
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}/examples
   )
 
 add_executable(mech examples/mech.c examples/glu.c ${ui_srcs})
