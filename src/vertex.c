@@ -1,3 +1,4 @@
+#include <string.h>
 #include "zgl.h"
 
 void glopNormal(GLContext * c, GLParam * p)

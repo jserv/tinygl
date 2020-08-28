@@ -28,7 +28,7 @@ typedef struct {
 typedef struct {
 	 float v[4];
 } V4;
-	
+
 void gl_M4_Id(M4 *a);
 int gl_M4_IsId(M4 *a);
 void gl_M4_Move(M4 *a,M4 *b);
@@ -50,4 +50,4 @@ V4 gl_V4_New(float x,float y,float z,float w);
 
 int gl_Matrix_Inv(float *r,float *m,int n);
 
-#endif  __ZMATH__
+#endif  /*__ZMATH__*/
