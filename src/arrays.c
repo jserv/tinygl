@@ -183,6 +183,10 @@ glNormalPointer(GLenum type, GLsizei stride,
   p[0].op = OP_NormalPointer;
   p[1].i = stride;
   p[2].p = (void*)pointer;
+
+  /* TODO - originally not added, is there an issue
+   * with doing so? */
+  gl_add_op(p);
 }
 
 void
@@ -203,4 +207,8 @@ glTexCoordPointer(GLint size, GLenum type, GLsizei stride,
   p[1].i = size;
   p[2].i = stride;
   p[3].p = (void*)pointer;
+
+  /* TODO - originally not added, is there an issue
+   * with doing so? */
+  gl_add_op(p);
 }

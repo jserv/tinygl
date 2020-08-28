@@ -153,8 +153,8 @@ void glCullFace(int mode)
 {
   GLParam p[2];
 
-  assert(mode == GL_BACK || 
-         mode == GL_FRONT || 
+  assert(mode == GL_BACK ||
+         mode == GL_FRONT ||
          mode == GL_FRONT_AND_BACK);
 
   p[0].op=OP_CullFace;
@@ -181,8 +181,8 @@ void glPolygonMode(int face,int mode)
 {
   GLParam p[3];
 
-  assert(face == GL_BACK || 
-         face == GL_FRONT || 
+  assert(face == GL_BACK ||
+         face == GL_FRONT ||
          face == GL_FRONT_AND_BACK);
   assert(mode == GL_POINT || mode == GL_LINE || mode==GL_FILL);
 
@@ -619,13 +619,17 @@ void glLoadName(unsigned int name)
   gl_add_op(p);
 }
 
-void 
+void
 glPolygonOffset(GLfloat factor, GLfloat units)
 {
   GLParam p[3];
   p[0].op = OP_PolygonOffset;
   p[1].f = factor;
   p[2].f = units;
+
+  /* TODO - missing in original code, is there an issue
+   * with adding this op? */
+  gl_add_op(p);
 }
 
 /* Special Functions */
