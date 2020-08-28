@@ -7,8 +7,8 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
-#include <GL/glx.h> 
-#include <GL/gl.h> 
+#include "GL/glx.h"
+#include "GL/gl.h"
 #include "ui.h"
 
 

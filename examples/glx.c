@@ -1,7 +1,7 @@
 /* simple glx driver for TinyGL */
-#include <GL/glx.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include "GL/glx.h"
 #include <X11/extensions/XShm.h>
 #include "zgl.h"
 

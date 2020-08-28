@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
-#include <GL/gl.h>
+#include "GL/gl.h"
 #include "glu.h"
 
 

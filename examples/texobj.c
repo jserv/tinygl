@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <GL/glx.h> 
-#include <GL/gl.h> 
+#include "GL/glx.h"
+#include "GL/gl.h"
 #include "ui.h"
 
 static GLuint TexObj[2];
@@ -19,7 +19,7 @@ static GLfloat Angle = 0.0f;
 
 static int cnt=0,v=0;
 
-void 
+void
 draw(void)
 {
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
