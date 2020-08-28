@@ -22,8 +22,6 @@ if (HAVE_M_LIBRARY)
   set(M_LIBRARY m)
 endif (HAVE_M_LIBRARY)
 
-find_package(X11 REQUIRED)
-
 add_subdirectory(src)
 add_subdirectory(examples)
 
