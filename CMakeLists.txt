@@ -45,7 +45,6 @@ set(tinygl_srcs
   src/memory.c
   src/misc.c
   src/msghandling.c
-  src/oscontext.c
   src/select.c
   src/specbuf.c
   src/texture.c
