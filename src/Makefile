@@ -20,7 +20,8 @@ all: $(LIB)
 $(LIB): $(OBJS)
 	rm -f $(LIB)
 	ar rcs $(LIB) $(OBJS)
-	cp $(LIB) ../lib
+	mkdir ../lib
+	cp $(LIB) ../lib/
 
 clean:
 	rm -f *~ *.o *.a

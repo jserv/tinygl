@@ -265,7 +265,9 @@ static void ZB_copyFrameBufferRGB24(ZBuffer * zb,
 	    p += 3;
 	} while (--n > 0);
 
-	(char *) p1 += linesize;
+	/* was originally casting p1 to (char *).  Doing so, GCC reports error:
+	 * lvalue required as left operand of assignment */
+	p1 += linesize;
     }
 }
 
