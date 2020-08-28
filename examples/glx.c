@@ -3,7 +3,7 @@
 #include <sys/shm.h>
 #include "GL/glx.h"
 #include <X11/extensions/XShm.h>
-#include "tgl_zgl.h"
+#include "tgl.h"
 
 typedef struct {
   GLContext *gl_context;

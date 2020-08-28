@@ -1,5 +1,5 @@
 #include <stdarg.h>
-#include "tgl_zgl.h"
+#include "tgl.h"
 
 void gl_fatal_error(char *format, ...)
 {

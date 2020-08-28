@@ -53,7 +53,7 @@ void ZB_fillTriangleFlat(ZBuffer *zb,
 }
 #endif /* TGL_FEATURE_RENDER_BITS == 24 */
 
-#include "tgl_ztriangle.h"
+#include "tgl_triangle.h"
 }
 
 /*
@@ -168,7 +168,7 @@ void ZB_fillTriangleSmooth(ZBuffer *zb,
 
 #endif /* TGL_FEATURE_RENDER_BITS */
 
-#include "tgl_ztriangle.h"
+#include "tgl_triangle.h"
 }
 
 void ZB_setTexture(ZBuffer *zb,PIXEL *texture)
@@ -223,7 +223,7 @@ void ZB_fillTriangleMapping(ZBuffer *zb,
 
 #endif
 
-#include "tgl_ztriangle.h"
+#include "tgl_triangle.h"
 }
 
 /*
@@ -347,7 +347,7 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb,
   }									   \
 }
   
-#include "tgl_ztriangle.h"
+#include "tgl_triangle.h"
 }
 
 #endif
@@ -387,7 +387,7 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb,
     tz+=dtzdx;					\
 }
 
-#include "tgl_ztriangle.h"
+#include "tgl_triangle.h"
 }
 
 

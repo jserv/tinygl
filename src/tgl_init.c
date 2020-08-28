@@ -1,4 +1,4 @@
-#include "tgl_zgl.h"
+#include "tgl.h"
 
 GLContext *gl_ctx;
 

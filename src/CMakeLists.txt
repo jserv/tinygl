@@ -23,10 +23,10 @@ set(tinygl_srcs
   tgl_texture.c
   tgl_vertex.c
   tgl_zbuffer.c
-  tgl_zdither.c
-  tgl_zline.c
-  tgl_zmath.c
-  tgl_ztriangle.c
+  tgl_dither.c
+  tgl_line.c
+  tgl_math.c
+  tgl_triangle.c
   )
 
 add_library(tinygl SHARED ${tinygl_srcs})

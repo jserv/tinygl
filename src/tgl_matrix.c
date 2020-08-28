@@ -1,4 +1,4 @@
-#include "tgl_zgl.h"
+#include "tgl.h"
 
 void gl_print_matrix( const float *m)
 {

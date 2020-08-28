@@ -1,4 +1,4 @@
-#include "tgl_zgl.h"
+#include "tgl.h"
 #include <stdio.h>
 /* glVertex */
 

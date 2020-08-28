@@ -7,7 +7,7 @@
 #include <assert.h>
 #include "GL/gl.h"
 #include "tgl_zbuffer.h"
-#include "tgl_zmath.h"
+#include "tgl_math.h"
 #include "tgl_zfeatures.h"
 
 #define DEBUG

@@ -1,4 +1,4 @@
-#include "tgl_zgl.h"
+#include "tgl.h"
 
 /* fill triangle profile */
 /* #define PROFILE */

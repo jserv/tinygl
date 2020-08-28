@@ -1,4 +1,4 @@
-#include "tgl_zgl.h"
+#include "tgl.h"
 #include "tgl_msghandling.h"
 #include <math.h>
 #include <stdlib.h>

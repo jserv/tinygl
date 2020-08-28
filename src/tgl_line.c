@@ -28,7 +28,7 @@ void ZB_plot(ZBuffer * zb, ZBufferPoint * p)
 static void ZB_line_flat_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2, 
                            int color)
 {
-#include "tgl_zline.h"
+#include "tgl_line.h"
 }
 
 /* line with color interpolation */
@@ -36,7 +36,7 @@ static void ZB_line_flat_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2,
 #define INTERP_RGB
 static void ZB_line_interp_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2)
 {
-#include "tgl_zline.h"
+#include "tgl_line.h"
 }
 
 /* no Z interpolation */
@@ -44,13 +44,13 @@ static void ZB_line_interp_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2)
 static void ZB_line_flat(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2, 
                              int color)
 {
-#include "tgl_zline.h"
+#include "tgl_line.h"
 }
 
 #define INTERP_RGB
 static void ZB_line_interp(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2)
 {
-#include "tgl_zline.h"
+#include "tgl_line.h"
 }
 
 void ZB_line_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2)
