@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "zbuffer.h"
+#include "tgl_zbuffer.h"
 
 #define ZCMP(z,zpix) ((z) >= (zpix))
 
@@ -53,7 +53,7 @@ void ZB_fillTriangleFlat(ZBuffer *zb,
 }
 #endif /* TGL_FEATURE_RENDER_BITS == 24 */
 
-#include "ztriangle.h"
+#include "tgl_ztriangle.h"
 }
 
 /*
@@ -168,7 +168,7 @@ void ZB_fillTriangleSmooth(ZBuffer *zb,
 
 #endif /* TGL_FEATURE_RENDER_BITS */
 
-#include "ztriangle.h"
+#include "tgl_ztriangle.h"
 }
 
 void ZB_setTexture(ZBuffer *zb,PIXEL *texture)
@@ -223,7 +223,7 @@ void ZB_fillTriangleMapping(ZBuffer *zb,
 
 #endif
 
-#include "ztriangle.h"
+#include "tgl_ztriangle.h"
 }
 
 /*
@@ -347,7 +347,7 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb,
   }									   \
 }
   
-#include "ztriangle.h"
+#include "tgl_ztriangle.h"
 }
 
 #endif
@@ -387,7 +387,7 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb,
     tz+=dtzdx;					\
 }
 
-#include "ztriangle.h"
+#include "tgl_ztriangle.h"
 }
 
 

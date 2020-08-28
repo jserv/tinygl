@@ -1,5 +1,5 @@
 #include <string.h>
-#include "zgl.h"
+#include "tgl_zgl.h"
 
 void glopNormal(GLContext * c, GLParam * p)
 {

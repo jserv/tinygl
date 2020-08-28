@@ -5,7 +5,7 @@
  * Z buffer
  */
 
-#include "zfeatures.h"
+#include "tgl_zfeatures.h"
 
 #define ZB_Z_BITS 16
 

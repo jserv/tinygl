@@ -1,24 +1,24 @@
-#include "zgl.h"
+#include "tgl_zgl.h"
 
 static char *op_table_str[]=
 {
 #define ADD_OP(a,b,c) "gl" #a " " #c,
 
-#include "opinfo.h"
+#include "tgl_opinfo.h"
 };
 
 static void (*op_table_func[])(GLContext *,GLParam *)=
 {
 #define ADD_OP(a,b,c) glop ## a ,
 
-#include "opinfo.h"
+#include "tgl_opinfo.h"
 };
 
 static int op_table_size[]=
 {
 #define ADD_OP(a,b,c) b + 1 ,
 
-#include "opinfo.h"
+#include "tgl_opinfo.h"
 };
 
 

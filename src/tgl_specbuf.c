@@ -1,5 +1,5 @@
-#include "zgl.h"
-#include "msghandling.h"
+#include "tgl_zgl.h"
+#include "tgl_msghandling.h"
 #include <math.h>
 #include <stdlib.h>
 

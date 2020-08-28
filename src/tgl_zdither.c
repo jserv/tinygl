@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "zbuffer.h"
+#include "tgl_zbuffer.h"
 #include <assert.h>
 
 #if defined(TGL_FEATURE_8_BITS)

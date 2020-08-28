@@ -2,7 +2,7 @@
  * Texture Manager
  */
 
-#include "zgl.h"
+#include "tgl_zgl.h"
 
 static GLTexture *find_texture(GLContext *c,int h)
 {

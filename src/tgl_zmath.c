@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "zmath.h"
+#include "tgl_zmath.h"
 
 
 /* ******* Gestion des matrices 4x4 ****** */

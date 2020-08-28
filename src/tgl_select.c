@@ -1,4 +1,4 @@
-#include "zgl.h"
+#include "tgl_zgl.h"
 
 int glRenderMode(int mode)
 {

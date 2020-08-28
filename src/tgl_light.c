@@ -1,5 +1,5 @@
-#include "zgl.h"
-#include "msghandling.h"
+#include "tgl_zgl.h"
+#include "tgl_msghandling.h"
 
 void glopMaterial(GLContext *c,GLParam *p)
 {

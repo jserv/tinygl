@@ -6,9 +6,9 @@
 #include <math.h>
 #include <assert.h>
 #include "GL/gl.h"
-#include "zbuffer.h"
-#include "zmath.h"
-#include "zfeatures.h"
+#include "tgl_zbuffer.h"
+#include "tgl_zmath.h"
+#include "tgl_zfeatures.h"
 
 #define DEBUG
 /* #define NDEBUG */
@@ -17,7 +17,7 @@ enum {
 
 #define ADD_OP(a,b,c) OP_ ## a ,
 
-#include "opinfo.h"
+#include "tgl_opinfo.h"
 
 };
 
@@ -349,7 +349,7 @@ void dprintf(const char *, ...);
 /* glopXXX functions */
 
 #define ADD_OP(a,b,c) void glop ## a (GLContext *,GLParam *);
-#include "opinfo.h"
+#include "tgl_opinfo.h"
 
 /* this clip epsilon is needed to avoid some rounding errors after
    several clipping stages */
