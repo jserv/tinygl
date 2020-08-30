@@ -193,15 +193,16 @@ float clampf(float a, float min, float max)
 /* non optimized lightening model */
 void gl_shade_vertex(GLContext *c, GLVertex *v)
 {
-    float R,G,B,A;
     GLMaterial *m;
-    GLLight *l;
-    V3 n,s,d;
-    float dist,tmp,att;
+    V3 n,s;
     float dot;
-    float dot_spec;
+    float R,G,B,A;
+    //V3 d;
+    //GLLight *l;
+    //float dist,tmp,att;
+    //float dot_spec;
 
-    int twoside = c->light.model.two_side;
+    //int twoside = c->light.model.two_side;
 
     m = &c->material.materials[0];
 

@@ -63,6 +63,8 @@ void glBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig,
     pos->y += ymove;
 }
 
+/* Unfinished */
+#if 0
 void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *data)
 {
     GLContext *c = gl_get_context();
@@ -102,6 +104,7 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, con
     }
     */
 }
+#endif
 
 /*
  * Local Variables:

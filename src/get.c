@@ -29,7 +29,7 @@ void glGetIntegerv(GLenum pname, GLint *params)
 	    *params = MAX_TEXTURE_STACK_DEPTH;
 	    break;
 	default:
-	    *params = NULL;
+	    *params = 0;
 	    tgl_warning("%s option not implemented",__FUNCTION__);
 	    break;
     }
