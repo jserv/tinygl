@@ -114,17 +114,7 @@ const GLubyte *glGetString(GLenum name)
 	case GL_VENDOR:
 		return (const GLubyte*) "Amiga";
 	case GL_RENDERER:
-#if TGL_FEATURE_RENDER_BITS == 15
-		return (const GLubyte*) "TinyGL (15bit)";
-#elif TGL_FEATURE_RENDER_BITS == 16
-		return (const GLubyte*) "TinyGL (16bit)";
-#elif TGL_FEATURE_RENDER_BITS == 24
-		return (const GLubyte*) "TinyGL (24bit)";
-#elif TGL_FEATURE_RENDER_BITS == 32
 		return (const GLubyte*) "TinyGL (32bit)";
-#else
-		return (const GLubyte*) "TinyGL";
-#endif
 	case GL_VERSION:
 		return (const GLubyte*) "0.6.0";
 	case GL_EXTENSIONS:

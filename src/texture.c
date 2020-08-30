@@ -238,15 +238,7 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
 #endif
 	*/
 
-#if TGL_FEATURE_RENDER_BITS == 16
 	_bitval = PSZSH;
-#elif TGL_FEATURE_RENDER_BITS == 24
-	_bitval = (PSZSH-2);
-#elif TGL_FEATURE_RENDER_BITS == 32
-	_bitval = PSZSH;
-#else
-# error unsupported internal format
-#endif
 	if ( width == 64 )
 	{
 		im->shift[0] = 6;
@@ -292,27 +284,11 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
 	{
 		gl_free(im->pixmap);
 	}
-#if TGL_FEATURE_RENDER_BITS == 24 
-	im->pixmap = gl_malloc(width*height*3);
-	if ( im->pixmap )
-	{
-		memcpy(im->pixmap,pixels_ready,width*height*3);
-	}
-#elif TGL_FEATURE_RENDER_BITS == 32
 	im->pixmap = gl_malloc(width*height*4);
 	if ( im->pixmap )
 	{
 		gl_convertRGB24_to_ARGB32((PIXEL*)im->pixmap,pixels_ready,width,height);
 	}
-#elif TGL_FEATURE_RENDER_BITS == 16
-	im->pixmap = gl_malloc(width*height*2);
-	if ( im->pixmap )
-	{
-		gl_convertRGB24_to_RGB16((unsigned short*)im->pixmap,pixels_ready,width,height);
-	}
-#else
-# error TODO
-#endif
 	if ( pixels_temp1 )
 	{
 		gl_free(pixels_temp1);

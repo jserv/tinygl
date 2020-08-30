@@ -15,13 +15,7 @@ void ZB_plot(ZBuffer * zb, ZBufferPoint * p)
 	zz = p->z >> ZB_POINT_Z_FRAC_BITS;
 	if ( ZCMP(zz, *pz) ) 
 	{
-#if TGL_FEATURE_RENDER_BITS == 24 
-		pp[0] = p->r>>8;
-		pp[1] = p->g>>8;
-		pp[2] = p->b>>8;
-#else
 		*pp = RGB_TO_PIXEL(p->r, p->g, p->b);
-#endif
 		*pz = zz;
 	}
 }
