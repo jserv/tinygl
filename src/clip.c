@@ -443,3 +443,13 @@ void gl_draw_triangle_point(GLContext *c, GLVertex *p0, GLVertex *p1, GLVertex *
 	ZB_plot(c->zb,&p2->zp);
     }
 }
+
+/*
+ * Local Variables:
+ * tab-width: 8
+ * mode: C
+ * indent-tabs-mode: t
+ * c-file-style: "stroustrup"
+ * End:
+ * ex: shiftwidth=4 tabstop=8
+ */

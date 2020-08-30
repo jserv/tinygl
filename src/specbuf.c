@@ -50,3 +50,13 @@ GLSpecBuf *specbuf_get_buffer(GLContext *c, const int shininess_i, const float s
     calc_buf(oldest, shininess);
     return oldest;
 }
+
+/*
+ * Local Variables:
+ * tab-width: 8
+ * mode: C
+ * indent-tabs-mode: t
+ * c-file-style: "stroustrup"
+ * End:
+ * ex: shiftwidth=4 tabstop=8
+ */

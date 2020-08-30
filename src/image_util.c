@@ -151,3 +151,13 @@ void gl_resizeImageNoInterpolate(unsigned char *dest, int xsize_dest, int ysize_
 	y1 += y1inc;
     }
 }
+
+/*
+ * Local Variables:
+ * tab-width: 8
+ * mode: C
+ * indent-tabs-mode: t
+ * c-file-style: "stroustrup"
+ * End:
+ * ex: shiftwidth=4 tabstop=8
+ */

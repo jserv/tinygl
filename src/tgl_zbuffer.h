@@ -77,3 +77,13 @@ void ZB_closeDither(ZBuffer *zb);
 void ZB_ditherFrameBuffer(ZBuffer *zb,unsigned char *dest,int linesize);
 
 #endif // __TGL_ZBUFFER_H_
+
+/*
+ * Local Variables:
+ * tab-width: 8
+ * mode: C
+ * indent-tabs-mode: t
+ * c-file-style: "stroustrup"
+ * End:
+ * ex: shiftwidth=4 tabstop=8
+ */

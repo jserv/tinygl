@@ -301,3 +301,13 @@ V4 gl_V4_New(float x, float y, float z, float w)
     a.W = w;
     return a;
 }
+
+/*
+ * Local Variables:
+ * tab-width: 8
+ * mode: C
+ * indent-tabs-mode: t
+ * c-file-style: "stroustrup"
+ * End:
+ * ex: shiftwidth=4 tabstop=8
+ */

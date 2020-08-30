@@ -21,3 +21,13 @@ void glLogicOp(GLenum opcode)
     GLContext *c = gl_get_context();
     c->logic.op = opcode;
 }
+
+/*
+ * Local Variables:
+ * tab-width: 8
+ * mode: C
+ * indent-tabs-mode: t
+ * c-file-style: "stroustrup"
+ * End:
+ * ex: shiftwidth=4 tabstop=8
+ */

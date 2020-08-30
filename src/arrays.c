@@ -164,3 +164,13 @@ void glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *po
     c->array.tex_coord.stride = stride;
     c->array.tex_coord.p = (float*)pointer;
 }
+
+/*
+ * Local Variables:
+ * tab-width: 8
+ * mode: C
+ * indent-tabs-mode: t
+ * c-file-style: "stroustrup"
+ * End:
+ * ex: shiftwidth=4 tabstop=8
+ */

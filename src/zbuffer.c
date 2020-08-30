@@ -264,3 +264,13 @@ void ZB_clear(ZBuffer * zb, int clear_z, int z, int clear_color, int r, int g, i
 	}
     }
 }
+
+/*
+ * Local Variables:
+ * tab-width: 8
+ * mode: C
+ * indent-tabs-mode: t
+ * c-file-style: "stroustrup"
+ * End:
+ * ex: shiftwidth=4 tabstop=8
+ */

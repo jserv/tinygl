@@ -75,3 +75,13 @@ void ZB_line(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2)
 	ZB_line_interp(zb, p1, p2);
     }
 }
+
+/*
+ * Local Variables:
+ * tab-width: 8
+ * mode: C
+ * indent-tabs-mode: t
+ * c-file-style: "stroustrup"
+ * End:
+ * ex: shiftwidth=4 tabstop=8
+ */
