@@ -398,15 +398,8 @@ void glClose();
 
 void gluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
-/* this clip epsilon is needed to avoid some rounding errors after several clipping stages */
 
-#define CLIP_EPSILON (1E-5)
-
-static int gl_clipcode(float x,float y,float z,float w1)
-{
-    float w = w1 * (float)(1.f + CLIP_EPSILON);
-    return (x<-w) | ((x>w)<<1) | ((y<-w)<<2) | ((y>w)<<3) | ((z<-w)<<4) | ((z>w)<<5);
-}
+extern int gl_clipcode(float x,float y,float z,float w1);
 
 #endif // __TGL_H_
 

@@ -444,6 +444,14 @@ void gl_draw_triangle_point(GLContext *c, GLVertex *p0, GLVertex *p1, GLVertex *
     }
 }
 
+/* this clip epsilon is needed to avoid some rounding errors after several clipping stages */
+#define CLIP_EPSILON (1E-5)
+int gl_clipcode(float x,float y,float z,float w1)
+{
+    float w = w1 * (float)(1.f + CLIP_EPSILON);
+    return (x<-w) | ((x>w)<<1) | ((y<-w)<<2) | ((y>w)<<3) | ((z<-w)<<4) | ((z>w)<<5);
+}
+
 /*
  * Local Variables:
  * tab-width: 8
