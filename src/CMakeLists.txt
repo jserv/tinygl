@@ -4,29 +4,29 @@ include_directories(
   )
 
 set(tinygl_srcs
-  tgl_api.c
-  tgl_arrays.c
-  tgl_bitmap.c
-  tgl_blend.c
-  tgl_clear.c
-  tgl_clip.c
-  tgl_enable.c
-  tgl_get.c
-  tgl_image_util.c
-  tgl_init.c
-  tgl_light.c
-  tgl_matrix.c
-  tgl_memory.c
-  tgl_misc.c
-  tgl_msghandling.c
-  tgl_specbuf.c
-  tgl_texture.c
-  tgl_vertex.c
-  tgl_zbuffer.c
-  tgl_dither.c
-  tgl_line.c
-  tgl_math.c
-  tgl_triangle.c
+  api.c
+  arrays.c
+  bitmap.c
+  blend.c
+  clear.c
+  clip.c
+  enable.c
+  get.c
+  image_util.c
+  init.c
+  light.c
+  matrix.c
+  memory.c
+  misc.c
+  msghandling.c
+  specbuf.c
+  texture.c
+  vertex.c
+  zbuffer.c
+  dither.c
+  line.c
+  math.c
+  triangle.c
   )
 
 add_library(tinygl SHARED ${tinygl_srcs})
