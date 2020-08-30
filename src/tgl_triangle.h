@@ -3,13 +3,13 @@
 #ifndef __TGL_TRIANGLE_H
 #define __TGL_TRIANGLE_H
 
-#include "tgl.h" 
+#include "tgl.h"
 
 #define ZCMP(z,zpix) ((z) >= (zpix))
 //typedef unsigned long long uiST;
 
 void ZB_setTexture(ZBuffer *zb, void *image);
-void ZB_fillTriangleFlat(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2 ,ZBufferPoint *p3);
+void ZB_fillTriangleFlat(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2,ZBufferPoint *p3);
 void ZB_fillTriangleSmooth(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2, ZBufferPoint *p3);
 void ZB_fillTriangleMapping(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2, ZBufferPoint *p3); // unused
 void ZB_fillTriangleMappingPerspective(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoint *p1, ZBufferPoint *p2);

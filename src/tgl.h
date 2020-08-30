@@ -91,117 +91,106 @@
 #define TGL_PIXEL_ENUM GL_UNSIGNED_BYTE
 #define TGL_PIXEL_TYPE GLuint
 
-typedef struct GLSpecBuf
-{
-	int shininess_i;
-	int last_used;
-	float buf[SPECULAR_BUFFER_SIZE+1];
-	struct GLSpecBuf *next;
+typedef struct GLSpecBuf {
+    int shininess_i;
+    int last_used;
+    float buf[SPECULAR_BUFFER_SIZE+1];
+    struct GLSpecBuf *next;
 } GLSpecBuf;
 
-typedef struct GLLight
-{
-	V4 ambient;
-	V4 diffuse;
-	V4 specular;
-	V4 position;	
-	V3 spot_direction;
-	float spot_exponent;
-	float spot_cutoff;
-	float attenuation[3];
-	/* precomputed values */
-	float cos_spot_cutoff;
-	V3 norm_spot_direction;
-	V3 norm_position;
-	/* we use a linked list to know which are the enabled lights */
-	int enabled;
-	struct GLLight *next,*prev;
+typedef struct GLLight {
+    V4 ambient;
+    V4 diffuse;
+    V4 specular;
+    V4 position;
+    V3 spot_direction;
+    float spot_exponent;
+    float spot_cutoff;
+    float attenuation[3];
+    /* precomputed values */
+    float cos_spot_cutoff;
+    V3 norm_spot_direction;
+    V3 norm_position;
+    /* we use a linked list to know which are the enabled lights */
+    int enabled;
+    struct GLLight *next,*prev;
 } GLLight;
 
-typedef struct GLMaterial
-{
-	V4 emission;
-	V4 ambient;
-	V4 diffuse;
-	V4 specular;
-	float shininess;
+typedef struct GLMaterial {
+    V4 emission;
+    V4 ambient;
+    V4 diffuse;
+    V4 specular;
+    float shininess;
 
-	/* computed values */
-	int shininess_i;
-	int do_specular;  
+    /* computed values */
+    int shininess_i;
+    int do_specular;
 } GLMaterial;
 
-typedef struct GLViewport
-{
-	int xmin,ymin,xsize,ysize;
-	V3 scale;
-	V3 trans;
-	int updated;
+typedef struct GLViewport {
+    int xmin,ymin,xsize,ysize;
+    V3 scale;
+    V3 trans;
+    int updated;
 } GLViewport;
 
-typedef struct GLVertex
-{
-	int edge_flag;
-	V3 normal;
-	V4 coord;
-	V4 tex_coord;
-	V4 color;
+typedef struct GLVertex {
+    int edge_flag;
+    V3 normal;
+    V4 coord;
+    V4 tex_coord;
+    V4 color;
 
-	/* computed values */
-	V4 ec;                /* eye coordinates */
-	V4 pc;                /* coordinates in the normalized volume */
-	int clip_code;        /* clip code */
-	ZBufferPoint zp;      /* integer coordinates for the rasterization */
+    /* computed values */
+    V4 ec;                /* eye coordinates */
+    V4 pc;                /* coordinates in the normalized volume */
+    int clip_code;        /* clip code */
+    ZBufferPoint zp;      /* integer coordinates for the rasterization */
 } GLVertex;
 
-typedef struct GLImage
-{
-	void *pixmap;
-	int xsize,ysize;
+typedef struct GLImage {
+    void *pixmap;
+    int xsize,ysize;
 
-	// anchor 2017.02.26
-	unsigned short shift[2];
-	unsigned int uvmask;
+    // anchor 2017.02.26
+    unsigned short shift[2];
+    unsigned int uvmask;
 } GLImage;
 
 /* textures */
 
 #define TEXTURE_HASH_TABLE_SIZE 256
 
-typedef struct GLTexture
-{
-	GLImage images[MAX_TEXTURE_LEVELS];
-	int handle;
-	struct GLTexture *next,*prev;
+typedef struct GLTexture {
+    GLImage images[MAX_TEXTURE_LEVELS];
+    int handle;
+    struct GLTexture *next,*prev;
 } GLTexture;
 
 /* shared state */
 
-typedef struct GLSharedState
-{
-	GLTexture **texture_hash_table;
+typedef struct GLSharedState {
+    GLTexture **texture_hash_table;
 } GLSharedState;
 
 struct GLContext;
 
 typedef void (*gl_draw_triangle_func)(struct GLContext *c, GLVertex *p0, GLVertex *p1, GLVertex *p2);
 
-typedef struct 
-{
-	float x, y, z;
+typedef struct {
+    float x, y, z;
 } GLRasterPos;
 
-typedef struct
-{
-	float *p;
-	int size;
-	int stride;
+typedef struct {
+    float *p;
+    int size;
+    int stride;
 } GLArray;
 
 /* display context */
 
-typedef struct GLContext
-{
+typedef struct GLContext {
     /* Z buffer */
     ZBuffer *zb;
 
@@ -212,53 +201,47 @@ typedef struct GLContext
     GLViewport viewport;
 
     /* lights */
-    struct
-	{
-        GLLight lights[MAX_LIGHTS];
-        GLLight *first;
-        struct 
-		{
-            V4 ambient;
-            int local;
-            int two_side;
-        } model;
-        int enabled;
+    struct {
+	GLLight lights[MAX_LIGHTS];
+	GLLight *first;
+	struct {
+	    V4 ambient;
+	    int local;
+	    int two_side;
+	} model;
+	int enabled;
     } light;
 
     /* materials */
-    struct 
-	{
-        GLMaterial materials[2];
-        struct
-		{
-            int enabled;
-            int current_mode;
-            int current_type;
-        } color;
+    struct {
+	GLMaterial materials[2];
+	struct {
+	    int enabled;
+	    int current_mode;
+	    int current_type;
+	} color;
     } material;
 
     /* textures */
-    struct 
-	{
-        GLTexture *current;
-        int enabled_2d;
+    struct {
+	GLTexture *current;
+	int enabled_2d;
     } texture;
 
     int print_flag; // debug flag
 
     /* matrix */
-    struct 
-	{
-        int mode;
-        M4 *stack[3];
-        M4 *stack_ptr[3];
-        int stack_depth_max[3];
+    struct {
+	int mode;
+	M4 *stack[3];
+	M4 *stack_ptr[3];
+	int stack_depth_max[3];
 
-        M4 model_view_inv;
-        M4 model_projection;
-        int model_projection_updated;
-        int model_projection_no_w_transform;
-        int apply_texture;
+	M4 model_view_inv;
+	M4 model_projection;
+	int model_projection_updated;
+	int model_projection_no_w_transform;
+	int apply_texture;
     } matrix;
 
     /* current state */
@@ -273,10 +256,9 @@ typedef struct GLContext
     gl_draw_triangle_func draw_triangle_front, draw_triangle_back;
 
     /* clear */
-    struct
-	{
-        float depth;
-        V4 color;
+    struct {
+	float depth;
+	V4 color;
     } clear;
 
     /* glBegin / glEnd */
@@ -287,32 +269,29 @@ typedef struct GLContext
     GLVertex *vertex;
 
     /* current vertex state */
-    struct
-	{
-        V4 color;
-        unsigned int longcolor[3]; /* precomputed integer color */
-        V4 normal;
-        V4 tex_coord;
-        int edge_flag;
+    struct {
+	V4 color;
+	unsigned int longcolor[3]; /* precomputed integer color */
+	V4 normal;
+	V4 tex_coord;
+	int edge_flag;
     } current;
 
     /* opengl 1.1 arrays  */
-    struct
-	{
-        GLArray vertex,
-                normal,
-                color,
-                tex_coord;
+    struct {
+	GLArray vertex,
+		normal,
+		color,
+		tex_coord;
     } array;
 
     int client_states;
 
     /* opengl 1.1 polygon offset */
-    struct
-	{
-        float factor;
-        float units;
-        int states;
+    struct {
+	float factor;
+	float units;
+	int states;
     } offset;
 
     /* specular buffer. could probably be shared between contexts, but that wouldn't be 100% thread safe */
@@ -329,22 +308,19 @@ typedef struct GLContext
     /* depth test */
     int depth_test;
 
-    struct
-	{
-        int dfactor;
-        int sfactor;
-        int enabled;
+    struct {
+	int dfactor;
+	int sfactor;
+	int enabled;
     } blend;
 
-    struct
-	{
-        int func;
-        int ref;
+    struct {
+	int func;
+	int ref;
     } alpha;
 
-    struct
-	{
-        int op;
+    struct {
+	int op;
     } logic;
 
     // TODO: glPushAttrib
@@ -407,7 +383,7 @@ void *gl_zalloc(int size);
 
 // msghandling.cpp
 
-typedef void (* logFuncPtr) (const char*, va_list);
+typedef void (* logFuncPtr)(const char*, va_list);
 extern void tgl_set_log_func(logFuncPtr ptr);
 extern void tgl_warning(const char *text, ...);
 extern void tgl_info(const char *text, ...);
@@ -416,11 +392,11 @@ extern void tgl_fatal_error(const char *format, ...);
 // misc
 void glDebug(int mode);
 void glInit(void *zbuffer);
-void glClose(); 
+void glClose();
 
 // the only supported glu function
 
-void gluPerspective( GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar ); 
+void gluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
 /* this clip epsilon is needed to avoid some rounding errors after several clipping stages */
 
@@ -428,8 +404,8 @@ void gluPerspective( GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zF
 
 static int gl_clipcode(float x,float y,float z,float w1)
 {
-	float w = w1 * (float) (1.f + CLIP_EPSILON);
-	return (x<-w) | ((x>w)<<1) | ((y<-w)<<2) | ((y>w)<<3) | ((z<-w)<<4) | ((z>w)<<5);
+    float w = w1 * (float)(1.f + CLIP_EPSILON);
+    return (x<-w) | ((x>w)<<1) | ((y<-w)<<2) | ((y>w)<<3) | ((z<-w)<<4) | ((z>w)<<5);
 }
 
 #endif // __TGL_H_

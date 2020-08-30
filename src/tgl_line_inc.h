@@ -14,14 +14,15 @@
     register int z, zz;
 #endif
 
-    if (p1->y > p2->y || (p1->y == p2->y && p1->x > p2->x)) {
+    if (p1->y > p2->y || (p1->y == p2->y && p1->x > p2->x))
+    {
 	ZBufferPoint *tmp;
 	tmp = p1;
 	p1 = p2;
 	p2 = tmp;
     }
     sx = zb->xsize;
-    pp = (PIXEL *) ((char *) zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
+    pp = (PIXEL *)((char *) zb->pbuf + zb->linesize * p1->y + p1->x * PSZB);
 #ifdef INTERP_Z
     pz = zb->zbuf + (p1->y * sx + p1->x);
     z = p1->z;
@@ -77,11 +78,13 @@
 	else { pp=(PIXEL *)((char *)pp + pp_inc_2); ZZ(pz+=(inc_2)); a+=dy; }\
     } while (--n >= 0);
 
-/* fin macro */
+    /* fin macro */
 
-    if (dx == 0 && dy == 0) {
+    if (dx == 0 && dy == 0)
+    {
 	PUTPIXEL();
-    } else if (dx > 0) {
+    } else if (dx > 0)
+    {
 	if (dx >= dy) {
 	    DRAWLINE(dx, dy, sx + 1, 1);
 	} else {
@@ -89,7 +92,8 @@
 	}
     } else {
 	dx = -dx;
-	if (dx >= dy) {
+	if (dx >= dy)
+	{
 	    DRAWLINE(dx, dy, sx - 1, -1);
 	} else {
 	    DRAWLINE(dy, dx, sx - 1, sx);
@@ -105,4 +109,4 @@
 #undef PUTPIXEL
 #undef ZZ
 #undef RGB
-#undef RGBPIXEL 
+#undef RGBPIXEL

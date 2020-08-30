@@ -13,7 +13,7 @@ void ZB_fillTriangleFlat(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoint *p1, ZBuffe
 {						\
   color = RGB_TO_PIXEL(p2->r,p2->g,p2->b);	\
 }
-  
+
 #define PUT_PIXEL(_a)				\
 {						\
     zz = z >> ZB_POINT_Z_FRAC_BITS;		\
@@ -65,11 +65,11 @@ void ZB_fillTriangleSmooth(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoint *p1, ZBuf
 
 void ZB_setTexture(ZBuffer *zb, void *image)
 {
-	GLImage* _image = (GLImage*) image;
+    GLImage* _image = (GLImage*) image;
     zb->current_texture = (PIXEL*) _image->pixmap;
-	zb->shift[0] = _image->shift[0];
-	zb->shift[1] = _image->shift[1];
-	zb->uvmask   = _image->uvmask;
+    zb->shift[0] = _image->shift[0];
+    zb->shift[1] = _image->shift[1];
+    zb->uvmask   = _image->uvmask;
 }
 
 // used - anchor
@@ -114,10 +114,10 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoi
     PIXEL *texture;
     float fdzdx,fndzdx,ndszdx,ndtzdx;
 
-	// anchor 2017.02.26
-	unsigned short sh1 = zb->shift[0];
-	unsigned short sh2 = zb->shift[1];
-	unsigned int mask  = zb->uvmask;
+    // anchor 2017.02.26
+    unsigned short sh1 = zb->shift[0];
+    unsigned short sh2 = zb->shift[1];
+    unsigned int mask  = zb->uvmask;
 
 #define INTERP_Z
 #define INTERP_STZ
@@ -206,7 +206,7 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoi
     n-=1;								   \
   }									   \
 }
-  
+
 #include "tgl_triangle_inc.h"
 }
 
@@ -220,12 +220,12 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb, ZBufferPoint *p0, ZBufferPoi
 {
     PIXEL *texture;
 
-	// anchor 2017.02.26
-	unsigned short rs0 = zb->rshift[0];
-	unsigned short rs1 = zb->rshift[1];
-	unsigned short rs2 = zb->rshift[2];
-	unsigned int uvm0 = zb->uvmask[0];
-	unsigned int uvm1 = zb->uvmask[1];
+    // anchor 2017.02.26
+    unsigned short rs0 = zb->rshift[0];
+    unsigned short rs1 = zb->rshift[1];
+    unsigned short rs2 = zb->rshift[2];
+    unsigned int uvm0 = zb->uvmask[0];
+    unsigned int uvm1 = zb->uvmask[1];
 
 #define INTERP_Z
 #define INTERP_STZ

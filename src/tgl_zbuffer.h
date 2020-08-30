@@ -35,34 +35,32 @@ typedef unsigned int PIXEL;
 #define PSZSH 5
 
 
-typedef struct
-{
+typedef struct {
     int xsize,ysize;
     int linesize; /* line size, in bytes */
     int mode;
-    
+
     unsigned short *zbuf;
     PIXEL *pbuf;
     int frame_buffer_allocated;
-    
+
     int nb_colors;
     unsigned char *dctable;
     int *ctable;
 
     PIXEL *current_texture;
 
-	// anchor 2017.02.26
-	unsigned short shift[2]; 
-	unsigned int uvmask;
+    // anchor 2017.02.26
+    unsigned short shift[2];
+    unsigned int uvmask;
 } ZBuffer;
 
-typedef struct
-{
-  int x,y,z;     /* integer coordinates in the zbuffer */
-  int s,t;       /* coordinates for the mapping */
-  int r,g,b;     /* color indexes */
-  
-  float sz,tz;   /* temporary coordinates for mapping */
+typedef struct {
+    int x,y,z;     /* integer coordinates in the zbuffer */
+    int s,t;       /* coordinates for the mapping */
+    int r,g,b;     /* color indexes */
+
+    float sz,tz;   /* temporary coordinates for mapping */
 } ZBufferPoint;
 
 ZBuffer *ZB_open(int xsize,int ysize,int mode,int nb_colors,unsigned char *color_indexes,int *color_table,void *frame_buffer);

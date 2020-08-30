@@ -14,30 +14,27 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 
     /* we may need to resize the zbuffer */
 
-    if ( c->viewport.xmin != xmin || c->viewport.ymin != ymin ||
-            c->viewport.xsize != xsize || c->viewport.ysize != ysize )
-	{
-        xsize_req = xmin + xsize;
-        ysize_req = ymin + ysize;
+    if (c->viewport.xmin != xmin || c->viewport.ymin != ymin ||
+	c->viewport.xsize != xsize || c->viewport.ysize != ysize) {
+	xsize_req = xmin + xsize;
+	ysize_req = ymin + ysize;
 
-        if ( c->gl_resize_viewport && c->gl_resize_viewport(c, &xsize_req, &ysize_req) != 0 )
-		{
-            tgl_warning("%s error while resizing display",__FUNCTION__);
-        }
+	if (c->gl_resize_viewport && c->gl_resize_viewport(c, &xsize_req, &ysize_req) != 0) {
+	    tgl_warning("%s error while resizing display",__FUNCTION__);
+	}
 
-        xsize = xsize_req - xmin;
-        ysize = ysize_req - ymin;
-        if ( xsize <= 0 || ysize <= 0 )
-		{
-            tgl_warning("%s size too small",__FUNCTION__);
-        }
+	xsize = xsize_req - xmin;
+	ysize = ysize_req - ymin;
+	if (xsize <= 0 || ysize <= 0) {
+	    tgl_warning("%s size too small",__FUNCTION__);
+	}
 
-        c->viewport.xmin  = xmin;
-        c->viewport.ymin  = ymin;
-        c->viewport.xsize = xsize;
-        c->viewport.ysize = ysize;
+	c->viewport.xmin  = xmin;
+	c->viewport.ymin  = ymin;
+	c->viewport.xsize = xsize;
+	c->viewport.ysize = ysize;
 
-        c->viewport.updated = 1;
+	c->viewport.updated = 1;
     }
 }
 
@@ -48,7 +45,7 @@ void glShadeModel(GLenum mode)
     c->current_shade_model = mode;
 }
 
-void glCullFace(GLenum mode) 
+void glCullFace(GLenum mode)
 {
     GLContext *c = gl_get_context();
     assert(mode == GL_BACK || mode == GL_FRONT || mode == GL_FRONT_AND_BACK);
@@ -62,28 +59,27 @@ void glFrontFace(GLenum mode)
     c->current_front_face = (mode != GL_CCW);
 }
 
-void glPolygonMode(GLenum face, GLenum mode) 
+void glPolygonMode(GLenum face, GLenum mode)
 {
     GLContext *c = gl_get_context();
 
-	assert(face == GL_BACK || face == GL_FRONT || face == GL_FRONT_AND_BACK);
+    assert(face == GL_BACK || face == GL_FRONT || face == GL_FRONT_AND_BACK);
     assert(mode == GL_POINT || mode == GL_LINE || mode == GL_FILL);
 
-	switch ( face ) 
-	{
+    switch (face) {
 	case GL_BACK:
-		c->polygon_mode_back = mode;
-		break;
+	    c->polygon_mode_back = mode;
+	    break;
 	case GL_FRONT:
-		c->polygon_mode_front = mode;
-		break;
+	    c->polygon_mode_front = mode;
+	    break;
 	case GL_FRONT_AND_BACK:
-		c->polygon_mode_front = mode;
-		c->polygon_mode_back = mode;
-		break;
+	    c->polygon_mode_front = mode;
+	    c->polygon_mode_back = mode;
+	    break;
 	default:
-		tgl_warning("%s invalid face",__FUNCTION__);
-	}
+	    tgl_warning("%s invalid face",__FUNCTION__);
+    }
 }
 
 void glHint(GLenum target, GLenum mode)
