@@ -4,30 +4,32 @@ include_directories(
   )
 
 set(tinygl_srcs
-  api.c
-  arrays.c
-  bitmap.c
-  blend.c
-  clear.c
-  clip.c
-  enable.c
-  get.c
-  image_util.c
-  init.c
-  light.c
-  matrix.c
-  memory.c
-  misc.c
-  msghandling.c
-  specbuf.c
-  texture.c
-  vertex.c
-  zbuffer.c
-  dither.c
-  line.c
-  math.c
-  triangle.c
-  )
+	accum.c
+	api.c
+	arrays.c
+	clear.c
+	clip.c
+	get.c
+	image_util.c
+	init.c
+	light.c
+	list.c
+	matrix.c
+	memory.c
+	misc.c
+	msghandling.c
+	select.c
+	specbuf.c
+	texture.c
+	vertex.c
+	zbuffer.c
+	zline.c
+	zmath.c
+	zpostprocess.c
+	zraster.c
+	ztext.c
+	ztriangle.c
+	)
 
 add_library(tinygl SHARED ${tinygl_srcs})
 install(TARGETS tinygl
@@ -50,3 +52,4 @@ endif (BUILD_STATIC_LIBS)
 # indent-tabs-mode: t
 # End:
 # ex: shiftwidth=2 tabstop=8
+

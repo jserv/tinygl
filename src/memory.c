@@ -1,30 +1,20 @@
-// tgl_memory.cpp
+/*
+ * Memory allocator for TinyGL
+ */
 
-#include "tgl.h"
+static inline void required_for_compilation_(){
+	return;
+}
+
+#if TGL_FEATURE_CUSTOM_MALLOC == 1
+#include "zgl.h"
 
 /* modify these functions so that they suit your needs */
 
-void gl_free(void *p)
-{
-    free(p);
-}
+#include <string.h>
+void gl_free(void* p) { free(p); }
 
-void *gl_malloc(int size)
-{
-    return malloc(size);
-}
+void* gl_malloc(GLint size) { return malloc(size); }
 
-void *gl_zalloc(int size)
-{
-    return calloc(1, size);
-}
-
-/*
- * Local Variables:
- * tab-width: 8
- * mode: C
- * indent-tabs-mode: t
- * c-file-style: "stroustrup"
- * End:
- * ex: shiftwidth=4 tabstop=8
- */
+void* gl_zalloc(GLint size) { return calloc(1, size); }
+#endif
