@@ -335,31 +335,12 @@ typedef struct GLContext {
 } GLContext;
 
 extern GLContext gl_ctx;
-static GLContext* gl_get_context(void) { return &gl_ctx; }
+extern GLContext* gl_get_context(void);
 
 extern void (*op_table_func[])(GLParam*);
 extern GLint op_table_size[];
 extern void gl_compile_op(GLParam* p);
-static void gl_add_op(GLParam* p) {
-	GLContext* c = gl_get_context();
-#if TGL_FEATURE_ERROR_CHECK == 1
-#include "error_check.h"
-#endif
-	GLint op;
-	op = p[0].op;
-	if (c->exec_flag) {
-		op_table_func[op](p);
-#if TGL_FEATURE_ERROR_CHECK == 1
-#include "error_check.h"
-#endif
-	}
-	if (c->compile_flag) {
-		gl_compile_op(p);
-#if TGL_FEATURE_ERROR_CHECK == 1
-#include "error_check.h"
-#endif
-	}
-}
+extern void gl_add_op(GLParam* p);
 
 /* select.c */
 void gl_add_select(GLuint zmin, GLuint zmax);
@@ -369,12 +350,7 @@ void gl_add_feedback(GLfloat token, GLVertex* v1, GLVertex* v2, GLVertex* v3, GL
 
 #define CLIP_EPSILON (1E-5)
 
-static GLint gl_clipcode(GLfloat x, GLfloat y, GLfloat z, GLfloat w1) {
-	GLfloat w;
-
-	w = w1 * (1.0 + CLIP_EPSILON);
-	return (x < -w) | ((x > w) << 1) | ((y < -w) << 2) | ((y > w) << 3) | ((z < -w) << 4) | ((z > w) << 5);
-}
+extern GLint gl_clipcode(GLfloat x, GLfloat y, GLfloat z, GLfloat w1);
 
 #define CLIP_XMIN (1 << 0)
 #define CLIP_XMAX (1 << 1)
@@ -383,17 +359,7 @@ static GLint gl_clipcode(GLfloat x, GLfloat y, GLfloat z, GLfloat w1) {
 #define CLIP_ZMIN (1 << 4)
 #define CLIP_ZMAX (1 << 5)
 
-static GLfloat clampf(GLfloat a, GLfloat min, GLfloat max) {
-	if (a < min)
-		return min;
-	else if (a > max)
-		return max;
-	else
-		return a;
-}
-
-
-
+extern GLfloat clampf(GLfloat a, GLfloat min, GLfloat max);
 
 /* triangle */
 
@@ -412,10 +378,10 @@ void gl_draw_triangle(GLVertex* p0, GLVertex* p1, GLVertex* p2);
 void gl_draw_line(GLVertex* p0, GLVertex* p1);
 void gl_draw_point(GLVertex* p0);
 
-void gl_draw_triangle_point(GLVertex* p0, GLVertex* p1, GLVertex* p2);	
-void gl_draw_triangle_line(GLVertex* p0, GLVertex* p1, GLVertex* p2);	
-void gl_draw_triangle_fill(GLVertex* p0, GLVertex* p1, GLVertex* p2);	
-void gl_draw_triangle_select(GLVertex* p0, GLVertex* p1, GLVertex* p2); 
+void gl_draw_triangle_point(GLVertex* p0, GLVertex* p1, GLVertex* p2);
+void gl_draw_triangle_line(GLVertex* p0, GLVertex* p1, GLVertex* p2);
+void gl_draw_triangle_fill(GLVertex* p0, GLVertex* p1, GLVertex* p2);
+void gl_draw_triangle_select(GLVertex* p0, GLVertex* p1, GLVertex* p2);
 void gl_draw_triangle_feedback(GLVertex* p0, GLVertex* p1, GLVertex* p2);
 /* matrix.c */
 void gl_print_matrix(const GLfloat* m);
@@ -454,20 +420,6 @@ GLSpecBuf* specbuf_get_buffer(const GLint shininess_i, const GLfloat shininess);
 /* this clip epsilon is needed to avoid some rounding errors after
    several clipping stages */
 
-static void gl_eval_viewport() {
-	GLContext* c = gl_get_context();
-	GLViewport* v;
-	GLfloat zsize = (1 << (ZB_Z_BITS + ZB_POINT_Z_FRAC_BITS));
-
-	v = &c->viewport;
-
-	v->trans.X = ((v->xsize - 0.5) / 2.0) + v->xmin;
-	v->trans.Y = ((v->ysize - 0.5) / 2.0) + v->ymin;
-	v->trans.Z = ((zsize - 0.5) / 2.0) + ((1 << ZB_POINT_Z_FRAC_BITS)) / 2;
-
-	v->scale.X = (v->xsize - 0.5) / 2.0;
-	v->scale.Y = -(v->ysize - 0.5) / 2.0;
-	v->scale.Z = -((zsize - 0.5) / 2.0);
-}
+extern void gl_eval_viewport();
 
 #endif /* _tgl_zgl_h_ */

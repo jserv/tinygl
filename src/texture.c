@@ -32,7 +32,6 @@ GLboolean glAreTexturesResident(GLsizei n, const GLuint* textures, GLboolean* re
 	return retval;
 }
 GLboolean glIsTexture(GLuint texture) {
-	GLContext* c = gl_get_context();
 #define RETVAL GL_FALSE
 #include "error_check.h"
 	if (find_texture(texture))
@@ -42,7 +41,6 @@ GLboolean glIsTexture(GLuint texture) {
 
 void* glGetTexturePixmap(GLint text, GLint level, GLint* xsize, GLint* ysize) {
 	GLTexture* tex;
-	GLContext* c = gl_get_context();
 #if TGL_FEATURE_ERROR_CHECK == 1
 	if (!(text >= 0 && level < MAX_TEXTURE_LEVELS))
 #define ERROR_FLAG GL_INVALID_ENUM
@@ -98,13 +96,16 @@ GLTexture* alloc_texture(GLint h) {
 
 		ht = &c->shared_state.texture_hash_table[h & TEXTURE_HASH_TABLE_MASK];
 
-	t->next = *ht;
-	t->prev = NULL;
-	if (t->next != NULL)
-		t->next->prev = t;
-	*ht = t;
-
-	t->handle = h;
+	if (t) {
+	   if (ht)
+	      t->next = *ht;
+	   t->prev = NULL;
+	   if (t->next != NULL)
+	      t->next->prev = t;
+	   if (ht)
+	      *ht = t;
+	   t->handle = h;
+	}
 
 	return t;
 }
@@ -153,7 +154,6 @@ void glDeleteTextures(GLint n, const GLuint* textures) {
 }
 
 void glopBindTexture(GLParam* p) {
-	GLint target = p[1].i;
 	GLint texture = p[2].i;
 	GLTexture* t;
 	GLContext* c = gl_get_context();
@@ -232,7 +232,9 @@ void glopCopyTexImage2D(GLParam* p) {
 	im->ysize = TGL_FEATURE_TEXTURE_DIM;
 	/* TODO implement the scaling and stuff that the GL spec says it should have.*/
 #if TGL_FEATURE_MULTITHREADED_COPY_TEXIMAGE_2D == 1
-#pragma omp parallel for
+#  ifdef _OPENMP
+#    pragma omp parallel for
+#  endif
 	for (j = 0; j < h; j++)
 		for (i = 0; i < w; i++) {
 			data[i + j * w] = c->zb->pbuf[((i + x) % (c->zb->xsize)) + ((j + y) % (c->zb->ysize)) * (c->zb->xsize)];

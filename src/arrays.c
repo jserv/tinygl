@@ -47,7 +47,7 @@ static GLint check_buffer(GLint handle) {
 	GLContext* c = gl_get_context();
 	GLSharedState* s = &(c->shared_state);
 	if (handle == 0 || handle > MAX_BUFFERS)
-		return 2; 
+		return 2;
 	handle--;
 	if (s->buffers[handle])
 		return 1;
@@ -59,25 +59,15 @@ GLboolean glIsBuffer(GLuint buffer) {
 	return GL_FALSE;
 }
 
-static GLBuffer* get_buffer(GLint handle) {
-	GLContext* c;
-	GLSharedState* s;
-	c = gl_get_context();
-	s = &(c->shared_state);
-	if (handle == 0 || handle > MAX_BUFFERS)
-		return NULL;
-	handle--;
-	return s->buffers[handle];
-}
 static GLint create_buffer(GLint handle) {
 	GLContext* c = gl_get_context();
 	GLSharedState* s = &(c->shared_state);
 	if (handle == 0 || handle > MAX_BUFFERS)
-		return 1; 
-	handle--;	 
+		return 1;
+	handle--;
 	if (s->buffers[handle])
-		free_buffer(handle + 1); 
-	
+		free_buffer(handle + 1);
+
 	s->buffers[handle] = gl_zalloc(sizeof(GLBuffer));
 
 	if (!(s->buffers[handle])) {
@@ -96,7 +86,6 @@ static GLint create_buffer(GLint handle) {
 
 void glGenBuffers(GLsizei n, GLuint* buffers) {
 	GLint i;
-	GLContext* c = gl_get_context();
 #include "error_check.h"
 	if (n > MAX_BUFFERS)
 		goto error;
@@ -126,7 +115,6 @@ error:
 }
 void glDeleteBuffers(GLsizei n, const GLuint* buffers) {
 	GLint i;
-	GLContext* c = gl_get_context();
 #include "error_check.h"
 	for (i = 0; i < n; i++)
 		free_buffer(buffers[i]);

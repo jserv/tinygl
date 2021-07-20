@@ -151,6 +151,24 @@ static void gl_transform_to_viewport_vertex_c(GLVertex* v) {
 	}
 }
 
+int gl_V3_Norm_Fast(V3* a) {
+	GLfloat n;
+#if TGL_FEATURE_FISR == 1
+	n = fastInvSqrt(a->X * a->X + a->Y * a->Y + a->Z * a->Z); 
+	if (n > 1E+3)
+		return 1;
+#else
+	n = sqrt(a->X * a->X + a->Y * a->Y + a->Z * a->Z); 
+	if (n == 0)
+		return 1;
+	n = 1.0 / n;
+#endif
+	a->X *= n;
+	a->Y *= n;
+	a->Z *= n;
+	return 0;
+}
+
 static void gl_vertex_transform(GLVertex* v) {
 	GLfloat* m;
 	GLContext* c = gl_get_context();

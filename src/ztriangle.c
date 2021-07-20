@@ -2,13 +2,12 @@
 #include "msghandling.h"
 #include <stdlib.h>
 
-
-
-
+#if 0
 /* TODO: Switch from scanline rasterizer to easily parallelized cross product rasterizer.*/
 static GLfloat edgeFunction(GLfloat ax, GLfloat ay, GLfloat bx, GLfloat by, GLfloat cx, GLfloat cy) {
 	return (cx - ax) * (by - ay) - (cy - ay) * (bx - ax);
 }
+#endif
 
 #if TGL_FEATURE_RENDER_BITS == 32
 #elif TGL_FEATURE_RENDER_BITS == 16

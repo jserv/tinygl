@@ -74,11 +74,14 @@ static int TinyGLRuntimeCompatibilityTest() {
 	GLint t2 = 1 << 31;
 	memcpy(&tf2, &t2, 4);
 	if (tf2 != t) return 1;
+#if 0
+	/* TODO - what are we testing for here? This triggers
+	 * a compiler warning about an overflow */
 	t2 = 3212836864;
 	t = -1;
 	memcpy(&tf2, &t2, 4);
 	if (tf2 != t)return 1;
-	
+#endif
 	if (((GLint)255 << 8) != 65280)
 		return 1;
 	if ((GLint)65280 >> 8 != 255)
