@@ -7,7 +7,7 @@ endif(TARGET tinygl)
 if(TINYGL_LIB)
 
   set(raw_names gears t2i bigfont)
-  foreach(DEMO ${demo_names})
+  foreach(DEMO ${raw_names})
     set(DEMO_NAME "raw_${DEMO}")
     add_executable(${DEMO_NAME} ${DEMO}.c)
     target_link_libraries(${DEMO_NAME} ${TINYGL_LIB} ${M_LIBRARY})
