@@ -1,50 +1,56 @@
-include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}/../include
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  )
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(tinygl_srcs
-	accum.c
-	api.c
-	arrays.c
-	clear.c
-	clip.c
-	get.c
-	image_util.c
-	init.c
-	light.c
-	list.c
-	matrix.c
-	memory.c
-	misc.c
-	msghandling.c
-	select.c
-	specbuf.c
-	texture.c
-	vertex.c
-	zbuffer.c
-	zline.c
-	zmath.c
-	zpostprocess.c
-	zraster.c
-	ztext.c
-	ztriangle.c
-	)
+  accum.c
+  api.c
+  arrays.c
+  clear.c
+  clip.c
+  get.c
+  image_util.c
+  init.c
+  light.c
+  list.c
+  matrix.c
+  memory.c
+  misc.c
+  msghandling.c
+  select.c
+  specbuf.c
+  texture.c
+  vertex.c
+  zbuffer.c
+  zline.c
+  zmath.c
+  zpostprocess.c
+  zraster.c
+  ztext.c
+  ztriangle.c
+  )
 
-add_library(tinygl SHARED ${tinygl_srcs})
-install(TARGETS tinygl
-  RUNTIME DESTINATION ${BIN_DIR}
-  LIBRARY DESTINATION ${LIB_DIR}
-  ARCHIVE DESTINATION ${LIB_DIR})
-target_compile_options(tinygl PRIVATE "-Wall")
+if(TINYGL_BUILD_SHARED)
+  add_library(tinygl SHARED ${tinygl_srcs})
+  target_include_directories(tinygl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+  install(TARGETS tinygl
+    RUNTIME DESTINATION ${BIN_DIR}
+    LIBRARY DESTINATION ${LIB_DIR}
+    ARCHIVE DESTINATION ${LIB_DIR})
+  if(NOT MSVC)
+    target_compile_options(tinygl PRIVATE -O3 -DNDEBUG -pedantic -march=native -Wall -Wno-unused-function)
+  endif(NOT MSVC)
+endif(TINYGL_BUILD_SHARED)
 
-if (BUILD_STATIC_LIBS)
+if(TINYGL_BUILD_STATIC)
   add_library(tinygl-static STATIC ${tinygl_srcs})
+  target_include_directories(tinygl-static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
   install(TARGETS tinygl-static
     RUNTIME DESTINATION ${BIN_DIR}
     LIBRARY DESTINATION ${LIB_DIR}
     ARCHIVE DESTINATION ${LIB_DIR})
-endif (BUILD_STATIC_LIBS)
+  if(NOT MSVC)
+    target_compile_options(tinygl-static PRIVATE -O3 -DNDEBUG -pedantic -march=native -Wall -Wno-unused-function)
+  endif(NOT MSVC)
+endif(TINYGL_BUILD_STATIC)
 
 # Local Variables:
 # tab-width: 8
