@@ -11,3 +11,7 @@ Raw_Demos/bigfont
 Raw_Demos/gears
 Raw_Demos/t2i
 lib/*.a
+
+# Downloaded files
+include-demo/stb_image.h
+include-demo/stb_image_write.h
