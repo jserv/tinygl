@@ -1,4 +1,3 @@
-
 #ifndef RETVAL
 #define RETVAL /* a comment*/
 #endif

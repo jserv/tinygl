@@ -1,5 +1,5 @@
-#include "../include/TGL/gl.h"
-#include "../include/zbuffer.h"
+#include <TGL/gl.h>
+#include "zbuffer.h"
 #include "msghandling.h"
 #include "zgl.h"
 

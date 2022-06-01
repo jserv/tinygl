@@ -1,5 +1,4 @@
 /*
-
  * Z buffer: 16 bits Z / 16 bits color
  *
  */
@@ -7,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/zbuffer.h"
+#include "zbuffer.h"
 #include "msghandling.h"
 ZBuffer* ZB_open(GLint xsize, GLint ysize, GLint mode,
 

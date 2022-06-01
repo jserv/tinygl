@@ -1,7 +1,9 @@
 #ifndef __ZMATH__
 #define __ZMATH__
-#include "../include/TGL/gl.h"
-#include "../include/zfeatures.h"
+
+#include <TGL/gl.h>
+#include "zfeatures.h"
+
 #include <math.h>
 #include <stdlib.h>
 #include <string.h> 

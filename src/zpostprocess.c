@@ -1,5 +1,5 @@
-#include "../include/TGL/gl.h"
-#include "../include/zbuffer.h"
+#include <TGL/gl.h>
+#include "zbuffer.h"
 #include "zgl.h"
 
 void glPostProcess(GLuint (*postprocess)(GLint x, GLint y, GLuint pixel, GLushort z)) {

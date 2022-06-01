@@ -1,4 +1,4 @@
-#include "../include/zbuffer.h"
+#include "zbuffer.h"
 #include "msghandling.h"
 #include <stdlib.h>
 

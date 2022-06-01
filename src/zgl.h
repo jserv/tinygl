@@ -3,10 +3,13 @@
 #ifndef NDEBUG
 #define NDEBUG
 #endif
-#include "../include/TGL/gl.h"
-#include "../include/zbuffer.h"
-#include "../include/zfeatures.h"
+
+#include <TGL/gl.h>
+#include "zfeatures.h"
+
+#include "zbuffer.h"
 #include "zmath.h"
+
 #include <math.h>
 #include <stdlib.h>
 
@@ -15,13 +18,9 @@
 #define M_PI 3.1415926535897932384626433832795
 #endif
 
-
 enum {
-
 #define ADD_OP(a, b, c) OP_##a,
-
 #include "opinfo.h"
-
 };
 
 

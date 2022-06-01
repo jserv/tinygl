@@ -1,4 +1,4 @@
-#include "../include/zbuffer.h"
+#include "zbuffer.h"
 #include <stdlib.h>
 
 #define ZCMP(z, zpix) (!(zbdt) || z >= (zpix))

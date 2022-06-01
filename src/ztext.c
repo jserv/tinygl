@@ -1,8 +1,7 @@
-#include "../include/TGL/gl.h"
-#include "../include/zbuffer.h"
+#include <TGL/gl.h>
+#include "zbuffer.h"
 #include "font8x8_basic.h"
 #include "zgl.h"
-
 
 #include <stdlib.h>
 
