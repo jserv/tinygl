@@ -1,9 +1,5 @@
-
-LIBNAME=libTinyGL.a
-LIB=lib/$(LIBNAME)
-LIBDIR=/usr/local/lib
-INCDIR=/usr/local/include
-BINDIR=/usr/local/bin
+LIBNAME = libTinyGL.a
+LIB = lib/$(LIBNAME)
 
 all: $(LIB)
 	@echo Done!
@@ -11,15 +7,6 @@ all: $(LIB)
 $(LIB):
 	cd src && $(MAKE) && cd ..
 	cp src/*.a ./lib/
-
-install: $(LIB)
-	cp $(LIB) $(LIBDIR)
-	mkdir $(INCDIR)/tinygl || echo "You installed before?"
-	cp -r include/* $(INCDIR)/tinygl
-
-uninstall:
-	rm -f $(LIBDIR)/$(LIBNAME)
-	rm -rf $(INCDIR)/tinygl
 
 sdl_examples: $(LIB) examples/stb_image.h
 	@echo "These demos require SDL 1.2 to compile."
