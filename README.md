@@ -1,6 +1,6 @@
 # TinyGL
 
-![tgl logo](tgl_minimal.png)
+![tgl logo](assets/tgl_minimal.png)
 A major overhaul of Fabrice Bellard's TinyGL to be
 more useful as a software rasterizer.
 
@@ -79,47 +79,47 @@ NOTE: There are graphical artifacts visible in these gifs which have been correc
 
 Without Polygon Stipple:
 
-![GIF Video of demo](doc/capture.gif)
+![GIF Video of demo](assets/capture.gif)
 
 With Polygon Stipple:
 
-![GIF Video of demo](doc/capture2.gif)
+![GIF Video of demo](assets/capture2.gif)
 
 Hello World test:
 
-![model loading demo](doc/helloworld.gif)
+![model loading demo](assets/helloworld.gif)
 
 Texturing Test: 
 
-![Screenshot of Texture test](doc/texture_test.png)
+![Screenshot of Texture test](assets/texture_test.png)
 
 Model loading tests:
 
-![model loading demo](doc/model2_lit.gif)
+![model loading demo](assets/model2_lit.gif)
 
-![model loading demo](doc/model_lit.gif)
+![model loading demo](assets/model_lit.gif)
 
 Without lighting: 
 
-![model loading demo](doc/model2.gif)
+![model loading demo](assets/model2.gif)
 
-![model loading demo](doc/model.gif)
+![model loading demo](assets/model.gif)
 
 This is a demo of the NO_DRAW_COLOR feature. Notice that the object appears to have a hole in it.
 
-![model loading demo](doc/model_hole.gif)
+![model loading demo](assets/model_hole.gif)
 
 Blending:
 
-![model loading demo](doc/blend.gif)
+![model loading demo](assets/blend.gif)
 
 Specular:
 
-![GIF Video of demo](doc/specular.gif)
+![GIF Video of demo](assets/specular.gif)
 
 OpenIMGUI standard demo:
 
-![OpenIMGUI](doc/menu.gif)
+![OpenIMGUI](assets/menu.gif)
 
 TinyGL 0.8 (c) 1997-2021 Fabrice Bellard, C-Chads, Gek (see License, it's free software)
 
