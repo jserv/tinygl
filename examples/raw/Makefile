@@ -1,17 +1,14 @@
-include ../config.mk
-#CC= gcc
-#CFLAGS = -g -Wall -O3 -w
-GL_LIBS= -L../ 
-GL_INCLUDES= -I../include/
+include ../../config.mk
+
+GL_LIBS= -L../..
+GL_INCLUDES= -I../../include/
 ALL_T= gears t2i bigfont
-LIB= ../lib/libTinyGL.a
+LIB= ../../lib/libTinyGL.a
 
 #For GCC on good OSes:
 #
 #for MinGW users:
 #SDL_LIBS= -lmingw32 -lSDLmain -lSDL 
-
-
 
 all: $(ALL_T)
 clean:

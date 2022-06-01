@@ -1,9 +1,5 @@
 /* OPENIMGUI STANDARD DEMO
-
 Demo of Gek's proposed Open Immediate Mode Gui Standard
-
-
-
 */
 //#define PLAY_MUSIC
 
@@ -12,14 +8,14 @@ Demo of Gek's proposed Open Immediate Mode Gui Standard
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/TGL/gl.h"
+#include "../../include/TGL/gl.h"
 
-#include "../include/zbuffer.h"
+#include "../../include/zbuffer.h"
 #define CHAD_API_IMPL
 #define CHAD_MATH_IMPL
-#include "../include-demo/3dMath.h"
+#include "../3dMath.h"
 #ifdef PLAY_MUSIC
-#include "../include-demo/api_audio.h"
+#include "../api_audio.h"
 #else
 typedef unsigned char uchar;
 #endif
@@ -27,7 +23,7 @@ typedef unsigned char uchar;
 
 // Gek's OpenIMGUI standard.
 #define OPENIMGUI_IMPL
-#include "../include-demo/openimgui.h"
+#include "../openimgui.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265

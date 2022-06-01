@@ -21,28 +21,24 @@ uninstall:
 	rm -f $(LIBDIR)/$(LIBNAME)
 	rm -rf $(INCDIR)/tinygl
 
-SDL_Examples: $(LIB) include-demo/stb_image.h
+sdl_examples: $(LIB) examples/stb_image.h
 	@echo "These demos require SDL 1.2 to compile."
-	cd SDL_Examples && $(MAKE) && cd ..
+	$(MAKE) -C examples/sdl
 
-tglgears: $(LIB) include-demo/stb_image.h
-	@echo "These demos require SDL 1.2 to compile."
-	cd SDL_Examples && $(MAKE) install_tglgears && cd ..
-
-RDMOS: $(LIB) include-demo/stb_image_write.h
+raw_examples: $(LIB) examples/stb_image_write.h
 	@echo "Building the RAW DEMOS. These do not require anything special on your system, so they should succeed."
-	cd Raw_Demos && $(MAKE) && cd ..
+	$(MAKE) -C examples/raw
 	
 clean:
-	cd src && $(MAKE) clean && cd ..
-	cd SDL_Examples && $(MAKE) clean && cd ..
-	cd Raw_Demos && $(MAKE) clean && cd ..
-	cd lib && rm -f *.a && cd ..
+	$(MAKE) -C src clean
+	$(MAKE) -C examples/raw clean
+	$(MAKE) -C examples/sdl clean
+	$(RM) lib/*.a
 
-include-demo/stb_image.h:
+examples/stb_image.h:
 	curl -o $@ https://raw.githubusercontent.com/nothings/stb/master/stb_image.h
-include-demo/stb_image_write.h:
+examples/stb_image_write.h:
 	curl -o $@ https://raw.githubusercontent.com/nothings/stb/master/stb_image_write.h
 
 distclean: clean
-	$(RM) include-demo/stb_image.h include-demo/stb_image_write.h
+	$(RM) examples/stb_image.h examples/stb_image_write.h

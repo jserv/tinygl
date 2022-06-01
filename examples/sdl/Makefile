@@ -1,10 +1,9 @@
-include ../config.mk
-#CC= gcc
-#CFLAGS = -g -Wall -O3 -w
-GL_LIBS= -L../ 
-GL_INCLUDES= -I../include/
+include ../../config.mk
+
+GL_LIBS= -L../../
+GL_INCLUDES= -I../../include/
 ALL_T= gears texture model helloworld menu game
-LIB= ../lib/libTinyGL.a
+LIB= ../../lib/libTinyGL.a
 
 #For GCC on good OSes:
 SDL_CONFIG?=sdl-config

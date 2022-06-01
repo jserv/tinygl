@@ -6,16 +6,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/TGL/gl.h"
+#include "../../include/TGL/gl.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "../include-demo/stb_image.h"
+#include "../stb_image.h"
 #define CHAD_MATH_IMPL
-#include "../include-demo/3dMath.h"
-#include "../include-demo/tobjparse.h"
+#include "../3dMath.h"
+#include "../tobjparse.h"
 #define CHAD_API_IMPL
-#include "../include/zbuffer.h"
+#include "../../include/zbuffer.h"
 #ifdef PLAY_MUSIC
-#include "../include-demo/api_audio.h"
+#include "../api_audio.h"
 #else
 typedef unsigned char uchar;
 #endif
@@ -35,9 +35,8 @@ const float mouseratiox = 1.0 / 300.0f;
 const float mouseratioy = 1.0 / 300.0f;
 int mousex = 0, mousey = 0;
 
-int ModelArrayLoaded = 0;
-int testingModelArrays = 0;
-int testingCopyImage2D = 0;
+GLint playermodel;
+/*Used for loading.*/
 struct {
 	float* points;
 	uint npoints;
@@ -45,28 +44,6 @@ struct {
 	float* colors;
 	float* texcoords;
 } ModelArray;
-
-void FreeModelArray() {
-	if (!ModelArrayLoaded) {
-		ModelArray.points = NULL;
-		ModelArray.normals = NULL;
-		ModelArray.npoints = 0;
-		ModelArray.colors = NULL;
-		ModelArray.texcoords = NULL;
-		return;
-	}
-	ModelArrayLoaded = 0;
-	if (ModelArray.points)
-		free(ModelArray.points);
-	if (ModelArray.normals)
-		free(ModelArray.normals);
-	if (ModelArray.texcoords)
-		free(ModelArray.texcoords);
-	if (ModelArray.colors)
-		free(ModelArray.colors);
-	ModelArray.npoints = 0;
-	return;
-}
 
 void rotateCamera() {
 	vec3 a;
@@ -103,66 +80,6 @@ GLuint loadRGBTexture(unsigned char* buf, unsigned int w, unsigned int h) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, buf);
 	return t;
-}
-
-void LoadModelArrays(
-	// HUGE important note! these depend on the math library using
-	// f_ as float and not double!
-	// Remember that!
-	vec3* points, uint npoints, vec3* colors, vec3* normals, vec3* texcoords) {
-	if (!points)
-		return;
-	FreeModelArray();
-	ModelArrayLoaded = 1;
-	ModelArray.npoints = npoints;
-	ModelArray.points = malloc(sizeof(float) * npoints * 3);
-	if (normals)
-		ModelArray.normals = malloc(sizeof(float) * npoints * 3);
-	if (texcoords)
-		ModelArray.texcoords = malloc(sizeof(float) * npoints * 2);
-	if (colors)
-		ModelArray.colors = malloc(sizeof(float) * npoints * 3);
-	for (uint i = 0; i < npoints; i++) {
-		if (colors) { // Fix for TinyGL color interpolation.
-			ModelArray.colors[i * 3 + 0] = colors[i].d[0];
-			ModelArray.colors[i * 3 + 1] = colors[i].d[1];
-			ModelArray.colors[i * 3 + 2] = colors[i].d[2];
-		}
-		if (texcoords) {
-			ModelArray.texcoords[i * 2 + 0] = texcoords[i].d[0];
-			ModelArray.texcoords[i * 2 + 1] = texcoords[i].d[1];
-		}
-		if (normals) {
-			ModelArray.normals[i * 3 + 0] = normals[i].d[0];
-			ModelArray.normals[i * 3 + 1] = normals[i].d[1];
-			ModelArray.normals[i * 3 + 2] = normals[i].d[2];
-		}
-		ModelArray.points[i * 3 + 0] = points[i].d[0];
-		ModelArray.points[i * 3 + 1] = points[i].d[1];
-		ModelArray.points[i * 3 + 2] = points[i].d[2];
-	}
-}
-
-// Without display list
-void drawModelArrays(
-	// HUGE important note! these depend on the math library using
-	// f_ as float and not double!
-	// Remember that!
-	vec3* points, uint npoints, vec3* colors, vec3* normals, vec3* texcoords) {
-	if (!points)
-		return;
-	glBegin(GL_TRIANGLES);
-	for (uint i = 0; i < npoints; i++) {
-		if (colors) { // Fix for TinyGL color interpolation.
-			glColor3f(colors[i].d[0], colors[i].d[1], colors[i].d[2]);
-		}
-		if (texcoords)
-			glTexCoord2f(texcoords[i].d[0], texcoords[i].d[1]);
-		if (normals)
-			glNormal3f(normals[i].d[0], normals[i].d[1], normals[i].d[2]);
-		glVertex3f(points[i].d[0], points[i].d[1], points[i].d[2]);
-	}
-	glEnd();
 }
 
 GLuint createModelDisplayList(
@@ -297,10 +214,8 @@ int main(int argc, char** argv) {
 	char needsRGBAFix = 0;
 	unsigned int count = 40;
 	GLuint modelDisplayList = 0;
-	GLuint buffers[4]; // pos,color,normal,texcoord
 	int dlExists = 0;
 	int doTextures = 1;
-	char* modelName = "extrude.obj";
 #ifdef PLAY_MUSIC
 	track* myTrack = NULL;
 #endif
@@ -316,14 +231,8 @@ int main(int argc, char** argv) {
 				fps = strtoull(argv[i], 0, 10);
 			if (!strcmp(larg, "-count"))
 				count = strtoull(argv[i], 0, 10);
-			if (!strcmp(larg, "-m"))
-				modelName = argv[i];
 			if (!strcmp(argv[i], "-notexture") || !strcmp(larg, "-notexture"))
 				doTextures = 0;
-			if (!strcmp(argv[i], "-arrays"))
-				testingModelArrays = 1;
-			if (!strcmp(argv[i], "-copy"))
-				testingCopyImage2D = 1;
 			if (!strcmp(argv[i], "-blend"))
 				doblend = 1;
 			larg = argv[i];
@@ -345,10 +254,6 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "ERROR: Video mode set failed.\n");
 		return 1;
 	}
-	printf("\nRMASK IS %u", screen->format->Rmask);
-	printf("\nGMASK IS %u", screen->format->Gmask);
-	printf("\nBMASK IS %u", screen->format->Bmask);
-	printf("\nAMASK IS %u", screen->format->Amask);
 
 #if TGL_FEATURE_RENDER_BITS == 32
 	if (screen->format->Rmask != 0x00FF0000 || screen->format->Gmask != 0x0000FF00 || screen->format->Bmask != 0x000000FF) {
@@ -357,10 +262,6 @@ int main(int argc, char** argv) {
 		printf("\nYou should consider using the 16 bit version for optimal performance");
 	}
 #endif
-	printf("\nRSHIFT IS %u", screen->format->Rshift);
-	printf("\nGSHIFT IS %u", screen->format->Gshift);
-	printf("\nBSHIFT IS %u", screen->format->Bshift);
-	printf("\nASHIFT IS %u\n", screen->format->Ashift);
 	fflush(stdout);
 #ifdef PLAY_MUSIC
 	myTrack = lmus("WWGW.mp3");
@@ -371,24 +272,19 @@ int main(int argc, char** argv) {
 	SDL_WM_SetCaption(argv[0], 0);
 
 	// initialize TinyGL:
-	int mode;
 	switch (screen->format->BitsPerPixel) {
 	case 8:
 		fprintf(stderr, "ERROR: Palettes are currently not supported.\n");
-		fprintf(stderr, "\nUnsupported by maintainer!!!");
 		return 1;
 	case 16:
 		// fprintf(stderr,"\nUnsupported by maintainer!!!");
-		mode = ZB_MODE_5R6G5B;
 		// return 1;
 		break;
 	case 24:
 		fprintf(stderr, "\nUnsupported by maintainer!!!");
-		mode = ZB_MODE_RGB24;
 		return 1;
 		break;
 	case 32:
-		mode = ZB_MODE_RGBA;
 		break;
 	default:
 		return 1;
@@ -431,6 +327,7 @@ int main(int argc, char** argv) {
 	glDisable(GL_TEXTURE_2D);
 
 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 	// glDisable(GL_LIGHTING);
 	glShadeModel(GL_SMOOTH);
 	// glDisable(GL_DEPTH_TEST);
@@ -442,63 +339,15 @@ int main(int argc, char** argv) {
 	{
 		objraw omodel;
 		model m = initmodel();
-		omodel = tobj_load(modelName);
+		omodel = tobj_load("monkey3.obj");
 
 		if (!omodel.positions) {
 			puts("\nERROR! No positions in model. Aborting...\n");
+			abort();
 		} else {
 			m = tobj_tomodel(&omodel);
 			printf("\nHas %ld points.\n", m.npoints);
-			if (!testingModelArrays) {
-				modelDisplayList = createModelDisplayList(m.d, m.npoints, m.c, m.n, m.t);
-				dlExists = 1;
-			} else {
-				LoadModelArrays(m.d, m.npoints, m.c, m.n, m.t);
-				/*
-				if(ModelArray.colors)glEnableClientState(GL_COLOR_ARRAY);
-				if(ModelArray.points)glEnableClientState(GL_VERTEX_ARRAY);
-				if(ModelArray.normals)glEnableClientState(GL_NORMAL_ARRAY);
-				if(ModelArray.texcoords)glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-				if(ModelArray.points)glVertexPointer(3,GL_FLOAT,0,ModelArray.points);
-				if(ModelArray.normals)glNormalPointer(GL_FLOAT,0,ModelArray.normals); //Must be 3!
-				if(ModelArray.colors)glColorPointer(3,GL_FLOAT,0,ModelArray.colors);
-				if(ModelArray.texcoords)glTexCoordPointer(2,GL_FLOAT,0,ModelArray.texcoords);
-				*/
-				glGenBuffers(4, buffers);
-				for (int i = 0; i < 4; i++) {
-					printf("\nBuffer %d is %d", i, buffers[i]);
-					if (buffers[i] == 0) {
-						printf("\nBuffer allocation failed for buffer %d!\n", i);
-						return 1;
-					}
-				}
-				glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-				/*Done multiple times to test and make sure that data isn't leaked*/
-				puts("\nTesting glBufferData data integrity\n");
-				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * ModelArray.npoints, ModelArray.points, GL_STATIC_DRAW);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * ModelArray.npoints, ModelArray.points, GL_STATIC_DRAW);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * ModelArray.npoints, ModelArray.points, GL_STATIC_DRAW);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * ModelArray.npoints, ModelArray.points, GL_STATIC_DRAW);
-				if (glMapBuffer(GL_ARRAY_BUFFER, 0) == NULL)
-					printf("\nglBufferData failed for buffer %d!\n", 0);
-				glBindBufferAsArray(GL_VERTEX_BUFFER, buffers[0], GL_FLOAT, 3, 0);
-				if (ModelArray.colors) {
-					glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-					glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * ModelArray.npoints, ModelArray.colors, GL_STATIC_DRAW);
-					glBindBufferAsArray(GL_COLOR_BUFFER, buffers[1], GL_FLOAT, 3, 0);
-				}
-				if (ModelArray.normals) {
-					glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-					glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * ModelArray.npoints, ModelArray.normals, GL_STATIC_DRAW);
-					glBindBufferAsArray(GL_NORMAL_BUFFER, buffers[2], GL_FLOAT, 3, 0);
-				}
-				if (ModelArray.texcoords) {
-					glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
-					glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 2 * ModelArray.npoints, ModelArray.texcoords, GL_STATIC_DRAW);
-					glBindBufferAsArray(GL_TEXTURE_COORD_BUFFER, buffers[3], GL_FLOAT, 2, 0);
-				}
-			}
+			modelDisplayList = createModelDisplayList(m.d, m.npoints, m.c, m.n, m.t);
 			freemodel(&m);
 		}
 		freeobjraw(&omodel);
@@ -548,7 +397,6 @@ int main(int argc, char** argv) {
 #define HEIGHT winSizeY
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		// gluPerspective(70,(float)WIDTH/(float)HEIGHT,1,512);
 		mat4 matrix = perspective(70, (float)WIDTH / (float)HEIGHT, 1, 512);
 		glLoadMatrixf(matrix.d);
 		glMatrixMode(GL_MODELVIEW);
@@ -556,8 +404,7 @@ int main(int argc, char** argv) {
 		glPushMatrix(); // Pushing on the LookAt Matrix.
 
 		vec3 right = normalizev3(crossv3(camforw, camup));
-		// right.d[1] = 0;
-		matrix = (lookAt(campos, addv3(campos, camforw), camup)); // Using right vector to correct for screen rotation.
+		matrix = (lookAt(campos, addv3(campos, camforw), camup)); 
 		glLoadMatrixf(matrix.d);
 		if (wasdstate[0])
 			campos = addv3(campos, scalev3(0.1, camforw));
@@ -569,67 +416,12 @@ int main(int argc, char** argv) {
 			campos = addv3(campos, scalev3(0.1, right));
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
-		if (doTextures)
-			glBindTexture(GL_TEXTURE_2D, tex);
-		// glDisable(GL_BLEND);
-		// Testing blending for textured triangles.
-		// glDisable(GL_DEPTH_TEST);
-		if (doblend) {
-			glEnable(GL_BLEND);
-			glDepthMask(GL_FALSE);
-			glDisable(GL_DEPTH_TEST);
-		} else {
-			glDisable(GL_BLEND);
-		}
-		glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR);
-		glBlendEquation(GL_FUNC_ADD);
-		// glDisable(GL_TEXTURE_2D);
-		// printf("\nNew triangle!\n");
-		if (!dlExists) {
-			if (!testingModelArrays) {
-				glDisable(GL_TEXTURE_2D);
-				glBegin(GL_TRIANGLES);
-				// glColor3f(0,0,1);
-				glColor3f(1, 0, 0);
-				glTexCoord2f(0, 0);
-				glVertex3f(-1, -1, -10);
-				glColor3f(0, 1, 0);
-				glTexCoord2f(1, 0);
-				glVertex3f(1, -1, -10);
-				glColor3f(0, 0, 1);
-				glTexCoord2f(0.5, 1);
-				glVertex3f(0, 1, -10);
-				// glColor3f(0,1,0);
-				glEnd();
-			} else {
-				if (doTextures)
-					glEnable(GL_TEXTURE_2D);
-				// glDisable(GL_TEXTURE_2D);
-				glEnable(GL_POLYGON_STIPPLE);
-				// puts("\nUSING ARRAYS!");
-				// glDisable(GL_COLOR_MATERIAL);
-				for (unsigned int i = 0; i < count; i++) {
-					glPushMatrix();
-					mat4 horiz_translation = translate((vec3){{8.0 * (i % 10), 0.0, 0.0}});
-					mat4 vert_translation = translate((vec3){{0.0, 8.0 * (i / 10), 0.0}});
-					const mat4 ztranslation = translate((vec3){{0, 0, -10}});
-					mat4 total_translation = multm4(multm4(horiz_translation, vert_translation), ztranslation);
-					glMultMatrixf(total_translation.d);
-					// glTranslatef((float)(i % 10) * 8.0, (float)(i / 10) * 8.0, -10);
-					glBegin(GL_TRIANGLES);
-					for (uint j = 0; j < ModelArray.npoints; j++)
-						glArrayElement(j);
-					glEnd();
-					glPopMatrix();
-				}
-				glDisable(GL_POLYGON_STIPPLE);
-				glDisable(GL_TEXTURE_2D);
-			}
-		} else {
+		if (doTextures) glBindTexture(GL_TEXTURE_2D, tex);
+
+		{
 			if (doTextures)
 				glEnable(GL_TEXTURE_2D);
 			// glDisable(GL_TEXTURE_2D);
-			glEnable(GL_POLYGON_STIPPLE);
 			// glDisable(GL_COLOR_MATERIAL);
 			for (unsigned int i = 0; i < count; i++) {
 				glPushMatrix();
@@ -638,17 +430,9 @@ int main(int argc, char** argv) {
 				const mat4 ztranslation = translate((vec3){{0, 0, -10}});
 				mat4 total_translation = multm4(multm4(horiz_translation, vert_translation), ztranslation);
 				glMultMatrixf(total_translation.d);
-				// glTranslatef((float)(i % 10) * 8.0, (float)(i / 10) * 8.0, -10);
 				glCallList(modelDisplayList);
-				// drawModel(
-				// m.d, m.npoints,
-				// m.c,
-				// m.n,
-				// m.t
-				// );
 				glPopMatrix();
 			}
-			glDisable(GL_POLYGON_STIPPLE);
 			if (doTextures)
 				glDisable(GL_TEXTURE_2D);
 		}
@@ -657,30 +441,13 @@ int main(int argc, char** argv) {
 
 		rotateCamera();
 		glTextSize(GL_TEXT_SIZE16x16);
-		glDrawText((unsigned char*)"\nModel Viewer Demo-\nTinyGL\nSDL 1.2\n", 0, 0, 0x000000FF);
+		glDrawText((unsigned char*)"\nGame-\nTinyGL\nSDL 1.2\n", 0, 0, 0x000000FF);
 
 		// swap buffers:
 		if (SDL_MUSTLOCK(screen) && (SDL_LockSurface(screen) < 0)) {
 			fprintf(stderr, "SDL ERROR: Can't lock screen: %s\n", SDL_GetError());
 			return 1;
 		}
-		if (testingCopyImage2D && doTextures) {
-			glBindTexture(GL_TEXTURE_2D, tex);
-			glReadBuffer(GL_FRONT);
-			glCopyTexImage2D(GL_TEXTURE_2D, // 1
-							 0,				// 2
-							 GL_RGBA,		// 3
-							 0,				// 4
-							 256,			// 5
-							 256,			// 6
-							 256, 0);
-		}
-		/*
-		printf("\nRMASK IS %u",screen->format->Rmask);
-		printf("\nGMASK IS %u",screen->format->Gmask);
-		printf("\nBMASK IS %u",screen->format->Bmask);
-		printf("\nAMASK IS %u",screen->format->Amask);
-		*/
 		// Quickly convert all pixels to the correct format
 #if TGL_FEATURE_RENDER_BITS == 32
 		if (needsRGBAFix)
@@ -699,7 +466,7 @@ int main(int argc, char** argv) {
 				SDL_Delay((1000 / fps) - (SDL_GetTicks() - tNow)); // Yay stable framerate!
 			}
 		// check for error conditions:
-		char* sdl_error = SDL_GetError();
+		const char* sdl_error = SDL_GetError();
 		if (sdl_error[0] != '\0') {
 			fprintf(stderr, "SDL ERROR: \"%s\"\n", sdl_error);
 			SDL_ClearError();
@@ -718,7 +485,6 @@ int main(int argc, char** argv) {
 	// glDeleteList(modelDisplayList);
 	if (dlExists)
 		glDeleteLists(modelDisplayList, 1);
-	FreeModelArray();
 	ZB_close(frameBuffer);
 	glClose();
 	if (SDL_WasInit(SDL_INIT_VIDEO))

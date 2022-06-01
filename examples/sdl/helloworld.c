@@ -1,19 +1,19 @@
 //#define PLAY_MUSIC
 
-#include "../include/TGL/gl.h"
+#include "../../include/TGL/gl.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 //#include <GL/glu.h>
-#include "../include/TGL/gl.h"
+#include "../../include/TGL/gl.h"
 
-#include "../include/zbuffer.h"
+#include "../../include/zbuffer.h"
 #define CHAD_API_IMPL
 #define CHAD_MATH_IMPL
-#include "../include-demo/3dMath.h"
+#include "../3dMath.h"
 #ifdef PLAY_MUSIC
-#include "../include-demo/api_audio.h"
+#include "../api_audio.h"
 #else
 typedef unsigned char uchar;
 #endif

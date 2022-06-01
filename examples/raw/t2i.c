@@ -17,14 +17,14 @@
 
 
 //Doesn't drag in anything.
-#include "../include/TGL/gl.h"
+#include "../../include/TGL/gl.h"
 
 //Doesn't drag in anything.
-#include "../include/zbuffer.h"
+#include "../../include/zbuffer.h"
 #define CHAD_MATH_IMPL
 
 //Drags in Math and String (which are already dragged in above.)
-#include "../include-demo/3dMath.h"
+#include "../3dMath.h"
 
 //Requires 
 /*
@@ -39,8 +39,8 @@ if I didn't define STBIW_ASSERT
 */
 #define STBIW_ASSERT(x) /* a comment */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../include-demo/stb_image_write.h"
-#include "../include-demo/stringutil.h"
+#include "../stb_image_write.h"
+#include "../stringutil.h"
 
 typedef unsigned char uchar;
 int tsize = 1;
