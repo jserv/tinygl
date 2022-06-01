@@ -5,7 +5,7 @@ LIBDIR=/usr/local/lib
 INCDIR=/usr/local/include
 BINDIR=/usr/local/bin
 
-all: $(LIB) RDMOS
+all: $(LIB)
 	@echo Done!
 
 $(LIB):

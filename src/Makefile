@@ -6,7 +6,6 @@ OBJS= api.o list.o vertex.o init.o matrix.o texture.o \
       zmath.o image_util.o msghandling.o \
       arrays.o specbuf.o memory.o ztext.o zraster.o accum.o zpostprocess.o
 
-
 INCLUDES = -I./include
 LIB = libTinyGL.a
 
@@ -17,5 +16,5 @@ $(LIB): $(OBJS)
 	ar rcs $(LIB) $(OBJS)
 clean:
 	rm -f *~ *.o *.a
-.c.o:
-	$(CC) $(CFLAGS_LIB) -c $*.c
+%.c.o: %.c
+	$(CC) $(CFLAGS) -c $*.c
