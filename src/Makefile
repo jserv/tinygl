@@ -9,7 +9,7 @@ OBJS= api.o list.o vertex.o init.o matrix.o texture.o \
 deps := $(OBJS:%.o=.%.o.d)
 
 CFLAGS += -I../include
-LIB = libTinyGL.a
+LIB = ../lib/libTinyGL.a
 
 all: $(LIB)
 

@@ -5,8 +5,7 @@ all: $(LIB)
 	@echo Done!
 
 $(LIB):
-	cd src && $(MAKE) && cd ..
-	cp src/*.a ./lib/
+	$(MAKE) -C src
 
 sdl_examples: $(LIB) examples/stb_image.h
 	@echo "These demos require SDL 1.2 to compile."
@@ -20,7 +19,7 @@ clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C examples/raw clean
 	$(MAKE) -C examples/sdl clean
-	$(RM) lib/*.a
+	$(RM) $(LIB)
 
 examples/stb_image.h:
 	curl -o $@ https://raw.githubusercontent.com/nothings/stb/master/stb_image.h
