@@ -5,31 +5,8 @@
 #define str(s) #s
 
 
-const GLubyte* license_string = (const GLubyte*)""
-												"Copyright notice:\n"
-												"\n"
-												" (C) 1997-2021 Fabrice Bellard, Gek (DMHSW), C-Chads\n"
-												"\n"
-												" This software is provided 'as-is', without any express or implied\n"
-												"  warranty.  In no event will the authors be held liable for any damages\n"
-												"   arising from the use of this software.\n"
-												"\n"
-												" Permission is granted to anyone to use this software for any purpose,\n"
-												" including commercial applications, and to alter it and redistribute it\n"
-												" freely, subject to the following restrictions:\n"
-												"\n"
-												" 1. The origin of this software must not be misrepresented; you must not\n"
-												"    claim that you wrote the original software. If you use this software\n"
-												"    in a product, an acknowledgment in the product and its documentation \n"
-												"    *is* required.\n"
-												" 2. Altered source versions must be plainly marked as such, and must not be\n"
-												"    misrepresented as being the original software.\n"
-												" 3. This notice may not be removed or altered from any source distribution.\n"
-												"\n"
-												"If you redistribute modified sources, I would appreciate that you\n"
-												"include in the files history information documenting your changes.";
-
-const GLubyte* vendor_string = (const GLubyte*)"Fabrice Bellard, Gek, and the C-Chads";
+const GLubyte* license_string = (const GLubyte*) ""; /* will be generated automatically */
+const GLubyte* vendor_string = (const GLubyte*)"Fabrice Bellard et alia.";
 const GLubyte* renderer_string = (const GLubyte*)"TinyGL";
 const GLubyte* version_string = (const GLubyte*)"" xstr(TINYGL_VERSION) " TinyGLv" xstr(TINYGL_VERSION) " "
 #ifdef __GNUC__
