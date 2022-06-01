@@ -11,7 +11,9 @@
 void gl_M4_Id(M4* a) {
 	/*
 		GLint i, j;
+	#ifdef _OPENMP
 	#pragma omp simd collapse(2)
+	#endif
 		for (i = 0; i < 4; i++)
 			for (j = 0; j < 4; j++)
 				if (i == j)
