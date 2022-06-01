@@ -679,4 +679,7 @@ have been lost on my hard disk !
 Fabrice Bellard.
 
 ## Related Projects
+* [PortableGL](https://github.com/rswinkle/PortableGL) is an implementation of OpenGL 3.x core in clean C99 as a single header library.
 * [TinyGLES](https://github.com/lunixbochs/tinygles) is a software OpenGL ES driver.
+* [Vincent ES](https://github.com/hmwill/GLESv20) is a software renderer based on OpenGL ES 2.0 API.
+* [softgl](https://github.com/bit-hack/softgl) is a software renderer based on OpenGL 1.x.
