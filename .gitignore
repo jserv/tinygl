@@ -4,14 +4,21 @@
 *.includes
 
 # Ignore build outputs
-build
 src/*.o
 src/*.a
-Raw_Demos/bigfont
-Raw_Demos/gears
-Raw_Demos/t2i
 lib/*.a
 
+# Examples
+examples/raw/bigfont
+examples/raw/gears
+examples/raw/t2i
+examples/sdl/game
+examples/sdl/gears
+examples/sdl/helloworld
+examples/sdl/menu
+examples/sdl/model
+examples/sdl/texture
+
 # Downloaded files
-include-demo/stb_image.h
-include-demo/stb_image_write.h
+examples/stb_image.h
+examples/stb_image_write.h

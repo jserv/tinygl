@@ -15,12 +15,9 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include <TGL/gl.h>
+#include "zbuffer.h"
 
-//Doesn't drag in anything.
-#include "../../include/TGL/gl.h"
-
-//Doesn't drag in anything.
-#include "../../include/zbuffer.h"
 #define CHAD_MATH_IMPL
 
 //Drags in Math and String (which are already dragged in above.)

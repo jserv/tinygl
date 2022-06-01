@@ -10,9 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../include/TGL/gl.h"
+#include <TGL/gl.h>
 
-#include "../../include/zbuffer.h"
+#include "zbuffer.h"
 #define CHAD_API_IMPL
 #define CHAD_MATH_IMPL
 #include "../3dMath.h"
