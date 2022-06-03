@@ -11,5 +11,8 @@ LDFLAGS += $(shell $(SDL_CONFIG) --libs)
 
 all: $(ALL_T)
 
+$(ALL_T): %: %.c
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
 clean:
 	$(RM) $(ALL_T)
