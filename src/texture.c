@@ -97,14 +97,14 @@ GLTexture* alloc_texture(GLint h) {
 		ht = &c->shared_state.texture_hash_table[h & TEXTURE_HASH_TABLE_MASK];
 
 	if (t) {
-	   if (ht)
-	      t->next = *ht;
-	   t->prev = NULL;
-	   if (t->next != NULL)
-	      t->next->prev = t;
-	   if (ht)
-	      *ht = t;
-	   t->handle = h;
+		if (ht)
+			t->next = *ht;
+		t->prev = NULL;
+		if (t->next != NULL)
+			t->next->prev = t;
+		if (ht)
+			*ht = t;
+		t->handle = h;
 	}
 
 	return t;
@@ -162,14 +162,14 @@ void glopBindTexture(GLParam* p) {
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 #else
-	
+
 #endif
 		t = find_texture(texture);
 	if (t == NULL) {
 		t = alloc_texture(texture);
 #include "error_check.h"
 	}
-	if (t == NULL) { 
+	if (t == NULL) {
 #if TGL_FEATURE_ERROR_CHECK == 1
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
@@ -180,14 +180,7 @@ void glopBindTexture(GLParam* p) {
 	c->current_texture = t;
 }
 
-
-void glCopyTexImage2D(GLenum target,		 
-					  GLint level,			 
-					  GLenum internalformat, 
-					  GLint x,				 
-					  GLint y,				 
-					  GLsizei width,		 
-					  GLsizei height, GLint border) {
+void glCopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border) {
 	GLParam p[9];
 #include "error_check_no_context.h"
 
@@ -232,9 +225,9 @@ void glopCopyTexImage2D(GLParam* p) {
 	im->ysize = TGL_FEATURE_TEXTURE_DIM;
 	/* TODO implement the scaling and stuff that the GL spec says it should have.*/
 #if TGL_FEATURE_MULTITHREADED_COPY_TEXIMAGE_2D == 1
-#  ifdef _OPENMP
-#    pragma omp parallel for
-#  endif
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
 	for (j = 0; j < h; j++)
 		for (i = 0; i < w; i++) {
 			data[i + j * w] = c->zb->pbuf[((i + x) % (c->zb->xsize)) + ((j + y) % (c->zb->ysize)) * (c->zb->xsize)];
@@ -260,7 +253,7 @@ void glopTexImage1D(GLParam* p) {
 	void* pixels = p[8].p;
 	GLImage* im;
 	GLubyte* pixels1;
-	GLint do_free=0;
+	GLint do_free = 0;
 	GLContext* c = gl_get_context();
 	{
 #if TGL_FEATURE_ERROR_CHECK == 1
@@ -286,11 +279,11 @@ void glopTexImage1D(GLParam* p) {
 #endif
 		}
 		/* no GLinterpolation is done here to respect the original image aliasing ! */
-		
+
 		gl_resizeImageNoInterpolate(pixels1, TGL_FEATURE_TEXTURE_DIM, TGL_FEATURE_TEXTURE_DIM, pixels, width, height);
 		do_free = 1;
 		width = TGL_FEATURE_TEXTURE_DIM;
-		height = TGL_FEATURE_TEXTURE_DIM; 
+		height = TGL_FEATURE_TEXTURE_DIM;
 	} else {
 		pixels1 = pixels;
 	}
@@ -320,7 +313,7 @@ void glopTexImage2D(GLParam* p) {
 	void* pixels = p[9].p;
 	GLImage* im;
 	GLubyte* pixels1;
-	GLint do_free=0;
+	GLint do_free = 0;
 	GLContext* c = gl_get_context();
 	{
 #if TGL_FEATURE_ERROR_CHECK == 1
@@ -346,7 +339,7 @@ void glopTexImage2D(GLParam* p) {
 #endif
 		}
 		/* no GLinterpolation is done here to respect the original image aliasing ! */
-		
+
 		gl_resizeImageNoInterpolate(pixels1, TGL_FEATURE_TEXTURE_DIM, TGL_FEATURE_TEXTURE_DIM, pixels, width, height);
 		do_free = 1;
 		width = TGL_FEATURE_TEXTURE_DIM;

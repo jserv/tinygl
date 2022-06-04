@@ -4,8 +4,7 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
-
-const GLubyte* license_string = (const GLubyte*) ""; /* will be generated automatically */
+const GLubyte* license_string = (const GLubyte*)""; /* will be generated automatically */
 const GLubyte* vendor_string = (const GLubyte*)"Fabrice Bellard et alia.";
 const GLubyte* renderer_string = (const GLubyte*)"TinyGL";
 const GLubyte* version_string = (const GLubyte*)"" xstr(TINYGL_VERSION) " TinyGLv" xstr(TINYGL_VERSION) " "
@@ -144,8 +143,6 @@ const GLubyte* glGetString(GLenum name) {
 	}
 	return NULL;
 }
-
-
 
 void glGetIntegerv(GLint pname, GLint* params) {
 	GLint i;
@@ -463,7 +460,7 @@ void glGetIntegerv(GLint pname, GLint* params) {
 		*params = 0;
 #endif
 		break;
-	
+
 	case GL_IS_SPECULAR_ENABLED:
 		*params = c->zEnableSpecular;
 		break;

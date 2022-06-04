@@ -55,7 +55,7 @@ void glopBegin(GLParam* p) {
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
 #else
-	
+
 #endif
 		type = p[1].i;
 	c->begin_type = type;
@@ -89,12 +89,12 @@ void glopBegin(GLParam* p) {
 
 		c->matrix_model_projection_updated = 0;
 	}
-	/*  viewport- this is now updated on a glViewport call. 
+	/*  viewport- this is now updated on a glViewport call.
 	if (c->viewport.updated) {
 		gl_eval_viewport(c);
 		c->viewport.updated = 0;
 	}
-	 triangle drawing functions 
+	 triangle drawing functions
 	*/
 #if TGL_FEATURE_ALT_RENDERMODES == 1
 	if (c->render_mode == GL_SELECT) {
@@ -146,19 +146,19 @@ static void gl_transform_to_viewport_vertex_c(GLVertex* v) {
 	v->zp.b = (GLint)(v->color.v[2] * COLOR_CORRECTED_MULT_MASK + COLOR_MIN_MULT) & COLOR_MASK;
 
 	if (c->texture_2d_enabled) {
-		v->zp.s = (GLint)(v->tex_coord.X * (ZB_POINT_S_MAX - ZB_POINT_S_MIN) + ZB_POINT_S_MIN); 
-		v->zp.t = (GLint)(v->tex_coord.Y * (ZB_POINT_T_MAX - ZB_POINT_T_MIN) + ZB_POINT_T_MIN); 
+		v->zp.s = (GLint)(v->tex_coord.X * (ZB_POINT_S_MAX - ZB_POINT_S_MIN) + ZB_POINT_S_MIN);
+		v->zp.t = (GLint)(v->tex_coord.Y * (ZB_POINT_T_MAX - ZB_POINT_T_MIN) + ZB_POINT_T_MIN);
 	}
 }
 
 int gl_V3_Norm_Fast(V3* a) {
 	GLfloat n;
 #if TGL_FEATURE_FISR == 1
-	n = fastInvSqrt(a->X * a->X + a->Y * a->Y + a->Z * a->Z); 
+	n = fastInvSqrt(a->X * a->X + a->Y * a->Y + a->Z * a->Z);
 	if (n > 1E+3)
 		return 1;
 #else
-	n = sqrt(a->X * a->X + a->Y * a->Y + a->Z * a->Z); 
+	n = sqrt(a->X * a->X + a->Y * a->Y + a->Z * a->Z);
 	if (n == 0)
 		return 1;
 	n = 1.0 / n;
@@ -230,7 +230,7 @@ void glopVertex(GLParam* p) {
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
 #else
-	
+
 #endif
 
 		n = c->vertex_n;
@@ -254,7 +254,7 @@ void glopVertex(GLParam* p) {
 	if (c->lighting_enabled) {
 		gl_shade_vertex(v);
 #include "error_check.h"
-		
+
 	} else {
 		v->color = c->current_color;
 	}
@@ -383,11 +383,9 @@ void glopEnd(GLParam* param) {
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
 #else
-	
+
 	/* Assume it went alright.*/
 #endif
-
-
 
 #if TGL_FEATURE_GL_POLYGON == 1
 		if (c->begin_type == GL_LINE_LOOP) {

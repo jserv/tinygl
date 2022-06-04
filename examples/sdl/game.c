@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <TGL/gl.h>
 #include "zbuffer.h"
+#include <TGL/gl.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 #include "3dmath.h"
+#include "stb_image.h"
 #include "tobjparse.h"
 
 typedef unsigned char uchar;
@@ -234,23 +234,22 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "ERROR: cannot initialize SDL video.\n");
 		return 1;
 	}
-	SDL_Window *window = NULL;
-        SDL_Renderer *renderer = NULL;
-        SDL_Surface *screen = NULL;
-	if ((window = SDL_CreateWindow(argv[0], SDL_WINDOWPOS_UNDEFINED,
-                                SDL_WINDOWPOS_UNDEFINED, winSizeX, winSizeY, 0)) == 0) {
+	SDL_Window* window = NULL;
+	SDL_Renderer* renderer = NULL;
+	SDL_Surface* screen = NULL;
+	if ((window = SDL_CreateWindow(argv[0], SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, winSizeX, winSizeY, 0)) == 0) {
 		fprintf(stderr, "ERROR: cannot create SDL window.\n");
 		return 1;
-        }
-        if((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE)) == 0) {
+	}
+	if ((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE)) == 0) {
 		fprintf(stderr, "ERROR: cannot create SDL renderer.\n");
-                return 1;
-        }
+		return 1;
+	}
 
-        if((screen = SDL_GetWindowSurface(window)) == 0) {
+	if ((screen = SDL_GetWindowSurface(window)) == 0) {
 		fprintf(stderr, "ERROR: cannot get window surface.\n");
-                return 1;
-        }
+		return 1;
+	}
 
 #if TGL_FEATURE_RENDER_BITS == 32
 	if (screen->format->Rmask != 0x00FF0000 || screen->format->Gmask != 0x0000FF00 || screen->format->Bmask != 0x000000FF) {
@@ -264,13 +263,13 @@ int main(int argc, char** argv) {
 	SDL_ShowCursor(SDL_DISABLE);
 
 	// initialize TinyGL:
-        SDL_Texture* texture = NULL;
+	SDL_Texture* texture = NULL;
 	switch (screen->format->BitsPerPixel) {
 	case 8:
 		fprintf(stderr, "ERROR: Palettes are currently not supported.\n");
 		return 1;
 	case 16:
-		fprintf(stderr,"\nUnsupported by maintainer!!!");
+		fprintf(stderr, "\nUnsupported by maintainer!!!");
 		return 1;
 		break;
 	case 24:
@@ -278,8 +277,7 @@ int main(int argc, char** argv) {
 		return 1;
 		break;
 	case 32:
-                texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
-                        SDL_TEXTUREACCESS_STREAMING, winSizeX, winSizeY);
+		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, winSizeX, winSizeY);
 		break;
 	default:
 		return 1;
@@ -399,7 +397,7 @@ int main(int argc, char** argv) {
 		glPushMatrix(); // Pushing on the LookAt Matrix.
 
 		vec3 right = normalizev3(crossv3(camforw, camup));
-		matrix = (lookAt(campos, addv3(campos, camforw), camup)); 
+		matrix = (lookAt(campos, addv3(campos, camforw), camup));
 		glLoadMatrixf(matrix.d);
 		if (wasdstate[0])
 			campos = addv3(campos, scalev3(0.1, camforw));
@@ -411,7 +409,8 @@ int main(int argc, char** argv) {
 			campos = addv3(campos, scalev3(0.1, right));
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
-		if (doTextures) glBindTexture(GL_TEXTURE_2D, tex);
+		if (doTextures)
+			glBindTexture(GL_TEXTURE_2D, tex);
 
 		{
 			if (doTextures)
@@ -455,10 +454,10 @@ int main(int argc, char** argv) {
 		ZB_copyFrameBuffer(frameBuffer, screen->pixels, screen->pitch);
 		if (SDL_MUSTLOCK(screen))
 			SDL_UnlockSurface(screen);
-                SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
-                SDL_RenderClear(renderer);
-                SDL_RenderCopy(renderer, texture, NULL, NULL);
-                SDL_RenderPresent(renderer);
+		SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_RenderPresent(renderer);
 		if (fps > 0)
 			if ((1000 / fps) > (SDL_GetTicks() - tNow)) {
 				SDL_Delay((1000 / fps) - (SDL_GetTicks() - tNow)); // Yay stable framerate!
@@ -487,10 +486,10 @@ int main(int argc, char** argv) {
 	glClose();
 	if (SDL_WasInit(SDL_INIT_VIDEO)) {
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-                SDL_DestroyTexture(texture);
-                SDL_DestroyRenderer(renderer);
-                SDL_DestroyWindow(window);
-        }
+		SDL_DestroyTexture(texture);
+		SDL_DestroyRenderer(renderer);
+		SDL_DestroyWindow(window);
+	}
 	SDL_Quit();
 	return 0;
 }

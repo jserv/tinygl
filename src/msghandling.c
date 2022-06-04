@@ -1,8 +1,7 @@
 #include "msghandling.h"
-#include <TGL/gl.h>
 #include "zgl.h"
+#include <TGL/gl.h>
 #include <stdarg.h>
-
 
 #ifdef __TINYC__
 #define NO_DEBUG_OUTPUT

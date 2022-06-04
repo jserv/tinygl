@@ -28,7 +28,6 @@ void glopMatrixMode(GLParam* p) {
 		break;
 	default:
 		break;
-		
 	}
 }
 
@@ -103,8 +102,6 @@ void glopPushMatrix(GLParam* p) {
 void glopPopMatrix(GLParam* p) {
 	GLContext* c = gl_get_context();
 	GLint n = c->matrix_mode;
-
-	
 
 #if TGL_FEATURE_ERROR_CHECK == 1
 	if (!(c->matrix_stack_ptr[n] > c->matrix_stack[n]))

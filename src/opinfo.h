@@ -43,16 +43,12 @@ ADD_OP(TexImage1D, 8, "%d %d  %d %d %d  %d %d %d")
 ADD_OP(CopyTexImage2D, 8, "%d %d %d %d  %d %d %d %d")
 ADD_OP(BindTexture, 2, "%C %d")
 
-
-
-
 ADD_OP(ShadeModel, 1, "%C")
 ADD_OP(CullFace, 1, "%C")
 ADD_OP(FrontFace, 1, "%C")
 ADD_OP(PolygonMode, 2, "%C %C")
 
 ADD_OP(CallList, 1, "%d")
-
 
 /* special opcodes */
 ADD_OP(EndList, 0, "")

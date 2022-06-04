@@ -1,24 +1,24 @@
 #include "zgl.h"
 
 void gl_add_op(GLParam* p) {
-        GLContext* c = gl_get_context();
+	GLContext* c = gl_get_context();
 #if TGL_FEATURE_ERROR_CHECK == 1
 #include "error_check.h"
 #endif
-        GLint op;
-        op = p[0].op;
-        if (c->exec_flag) {
-                op_table_func[op](p);
+	GLint op;
+	op = p[0].op;
+	if (c->exec_flag) {
+		op_table_func[op](p);
 #if TGL_FEATURE_ERROR_CHECK == 1
 #include "error_check.h"
 #endif
-        }
-        if (c->compile_flag) {
-                gl_compile_op(p);
+	}
+	if (c->compile_flag) {
+		gl_compile_op(p);
 #if TGL_FEATURE_ERROR_CHECK == 1
 #include "error_check.h"
 #endif
-        }
+	}
 }
 
 /* glVertex */
@@ -243,7 +243,7 @@ void glBegin(GLint mode) {
 	p[0].op = OP_Begin;
 	p[1].i = mode;
 #if TGL_FEATURE_ERROR_CHECK == 1
-	
+
 	if (mode != GL_POINTS && mode != GL_LINES && mode != GL_LINE_LOOP && mode != GL_LINE_STRIP &&
 #if TGL_FEATURE_GL_POLYGON == 1
 		mode != GL_POLYGON &&
@@ -397,7 +397,7 @@ void glMaterialfv(GLint mode, GLint type, GLfloat* v) {
 		p[0].op = OP_Material;
 	p[1].i = mode;
 	p[2].i = type;
-	n = 4;  /* This appears to be a hack... to avoid a jump instruction? What the hell?*/
+	n = 4; /* This appears to be a hack... to avoid a jump instruction? What the hell?*/
 	if (type == GL_SHININESS)
 		n = 1;
 	for (i = 0; i < 4; i++)
@@ -562,30 +562,11 @@ void glBindTexture(GLint target, GLint texture) {
 void glTexEnvi(GLint target, GLint pname, GLint param) {
 
 #include "error_check_no_context.h"
-
-
-
-
-
-
-
-
-
 }
 
 void glTexParameteri(GLint target, GLint pname, GLint param) {
 
 #include "error_check_no_context.h"
-
-
-
-
-
-
-
-
-
-
 }
 
 /*

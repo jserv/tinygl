@@ -27,12 +27,10 @@ static void gl_transform_to_viewport_clip_c(GLVertex* v) { /* MARK: NOT_INLINED_
 	/* texture */
 
 	if (c->texture_2d_enabled) {
-		v->zp.s = (GLint)(v->tex_coord.X * (ZB_POINT_S_MAX - ZB_POINT_S_MIN) + ZB_POINT_S_MIN); 
-		v->zp.t = (GLint)(v->tex_coord.Y * (ZB_POINT_T_MAX - ZB_POINT_T_MIN) + ZB_POINT_T_MIN); 
+		v->zp.s = (GLint)(v->tex_coord.X * (ZB_POINT_S_MAX - ZB_POINT_S_MIN) + ZB_POINT_S_MIN);
+		v->zp.t = (GLint)(v->tex_coord.Y * (ZB_POINT_T_MAX - ZB_POINT_T_MIN) + ZB_POINT_T_MIN);
 	}
 }
-
-
 
 #define clip_funcdef(name, sign, dir, dir1, dir2)                                                                                                              \
 	static GLfloat name(V4* c, V4* a, V4* b) {                                                                                                                 \
@@ -59,12 +57,12 @@ clip_funcdef(clip_xmin, -, X, Y, Z)
 		clip_funcdef(clip_ymin, -, Y, X, Z)
 
 			clip_funcdef(clip_ymax, +, Y, X, Z)
-			
+
 				clip_funcdef(clip_zmin, -, Z, X, Y)
 
 					clip_funcdef(clip_zmax, +, Z, X, Y)
 
-static GLfloat (*clip_proc[6])(V4*, V4*, V4*) = {clip_xmin, clip_xmax, clip_ymin, clip_ymax, clip_zmin, clip_zmax};
+						static GLfloat (*clip_proc[6])(V4*, V4*, V4*) = {clip_xmin, clip_xmax, clip_ymin, clip_ymax, clip_zmin, clip_zmax};
 /* point */
 #if TGL_FEATURE_ALT_RENDERMODES == 1
 static void gl_add_select1(GLint z1, GLint z2, GLint z3) {
@@ -107,14 +105,14 @@ void gl_draw_point(GLVertex* p0) {
  * Line Clipping
  */
 
-static void GLinterpolate(GLVertex* q, GLVertex* p0, GLVertex* p1, GLfloat t) { 
+static void GLinterpolate(GLVertex* q, GLVertex* p0, GLVertex* p1, GLfloat t) {
 	GLint i;
 	q->pc.X = p0->pc.X + (p1->pc.X - p0->pc.X) * t;
 	q->pc.Y = p0->pc.Y + (p1->pc.Y - p0->pc.Y) * t;
 	q->pc.Z = p0->pc.Z + (p1->pc.Z - p0->pc.Z) * t;
 	q->pc.W = p0->pc.W + (p1->pc.W - p0->pc.W) * t;
 #ifdef _OPENMP
-#  pragma omp simd
+#pragma omp simd
 #endif
 	for (i = 0; i < 3; i++)
 		q->color.v[i] = p0->color.v[i] + (p1->color.v[i] - p0->color.v[i]) * t;
@@ -203,11 +201,9 @@ void gl_draw_line(GLVertex* p1, GLVertex* p2) {
 	}
 }
 
-
-
 /*Triangles*/
 
-static void updateTmp(GLVertex* q, GLVertex* p0, GLVertex* p1, GLfloat t) { 
+static void updateTmp(GLVertex* q, GLVertex* p0, GLVertex* p1, GLfloat t) {
 	{
 
 		q->color.v[0] = p0->color.v[0] + (p1->color.v[0] - p0->color.v[0]) * t;
@@ -228,7 +224,7 @@ static void updateTmp(GLVertex* q, GLVertex* p0, GLVertex* p1, GLfloat t) {
 		gl_transform_to_viewport_clip_c(q);
 }
 
-static void gl_draw_triangle_clip(GLVertex* p0, GLVertex* p1, GLVertex* p2, GLint clip_bit); 
+static void gl_draw_triangle_clip(GLVertex* p0, GLVertex* p1, GLVertex* p2, GLint clip_bit);
 
 void gl_draw_triangle(GLVertex* p0, GLVertex* p1, GLVertex* p2) {
 	GLContext* c = gl_get_context();
@@ -245,11 +241,11 @@ void gl_draw_triangle(GLVertex* p0, GLVertex* p1, GLVertex* p2) {
 		GLfloat norm;
 		norm = (GLfloat)(p1->zp.x - p0->zp.x) * (GLfloat)(p2->zp.y - p0->zp.y) - (GLfloat)(p2->zp.x - p0->zp.x) * (GLfloat)(p1->zp.y - p0->zp.y);
 
-		if (norm == 0) 
+		if (norm == 0)
 			return;
 
 		front = norm < 0.0;
-		front = front ^ c->current_front_face; 
+		front = front ^ c->current_front_face;
 
 		/* back face culling */
 		if (c->cull_face_enabled) {
@@ -282,9 +278,9 @@ void gl_draw_triangle(GLVertex* p0, GLVertex* p1, GLVertex* p2) {
 }
 
 static void gl_draw_triangle_clip(GLVertex* p0, GLVertex* p1, GLVertex* p2, GLint clip_bit) {
-	
+
 	GLint co, c_and, co1, cc[3], edge_flag_tmp, clip_mask;
-	
+
 	GLVertex* q[3];
 
 	cc[0] = p0->clip_code;
@@ -395,7 +391,7 @@ int count_triangles, count_triangles_textured, count_pixels;
 #endif
 
 /* see vertex.c to see how the draw functions are assigned.*/
-void gl_draw_triangle_fill(GLVertex* p0, GLVertex* p1, GLVertex* p2) { 
+void gl_draw_triangle_fill(GLVertex* p0, GLVertex* p1, GLVertex* p2) {
 	GLContext* c = gl_get_context();
 	if (c->texture_2d_enabled) {
 		/* if(c->current_texture)*/

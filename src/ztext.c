@@ -1,10 +1,10 @@
-#include <TGL/gl.h>
-#include "zbuffer.h"
-#include "font8x8_basic.h"
-#include "zgl.h"
-
 #include <stdlib.h>
 
+#include "zbuffer.h"
+#include "zgl.h"
+#include <TGL/gl.h>
+
+#include "font8x8_basic.h"
 
 void glTextSize(GLTEXTSIZE mode) {
 #define NEED_CONTEXT
@@ -22,7 +22,7 @@ void glTextSize(GLTEXTSIZE mode) {
 void glopTextSize(GLParam* p) {
 	GLContext* c = gl_get_context();
 	c->textsize = p[1].ui;
-} 
+}
 static void renderchar(GLbyte* bitmap, GLint _x, GLint _y, GLuint p) {
 	GLint x, y, i, j;
 	GLint set;
@@ -44,14 +44,13 @@ void glopPlotPixel(GLParam* p) {
 	GLint x = p[1].i;
 	PIXEL pix = p[2].ui;
 	c->zb->pbuf[x] = pix;
-	
 }
 
 void glPlotPixel(GLint x, GLint y, GLuint pix) {
 	GLParam p[3];
 	GLContext* c = gl_get_context();
 #include "error_check.h"
-	
+
 	GLint w = c->zb->xsize;
 	GLint h = c->zb->ysize;
 	p[0].op = OP_PlotPixel;
@@ -75,7 +74,7 @@ void glDrawText(const GLubyte* text, GLint x, GLint y, GLuint p) {
 #define ERROR_FLAG GL_INVALID_VALUE
 #include "error_check.h"
 #endif
-		
+
 		GLint w = c->zb->xsize;
 	GLint h = c->zb->ysize;
 	GLint xoff = 0;

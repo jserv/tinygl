@@ -39,15 +39,12 @@ void glopViewport(GLParam* p) {
 			gl_fatal_error("glViewport: size too small");
 		}
 
-		
 		c->viewport.xmin = xmin;
 		c->viewport.ymin = ymin;
 		c->viewport.xsize = xsize;
 		c->viewport.ysize = ysize;
 
-		
 		gl_eval_viewport();
-		
 	}
 }
 void glBlendFunc(GLenum sfactor, GLenum dfactor) {
@@ -198,7 +195,7 @@ GLenum glGetError() {
 #if TGL_FEATURE_ERROR_CHECK == 1
 	GLContext* c = gl_get_context();
 	GLenum eflag = c->error_flag;
-	if (eflag != GL_OUT_OF_MEMORY) 
+	if (eflag != GL_OUT_OF_MEMORY)
 		c->error_flag = GL_NO_ERROR;
 	return eflag;
 #else
@@ -234,7 +231,6 @@ void glReadBuffer(GLenum mode) {
 	c->readbuffer = mode;
 }
 
-
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* data) {
 	GLContext* c = gl_get_context();
 #include "error_check.h"
@@ -261,34 +257,33 @@ void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format
 void glFinish() { return; }
 
 void gl_eval_viewport() {
-        GLContext* c = gl_get_context();
-        GLViewport* v;
-        GLfloat zsize = (1 << (ZB_Z_BITS + ZB_POINT_Z_FRAC_BITS));
+	GLContext* c = gl_get_context();
+	GLViewport* v;
+	GLfloat zsize = (1 << (ZB_Z_BITS + ZB_POINT_Z_FRAC_BITS));
 
-        v = &c->viewport;
+	v = &c->viewport;
 
-        v->trans.X = ((v->xsize - 0.5) / 2.0) + v->xmin;
-        v->trans.Y = ((v->ysize - 0.5) / 2.0) + v->ymin;
-        v->trans.Z = ((zsize - 0.5) / 2.0) + ((1 << ZB_POINT_Z_FRAC_BITS)) / 2;
+	v->trans.X = ((v->xsize - 0.5) / 2.0) + v->xmin;
+	v->trans.Y = ((v->ysize - 0.5) / 2.0) + v->ymin;
+	v->trans.Z = ((zsize - 0.5) / 2.0) + ((1 << ZB_POINT_Z_FRAC_BITS)) / 2;
 
-        v->scale.X = (v->xsize - 0.5) / 2.0;
-        v->scale.Y = -(v->ysize - 0.5) / 2.0;
-        v->scale.Z = -((zsize - 0.5) / 2.0);
+	v->scale.X = (v->xsize - 0.5) / 2.0;
+	v->scale.Y = -(v->ysize - 0.5) / 2.0;
+	v->scale.Z = -((zsize - 0.5) / 2.0);
 }
 
 GLint gl_clipcode(GLfloat x, GLfloat y, GLfloat z, GLfloat w1) {
-        GLfloat w;
+	GLfloat w;
 
-        w = w1 * (1.0 + CLIP_EPSILON);
-        return (x < -w) | ((x > w) << 1) | ((y < -w) << 2) | ((y > w) << 3) | ((z < -w) << 4) | ((z > w) << 5);
+	w = w1 * (1.0 + CLIP_EPSILON);
+	return (x < -w) | ((x > w) << 1) | ((y < -w) << 2) | ((y > w) << 3) | ((z < -w) << 4) | ((z > w) << 5);
 }
 
 GLfloat clampf(GLfloat a, GLfloat min, GLfloat max) {
-        if (a < min)
-                return min;
-        else if (a > max)
-                return max;
-        else
-                return a;
+	if (a < min)
+		return min;
+	else if (a > max)
+		return max;
+	else
+		return a;
 }
-

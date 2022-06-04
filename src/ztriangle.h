@@ -32,7 +32,7 @@ Things to keep in mind:
 	GLint error, derror;
 	GLint x1, dxdy_min, dxdy_max;
 	/* warning: x2 is multiplied by 2^16 */
-	GLint x2=0, dx2dy2=0;
+	GLint x2 = 0, dx2dy2 = 0;
 
 #ifdef INTERP_Z
 	GLint z1, dzdx, dzdy, dzdl_min, dzdl_max;
@@ -70,31 +70,31 @@ Things to keep in mind:
 	}
 
 	/* we compute dXdx and dXdy for all GLinterpolated values */
-	fdx1 = p1->x - p0->x; 
-	fdy1 = p1->y - p0->y; 
+	fdx1 = p1->x - p0->x;
+	fdy1 = p1->y - p0->y;
 
 	fdx2 = p2->x - p0->x;
 	fdy2 = p2->y - p0->y;
 
-	GLfloat fz = fdx1 * fdy2 - fdx2 * fdy1; 
+	GLfloat fz = fdx1 * fdy2 - fdx2 * fdy1;
 	/*
 	if (fz == 0)
 		return;
-	fz = 1.0 / fz; 
+	fz = 1.0 / fz;
 	*/
 	if (fz != 0.0)
 		fz = 1.0 / fz;
-	
+
 	fdx1 *= fz;
 	fdy1 *= fz;
 	fdx2 *= fz;
 	fdy2 *= fz;
-	
+
 	{
 		GLfloat d1, d2;
 #ifdef INTERP_Z
 		{
-			d1 = p1->z - p0->z; 
+			d1 = p1->z - p0->z;
 			d2 = p2->z - p0->z;
 			dzdx = (GLint)(fdy2 * d1 - fdy1 * d2);
 			dzdy = (GLint)(fdx1 * d2 - fdx2 * d1);
@@ -163,10 +163,10 @@ Things to keep in mind:
 			dtzdy = (fdx1 * d2 - fdx2 * d1);
 		}
 #endif
-	} 
+	}
 	/* screen coordinates */
 
-	pp1 = (PIXEL*)(zb->pbuf) + zb->xsize * p0->y; 
+	pp1 = (PIXEL*)(zb->pbuf) + zb->xsize * p0->y;
 #if TGL_FEATURE_POLYGON_STIPPLE == 1
 	the_y = p0->y;
 #endif
@@ -180,21 +180,21 @@ Things to keep in mind:
 	 jakascorner.com/blog/2016/06/omp-data-sharing-attributes.html
 	 I'd also like to figure out if the main while() loop over raster lines can be OMP parallelized, but I suspect it isn't worth it.
 	*/
-	ZBufferPoint *pr1, *pr2, *l1, *l2; 
+	ZBufferPoint *pr1, *pr2, *l1, *l2;
 	for (part = 0; part < 2; part++) {
 		GLint nb_lines;
 		{
-			register GLint update_left, update_right; 
+			register GLint update_left, update_right;
 			if (part == 0) {
-				if (fz > 0) {		 
-					update_left = 1; 
+				if (fz > 0) {
+					update_left = 1;
 					update_right = 1;
-					l1 = p0;  
-					l2 = p2;  
-					pr1 = p0; 
-					pr2 = p1; 
+					l1 = p0;
+					l2 = p2;
+					pr1 = p0;
+					pr2 = p1;
 				} else {
-					update_left = 1; 
+					update_left = 1;
 					update_right = 1;
 					l1 = p0;
 					l2 = p1;
@@ -219,7 +219,7 @@ Things to keep in mind:
 			}
 			/* compute the values for the left edge */
 			/*pr1 and pr2 are not used inside this area.*/
-			if (update_left) { 
+			if (update_left) {
 				{
 					register GLint tmp;
 					dy1 = l2->y - l1->y;
@@ -299,11 +299,11 @@ Things to keep in mind:
 				register GLuint s, t;
 #endif
 #ifdef INTERP_STZ
-				
+
 #endif
 
 				n = (x2 >> 16) - x1;
-				
+
 				pp = (PIXEL*)pp1 + x1;
 #ifdef INTERP_Z
 				pz = pz1 + x1;
@@ -320,7 +320,6 @@ Things to keep in mind:
 #endif
 #ifdef INTERP_STZ
 
-
 #endif
 				while (n >= 3) {
 					PUT_PIXEL(0); /*the_x++;*/
@@ -330,14 +329,14 @@ Things to keep in mind:
 #ifdef INTERP_Z
 					pz += 4;
 #endif
-					
+
 					pp += 4;
 					n -= 4;
 				}
 				while (n >= 0) {
 					PUT_PIXEL(0); /*the_x++;*/
 #ifdef INTERP_Z
-					
+
 					pz++;
 #endif
 					/*pp = (PIXEL*)((GLbyte*)pp + PS_ZB);*/
@@ -394,7 +393,7 @@ Things to keep in mind:
 			x2 += dx2dy2;
 
 			/* screen coordinates */
-			
+
 			pp1 += zb->xsize;
 #if TGL_FEATURE_POLYGON_STIPPLE == 1
 			the_y++;

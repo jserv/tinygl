@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <TGL/gl.h>
 #include "zbuffer.h"
+#include <TGL/gl.h>
 
 typedef unsigned char uchar;
 
@@ -308,26 +308,25 @@ int main(int argc, char** argv) {
 		}
 	} else if (SDL_Init(0) < 0)
 		fprintf(stderr, "ERROR: cannot initialize SDL without video.\n");
-	SDL_Window *window = NULL;
-        SDL_Renderer *renderer = NULL;
-        SDL_Surface *screen = NULL;
+	SDL_Window* window = NULL;
+	SDL_Renderer* renderer = NULL;
+	SDL_Surface* screen = NULL;
 	if (!noSDL) {
-		if ((window = SDL_CreateWindow(argv[0], SDL_WINDOWPOS_UNDEFINED,
-                                        SDL_WINDOWPOS_UNDEFINED, winSizeX, winSizeY, 0)) == 0) {
+		if ((window = SDL_CreateWindow(argv[0], SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, winSizeX, winSizeY, 0)) == 0) {
 			fprintf(stderr, "ERROR: cannot create SDL window.\n");
 			return 1;
 		}
 
-                if((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE)) == 0) {
+		if ((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE)) == 0) {
 			fprintf(stderr, "ERROR: cannot create SDL renderer.\n");
-                        return 1;
-                }
+			return 1;
+		}
 
-                if((screen = SDL_GetWindowSurface(window)) == 0) {
+		if ((screen = SDL_GetWindowSurface(window)) == 0) {
 			fprintf(stderr, "ERROR: cannot get window surface.\n");
-                        return 1;
-                }
-        }
+			return 1;
+		}
+	}
 	if (!noSDL) {
 		printf("\nRMASK IS %u", screen->format->Rmask);
 		printf("\nGMASK IS %u", screen->format->Gmask);
@@ -355,7 +354,7 @@ int main(int argc, char** argv) {
 	// initialize TinyGL:
 	// unsigned int pitch;
 	// int mode;
-        SDL_Texture* texture = NULL;
+	SDL_Texture* texture = NULL;
 	if (!noSDL)
 		switch (screen->format->BitsPerPixel) {
 		case 8:
@@ -364,7 +363,7 @@ int main(int argc, char** argv) {
 			return 1;
 		case 16:
 			// pitch = screen->pitch;
-			fprintf(stderr,"\nUnsupported by maintainer!!!");
+			fprintf(stderr, "\nUnsupported by maintainer!!!");
 			// mode = ZB_MODE_5R6G5B;
 			return 1;
 			break;
@@ -377,8 +376,7 @@ int main(int argc, char** argv) {
 		case 32:
 			// pitch = screen->pitch / 2;
 			// mode = ZB_MODE_RGBA;
-                        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
-                                SDL_TEXTUREACCESS_STREAMING, winSizeX, winSizeY);
+			texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, winSizeX, winSizeY);
 			break;
 		default:
 			return 1;
@@ -520,11 +518,11 @@ int main(int argc, char** argv) {
 			if (SDL_MUSTLOCK(screen))
 				SDL_UnlockSurface(screen);
 		if (!noSDL) {
-                        SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
-                        SDL_RenderClear(renderer);
-                        SDL_RenderCopy(renderer, texture, NULL, NULL);
-                        SDL_RenderPresent(renderer);
-                }
+			SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
+			SDL_RenderClear(renderer);
+			SDL_RenderCopy(renderer, texture, NULL, NULL);
+			SDL_RenderPresent(renderer);
+		}
 		if (!noSDL)
 			if (fps > 0)
 				if ((1000 / fps) > (SDL_GetTicks() - tNow)) {
@@ -556,10 +554,10 @@ int main(int argc, char** argv) {
 	if (!noSDL)
 		if (SDL_WasInit(SDL_INIT_VIDEO)) {
 			SDL_QuitSubSystem(SDL_INIT_VIDEO);
-                        SDL_DestroyTexture(texture);
-                        SDL_DestroyRenderer(renderer);
-                        SDL_DestroyWindow(window);
-                }
+			SDL_DestroyTexture(texture);
+			SDL_DestroyRenderer(renderer);
+			SDL_DestroyWindow(window);
+		}
 	SDL_Quit();
 	return 0;
 }

@@ -189,10 +189,10 @@ void glopLightModel(GLParam* p) {
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 #endif
-	/*
-				tgl_warning("glopLightModel: illegal pname: 0x%x\n", pname);
-		 assert(0);
-	*/
+		/*
+					tgl_warning("glopLightModel: illegal pname: 0x%x\n", pname);
+			 assert(0);
+		*/
 		break;
 	}
 }
@@ -216,7 +216,6 @@ void gl_enable_disable_light(GLint light, GLint v) {
 	}
 }
 
-
 void glSetEnableSpecular(GLint s) {
 	GLParam p[2];
 #include "error_check_no_context.h"
@@ -224,10 +223,7 @@ void glSetEnableSpecular(GLint s) {
 	p[0].op = OP_SetEnableSpecular;
 	gl_add_op(p);
 }
-void glopSetEnableSpecular(GLParam* p) {
-	
-	gl_get_context()->zEnableSpecular = p[1].i;
-}
+void glopSetEnableSpecular(GLParam* p) { gl_get_context()->zEnableSpecular = p[1].i; }
 /* non optimized lightening model */
 void gl_shade_vertex(GLVertex* v) {
 	GLContext* c = gl_get_context();
@@ -235,7 +231,7 @@ void gl_shade_vertex(GLVertex* v) {
 	GLMaterial* m;
 	GLLight* l;
 	V3 n, s, d;
-	GLfloat dist=0, tmp, att, dot, dot_spot, dot_spec;
+	GLfloat dist = 0, tmp, att, dot, dot_spot, dot_spec;
 	GLint twoside = c->light_model_two_side;
 
 	m = &c->materials[0];
@@ -248,11 +244,9 @@ void gl_shade_vertex(GLVertex* v) {
 	G = m->emission.v[1] + m->ambient.v[1] * c->ambient_light_model.v[1];
 	B = m->emission.v[2] + m->ambient.v[2] * c->ambient_light_model.v[2];
 	A = m->diffuse.v[3];
-	
+
 	for (l = c->first_light; l != NULL; l = l->next) {
-	
-	
-	
+
 		GLfloat lR, lB, lG;
 
 		/* ambient */
@@ -313,8 +307,6 @@ void gl_shade_vertex(GLVertex* v) {
 						att = att * pow(dot_spot, l->spot_exponent);
 					}
 				}
-				
-				
 			}
 
 			/* specular light */
@@ -324,18 +316,18 @@ void gl_shade_vertex(GLVertex* v) {
 					vcoord.X = v->ec.X;
 					vcoord.Y = v->ec.Y;
 					vcoord.Z = v->ec.Z;
-					
+
 					gl_V3_Norm_Fast(&vcoord);
 					s.X = d.X - vcoord.X;
 					s.Y = d.Y - vcoord.X;
 					s.Z = d.Z - vcoord.X;
 				} else {
-					
-					s.X = d.X; 
-					s.Y = d.Y; 
+
+					s.X = d.X;
+					s.Y = d.Y;
 					s.Z = d.Z - 1.0;
 				}
-				
+
 				dot_spec = n.X * s.X + n.Y * s.Y + n.Z * s.Z;
 				if (twoside && dot_spec < 0)
 					dot_spec = -dot_spec;
@@ -346,12 +338,12 @@ void gl_shade_vertex(GLVertex* v) {
 #endif
 					dot_spec = clampf(dot_spec, 0, 1);
 #if TGL_FEATURE_FISR == 1
-					tmp = fastInvSqrt(s.X * s.X + s.Y * s.Y + s.Z * s.Z); 
-					
+					tmp = fastInvSqrt(s.X * s.X + s.Y * s.Y + s.Z * s.Z);
+
 					{ dot_spec = dot_spec * tmp; }
-					
+
 #else
-					
+
 					tmp = sqrt(s.X * s.X + s.Y * s.Y + s.Z * s.Z);
 					if (tmp > 1E-3) {
 						dot_spec = dot_spec / tmp;
@@ -378,9 +370,9 @@ void gl_shade_vertex(GLVertex* v) {
 					lR += dot_spec * l->specular.v[0] * m->specular.v[0];
 					lG += dot_spec * l->specular.v[1] * m->specular.v[1];
 					lB += dot_spec * l->specular.v[2] * m->specular.v[2];
-				} 
-			}	 
-		}		  
+				}
+			}
+		}
 
 		R += att * lR;
 		G += att * lG;

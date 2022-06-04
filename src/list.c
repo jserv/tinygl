@@ -29,10 +29,9 @@ static void delete_list(GLint list) {
 	GLList* l;
 
 	l = find_list(list);
-	if (l == NULL) { 
+	if (l == NULL) {
 		return;
 	}
-	
 
 	/* free param buffer */
 	pb = l->first_op_buffer;
@@ -72,7 +71,7 @@ static GLList* alloc_list(GLint list) {
 #include "error_check.h"
 
 #else
-	/* 
+	/*
 	if(!l || !ob) gl_fatal_error("GL_OUT_OF_MEMORY");
 	 This will crash a few lines down, so, let it!
 	 */
@@ -121,15 +120,14 @@ void glListBase(GLint n) {
 void glCallLists(GLsizei n, GLenum type, const GLuint* lists) {
 	GLint i;
 	GLContext* c = gl_get_context();
-	#include "error_check.h"
-	#if TGL_FEATURE_ERROR_CHECK == 1
-		if(type != GL_UNSIGNED_INT &&
-			type != GL_INT)
-	#define ERROR_FLAG GL_INVALID_ENUM
-	#include "error_check.h"
-	#endif
-	for (i = 0; i < n; i++)
-		glCallList(c->listbase + lists[i]);
+#include "error_check.h"
+#if TGL_FEATURE_ERROR_CHECK == 1
+	if (type != GL_UNSIGNED_INT && type != GL_INT)
+#define ERROR_FLAG GL_INVALID_ENUM
+#include "error_check.h"
+#endif
+		for (i = 0; i < n; i++)
+			glCallList(c->listbase + lists[i]);
 }
 void gl_compile_op(GLParam* p) {
 	GLContext* c = gl_get_context();
@@ -152,8 +150,7 @@ void gl_compile_op(GLParam* p) {
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
 #else
-		
-		
+
 #endif
 			ob1->next = NULL;
 
@@ -179,7 +176,7 @@ void glopEndList(GLParam* p) { exit(1); }
 void glopNextBuffer(GLParam* p) { exit(1); }
 
 void glopCallList(GLParam* p) {
-	
+
 	GLList* l;
 	GLint list;
 #include "error_check_no_context.h"
@@ -191,7 +188,7 @@ void glopCallList(GLParam* p) {
 		gl_fatal_error("Bad list op, not defined");
 	}
 #else
-	
+
 #endif
 	p = l->first_op_buffer->ops;
 
@@ -226,8 +223,7 @@ void glNewList(GLuint list, GLint mode) {
 #include "error_check.h"
 
 #else
-	
-	
+
 #endif
 			l = find_list(list);
 	if (l != NULL)
@@ -239,7 +235,7 @@ void glNewList(GLuint list, GLint mode) {
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
 #else
-	
+
 	if (l == NULL)
 		gl_fatal_error("Could not find or allocate list.");
 #endif
@@ -271,7 +267,7 @@ void glEndList(void) {
 }
 
 GLint glIsList(GLuint list) {
-	
+
 	GLList* l;
 	l = find_list(list);
 	return (l != NULL);

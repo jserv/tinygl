@@ -2,23 +2,20 @@
 
 #include "msghandling.h"
 
-
-
 static GLint free_buffer(GLint handle) {
 	GLContext* c = gl_get_context();
 	GLSharedState* s = &(c->shared_state);
 	if (handle == 0 || handle > MAX_BUFFERS)
-		return 1; 
+		return 1;
 
 	handle--;
-	if (s->buffers[handle]) { 
+	if (s->buffers[handle]) {
 		if (c->boundarraybuffer == (handle + 1))
 			c->boundarraybuffer = 0;
-		if (s->buffers[handle]->data) 
-		{
+		if (s->buffers[handle]->data) {
 			void* d = s->buffers[handle]->data;
-			gl_free(s->buffers[handle]->data); 
-			
+			gl_free(s->buffers[handle]->data);
+
 			if (c->vertex_array == d) {
 				c->vertex_array = NULL;
 				c->client_states &= ~VERTEX_ARRAY;
@@ -36,14 +33,14 @@ static GLint free_buffer(GLint handle) {
 				c->client_states &= ~TEXCOORD_ARRAY;
 			}
 		}
-		gl_free(s->buffers[handle]); 
-		s->buffers[handle] = NULL;   
+		gl_free(s->buffers[handle]);
+		s->buffers[handle] = NULL;
 		return 0;
 	} else {
 		return 0;
 	}
 }
-static GLint check_buffer(GLint handle) { 
+static GLint check_buffer(GLint handle) {
 	GLContext* c = gl_get_context();
 	GLSharedState* s = &(c->shared_state);
 	if (handle == 0 || handle > MAX_BUFFERS)
@@ -98,10 +95,9 @@ void glGenBuffers(GLsizei n, GLuint* buffers) {
 				names[(n_left--) - 1] = i;
 
 		if (n_left)
-			goto error; 
+			goto error;
 		for (i = 0; i < n; i++) {
 			create_buffer(names[i]);
-
 
 #include "error_check.h"
 			buffers[i] = names[i];
@@ -120,7 +116,6 @@ void glDeleteBuffers(GLsizei n, const GLuint* buffers) {
 		free_buffer(buffers[i]);
 }
 
-
 void glBindBuffer(GLenum target, GLuint buffer) {
 	GLContext* c = gl_get_context();
 #include "error_check.h"
@@ -131,10 +126,7 @@ void glBindBuffer(GLenum target, GLuint buffer) {
 	return;
 }
 
-void glBindBufferAsArray(GLenum target, GLuint buffer,
-						 GLenum type,	
-						 GLint size,	 
-						 GLint stride) { 
+void glBindBufferAsArray(GLenum target, GLuint buffer, GLenum type, GLint size, GLint stride) {
 	GLContext* c = gl_get_context();
 #include "error_check.h"
 	if (target != GL_VERTEX_BUFFER && target != GL_NORMAL_BUFFER && target != GL_COLOR_BUFFER && target != GL_TEXTURE_COORD_BUFFER) {
@@ -248,9 +240,7 @@ void* glMapBuffer(GLenum target, GLenum access) {
 	return NULL;
 #endif
 }
-void glBufferData(GLenum target, GLsizei size, const void* data,
-				  GLenum usage) 
-{
+void glBufferData(GLenum target, GLsizei size, const void* data, GLenum usage) {
 	GLContext* c = gl_get_context();
 #include "error_check.h"
 	GLint handle = 0;
@@ -280,7 +270,7 @@ void glBufferData(GLenum target, GLsizei size, const void* data,
 	buf->data = NULL;
 	buf->size = 0;
 	if (size == 0)
-		return; 
+		return;
 	buf->data = gl_malloc(size);
 	buf->size = size;
 	if (!(buf->data)) {
@@ -316,7 +306,6 @@ void glopArrayElement(GLParam* param) {
 		c->current_normal.X = c->normal_array[i];
 		c->current_normal.Y = c->normal_array[i + 1];
 		c->current_normal.Z = c->normal_array[i + 2];
-		
 	}
 	if (states & TEXCOORD_ARRAY) {
 		GLint size = c->texcoord_array_size;
@@ -349,7 +338,7 @@ void glArrayElement(GLint i) {
 void glDrawArrays(GLenum mode, GLint first, GLsizei count) {
 	GLint i;
 	GLint end;
-	
+
 #include "error_check_no_context.h"
 	end = first + count;
 	glBegin(mode);

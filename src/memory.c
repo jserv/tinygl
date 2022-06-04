@@ -1,13 +1,11 @@
 /*
  * Memory allocator for TinyGL
  */
-#include<string.h>
-#include<stdlib.h>
 #include "zgl.h"
+#include <stdlib.h>
+#include <string.h>
 
-static inline void required_for_compilation_(){
-	return;
-}
+static inline void required_for_compilation_() { return; }
 
 /* modify these functions so that they suit your needs */
 #include <string.h>

@@ -14,7 +14,7 @@ void ZB_plot(ZBuffer* zb, ZBufferPoint* p) {
 	GLfloat zbps = zb->pointsize;
 	TGL_BLEND_VARS
 	zz = p->z >> ZB_POINT_Z_FRAC_BITS;
-	
+
 	if (zbps == 1) {
 		GLushort* pz;
 		PIXEL* pp;
@@ -48,7 +48,7 @@ void ZB_plot(ZBuffer* zb, ZBufferPoint* p) {
 			for (x = bx; x < ex; x++) {
 				GLushort* pz = zb->zbuf + (y * zb->xsize + x);
 				PIXEL* pp = (PIXEL*)((GLbyte*)zb->pbuf + zb->linesize * y + x * PSZB);
-				
+
 				if (ZCMP(zz, *pz)) {
 #if TGL_FEATURE_BLEND == 1
 					if (!zb->enable_blend)
@@ -67,7 +67,7 @@ void ZB_plot(ZBuffer* zb, ZBufferPoint* p) {
 
 #define INTERP_Z
 static void ZB_line_flat_z(ZBuffer* zb, ZBufferPoint* p1, ZBufferPoint* p2, GLint color) {
-	
+
 	GLubyte zbdt = zb->depth_test;
 	GLubyte zbdw = zb->depth_write;
 #include "zline.h"
@@ -77,7 +77,7 @@ static void ZB_line_flat_z(ZBuffer* zb, ZBufferPoint* p1, ZBufferPoint* p2, GLin
 #define INTERP_Z
 #define INTERP_RGB
 static void ZB_line_interp_z(ZBuffer* zb, ZBufferPoint* p1, ZBufferPoint* p2) {
-	
+
 	GLubyte zbdt = zb->depth_test;
 	GLubyte zbdw = zb->depth_write;
 #include "zline.h"
@@ -86,8 +86,7 @@ static void ZB_line_interp_z(ZBuffer* zb, ZBufferPoint* p1, ZBufferPoint* p2) {
 /* no Z GLinterpolation */
 
 static void ZB_line_flat(ZBuffer* zb, ZBufferPoint* p1, ZBufferPoint* p2, GLint color) {
-	
-	
+
 #include "zline.h"
 }
 
@@ -99,7 +98,7 @@ static void ZB_line_interp(ZBuffer* zb, ZBufferPoint* p1, ZBufferPoint* p2) {
 
 void ZB_line_z(ZBuffer* zb, ZBufferPoint* p1, ZBufferPoint* p2) {
 	GLint color1, color2;
-	
+
 	color1 = RGB_TO_PIXEL(p1->r, p1->g, p1->b);
 	color2 = RGB_TO_PIXEL(p2->r, p2->g, p2->b);
 

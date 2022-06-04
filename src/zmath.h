@@ -1,12 +1,12 @@
 #ifndef __ZMATH__
 #define __ZMATH__
 
-#include <TGL/gl.h>
 #include "zfeatures.h"
+#include <TGL/gl.h>
 
 #include <math.h>
 #include <stdlib.h>
-#include <string.h> 
+#include <string.h>
 /* Matrix & Vertex */
 
 typedef struct {
@@ -49,13 +49,10 @@ void gl_M4_MulLeft(M4* c, M4* a);
 void gl_M4_Transpose(M4* a, M4* b);
 void gl_M4_Rotate(M4* c, GLfloat t, GLint u);
 
-
-
 V3 gl_V3_New(GLfloat x, GLfloat y, GLfloat z);
 V4 gl_V4_New(GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 
 GLint gl_Matrix_Inv(GLfloat* r, GLfloat* m, GLint n);
-
 
 #if TGL_FEATURE_FISR == 1
 static GLfloat fastInvSqrt(GLfloat x) {
@@ -72,4 +69,3 @@ static GLfloat fastInvSqrt(GLfloat x) {
 extern int gl_V3_Norm_Fast(V3* a);
 
 #endif
-

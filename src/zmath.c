@@ -31,7 +31,7 @@ void gl_M4_Id(M4* a) {
 }
 
 GLint gl_M4_IsId(M4* a) {
-	
+
 	const M4 c = (M4){{
 		{1, 0, 0, 0},
 		{0, 1, 0, 0},
@@ -56,7 +56,7 @@ void gl_M4_Mul(M4* c, M4* a, M4* b) {
 	GLint i, j, k;
 	GLfloat s;
 #ifdef _OPENMP
-#  pragma omp simd
+#pragma omp simd
 #endif
 	for (i = 0; i < 4; i++)
 		for (j = 0; j < 4; j++) {
@@ -77,7 +77,7 @@ void gl_M4_MulLeft(M4* c, M4* b) {
 	 */
 	a = *c;
 #ifdef _OPENMP
-#  pragma omp simd
+#pragma omp simd
 #endif
 	for (i = 0; i < 4; i++)
 		for (j = 0; j < 4; j++) {
@@ -143,7 +143,7 @@ void gl_M4_InvOrtho(M4* a, M4 b) {
 	GLint i, j;
 	GLfloat s;
 #ifdef _OPENMP
-#  pragma omp simd
+#pragma omp simd
 #endif
 	for (i = 0; i < 3; i++)
 		for (j = 0; j < 3; j++)
@@ -156,7 +156,7 @@ void gl_M4_InvOrtho(M4* a, M4 b) {
 	for (i = 0; i < 3; i++) {
 		s = 0;
 #ifdef _OPENMP
-#  pragma omp simd
+#pragma omp simd
 #endif
 		for (j = 0; j < 3; j++)
 			s -= b.m[j][i] * b.m[j][3];
@@ -173,7 +173,7 @@ GLint Matrix_Inv(GLfloat* r, GLfloat* m, GLint n) {
 
 	/*  */
 #ifdef _OPENMP
-#  pragma omp simd
+#pragma omp simd
 #endif
 	for (i = 0; i < n * n; i++)
 		r[i] = 0;
@@ -197,7 +197,7 @@ GLint Matrix_Inv(GLfloat* r, GLfloat* m, GLint n) {
 		/* permutation des lignes j et k */
 		if (k != j) {
 #ifdef _OPENMP
-#  pragma omp simd
+#pragma omp simd
 #endif
 			for (i = 0; i < n; i++) {
 				tmp = m[j * n + i];
@@ -213,7 +213,7 @@ GLint Matrix_Inv(GLfloat* r, GLfloat* m, GLint n) {
 		/* multiplication de la ligne j par 1/max */
 		max = 1 / max;
 #ifdef _OPENMP
-#  pragma omp simd
+#pragma omp simd
 #endif
 		for (i = 0; i < n; i++) {
 			m[j * n + i] *= max;
@@ -277,9 +277,6 @@ void gl_M3_Inv(M3* a, M3* m) {
 }
 
 /* vector arithmetic */
-
-
-
 
 /*
 int gl_V3_Norm(V3* a) {

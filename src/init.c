@@ -73,7 +73,8 @@ static int TinyGLRuntimeCompatibilityTest() {
 	GLfloat t = -0, tf2;
 	GLint t2 = 1 << 31;
 	memcpy(&tf2, &t2, 4);
-	if (tf2 != t) return 1;
+	if (tf2 != t)
+		return 1;
 #if 0
 	/* TODO - what are we testing for here? This triggers
 	 * a compiler warning about an overflow */
@@ -138,7 +139,7 @@ static int TinyGLRuntimeCompatibilityTest() {
 	{
 		GLint i, j;
 		for (i = 0; i < 10; i++) {
-			GLubyte* data = gl_zalloc(1024); 
+			GLubyte* data = gl_zalloc(1024);
 			if (!data)
 				return 1;
 			for (j = 0; j < 1024; j++)
