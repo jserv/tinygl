@@ -15,8 +15,7 @@ static GLfloat edgeFunction(GLfloat ax, GLfloat ay, GLfloat bx, GLfloat by, GLfl
 #error "WRONG MODE!!!"
 #endif
 
-#if TGL_FEATURE_POLYGON_STIPPLE == 1
-
+#if TGL_HAS(POLYGON_STIPPLE)
 #define TGL_STIPPLEVARS                             \
     GLubyte *zbstipplepattern = zb->stipplepattern; \
     GLubyte zbdostipple = zb->dostipple;
@@ -31,17 +30,15 @@ static GLfloat edgeFunction(GLfloat ax, GLfloat ay, GLfloat bx, GLfloat by, GLfl
      (1 << (XSTIP(_a) & 7)))
 #define STIPTEST(_a) &&(!(zbdostipple && !STIPBIT(_a)))
 
-#else
-
-#define TGL_STIPPLEVARS /* a comment */
-#define STIPTEST(_a)    /* a comment*/
-
+#else /* !TGL_HAS(POLYGON_STIPPLE) */
+#define TGL_STIPPLEVARS
+#define STIPTEST(_a)
 #endif
 
-#if TGL_FEATURE_NO_DRAW_COLOR == 1
+#if TGL_HAS(NO_DRAW_COLOR)
 #define NODRAWTEST(c) &&((c & TGL_COLOR_MASK) != TGL_NO_DRAW_COLOR)
 #else
-#define NODRAWTEST(c) /* a comment */
+#define NODRAWTEST(c)
 #endif
 
 #define ZCMP(z, zpix, _a, c) \
@@ -211,7 +208,7 @@ void ZB_fillTriangleSmoothNOBLEND(ZBuffer *zb,
     {               \
     }
 
-#if TGL_FEATURE_NO_DRAW_COLOR != 1
+#if !TGL_HAS(NO_DRAW_COLOR)
 #define PUT_PIXEL(_a)                                       \
     {                                                       \
         {                                                   \
@@ -270,20 +267,11 @@ void ZB_fillTriangleSmoothNOBLEND(ZBuffer *zb,
     }
 
 #endif
-/* End of 16 bit mode stuff*/
+/* End of 16 bit mode stuff */
 #include "ztriangle.h"
 }
 
-/*
-
-
-            TEXTURE MAPPED TRIANGLES
-               Section_Header
-
-
-
-
-*/
+/* texture mapped triangles */
 void ZB_setTexture(ZBuffer *zb, PIXEL *texture)
 {
     zb->current_texture = texture;
@@ -380,7 +368,7 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb,
         ndszdx = NB_INTERP * dszdx;    \
         ndtzdx = NB_INTERP * dtzdx;    \
     }
-#if TGL_FEATURE_LIT_TEXTURES == 1
+#if TGL_HAS(LIT_TEXTURES)
 #define OR1OG1OB1DECL             \
     register GLint or1, og1, ob1; \
     or1 = r1;                     \
@@ -397,8 +385,7 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb,
 #define og1 COLOR_MULT_MASK
 #define ob1 COLOR_MULT_MASK
 #endif
-#if TGL_FEATURE_NO_DRAW_COLOR != 1
-
+#if !TGL_HAS(NO_DRAW_COLOR)
 #define PUT_PIXEL(_a)                                                          \
     {                                                                          \
         {                                                                      \
@@ -468,7 +455,7 @@ void ZB_fillTriangleMappingPerspectiveNOBLEND(ZBuffer *zb,
         ndszdx = NB_INTERP * dszdx;    \
         ndtzdx = NB_INTERP * dtzdx;    \
     }
-#if TGL_FEATURE_LIT_TEXTURES == 1
+#if TGL_HAS(LIT_TEXTURES)
 #define OR1OG1OB1DECL             \
     register GLint or1, og1, ob1; \
     or1 = r1;                     \
@@ -479,13 +466,13 @@ void ZB_fillTriangleMappingPerspectiveNOBLEND(ZBuffer *zb,
     or1 += drdx;    \
     ob1 += dbdx;
 #else
-#define OR1OG1OB1DECL /*A comment*/
-#define OR1G1B1INCR   /*Another comment*/
+#define OR1OG1OB1DECL
+#define OR1G1B1INCR
 #define or1 COLOR_MULT_MASK
 #define og1 COLOR_MULT_MASK
 #define ob1 COLOR_MULT_MASK
 #endif
-#if TGL_FEATURE_NO_DRAW_COLOR != 1
+#if !TGL_HAS(NO_DRAW_COLOR)
 #define PUT_PIXEL(_a)                                                 \
     {                                                                 \
         {                                                             \

@@ -1,22 +1,20 @@
 #ifndef __ZMATH__
 #define __ZMATH__
 
-#include <TGL/gl.h>
-#include "zfeatures.h"
-
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-/* Matrix & Vertex */
 
+#include <TGL/gl.h>
+#include "zfeatures.h"
+
+/* Matrix and Vertex */
 typedef struct {
     TGL_ALIGN GLfloat m[4][4];
 } M4;
-
 typedef struct {
     TGL_ALIGN GLfloat m[3][3];
 } M3;
-
 typedef struct {
     TGL_ALIGN GLfloat m[3][4];
 } M34;
@@ -54,7 +52,7 @@ V4 gl_V4_New(GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 
 GLint gl_Matrix_Inv(GLfloat *r, GLfloat *m, GLint n);
 
-#if TGL_FEATURE_FISR == 1
+#if TGL_HAS(FISR)
 static GLfloat fastInvSqrt(GLfloat x)
 {
     GLint i;

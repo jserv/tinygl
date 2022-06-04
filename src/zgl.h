@@ -1,19 +1,19 @@
-#ifndef _tgl_zgl_h_
-#define _tgl_zgl_h_
+#ifndef TGL_ZGL_H
+#define TGL_ZGL_H
+
 #ifndef NDEBUG
 #define NDEBUG
 #endif
 
 #include <TGL/gl.h>
-#include "zfeatures.h"
-
 #include "zbuffer.h"
+#include "zfeatures.h"
 #include "zmath.h"
 
 #include <math.h>
 #include <stdlib.h>
-
 #include <string.h>
+
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795
 #endif
@@ -23,13 +23,12 @@ enum {
 #include "opinfo.h"
 };
 
-#if TGL_FEATURE_GL_POLYGON == 1
-
+#if TGL_HAS(GL_POLYGON)
 #define POLYGON_MAX_VERTEX 16
 #else
-
 #define POLYGON_MAX_VERTEX 4
 #endif
+
 /* Max # of specular light pow buffers */
 #define MAX_SPECULAR_BUFFERS 32
 
@@ -203,7 +202,7 @@ typedef struct GLContext {
     GLfloat *normal_array;
     GLfloat *color_array;
 
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     GLfloat *feedback_buffer;
     GLuint *select_buffer;
     GLuint *select_ptr, *select_hit;
@@ -249,7 +248,7 @@ typedef struct GLContext {
     GLint normalize_enabled;
 
     /* selection */
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     GLint render_mode;
 
     GLint select_size;
@@ -262,8 +261,7 @@ typedef struct GLContext {
     GLenum readbuffer;
     /* feedback */
 
-#if TGL_FEATURE_ALT_RENDERMODES == 1
-
+#if TGL_HAS(ALT_RENDERMODES)
     GLuint feedback_size;
     GLint feedback_hits;
     GLubyte feedback_overflow;
@@ -304,7 +302,7 @@ typedef struct GLContext {
 
     /* specular buffer. could probably be shared between contexts,
       but that wouldn't be 100% thread safe */
-#if TGL_FEATURE_SPECULAR_BUFFERS == 1
+#if TGL_HAS(SPECULAR_BUFFERS)
     GLSpecBuf *specbuf_first;
     GLint specbuf_used_counter;
     GLint specbuf_num_buffers;
@@ -324,7 +322,7 @@ typedef struct GLContext {
     GLint boundcolorbuffer;
     GLint boundtexcoordbuffer;
     GLubyte rasterposvalid;
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     GLenum error_flag;
 #endif
 } GLContext;
@@ -431,4 +429,4 @@ GLSpecBuf *specbuf_get_buffer(const GLint shininess_i, const GLfloat shininess);
 
 extern void gl_eval_viewport();
 
-#endif /* _tgl_zgl_h_ */
+#endif /* TGL_ZGL_H */

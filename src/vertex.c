@@ -1,5 +1,6 @@
 #include <string.h>
 #include "zgl.h"
+
 void glopNormal(GLParam *p)
 {
     V3 v;
@@ -55,7 +56,7 @@ void glopBegin(GLParam *p)
     GLint type;
     M4 tmp;
     GLContext *c = gl_get_context();
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (c->in_begin != 0)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
@@ -101,7 +102,7 @@ void glopBegin(GLParam *p)
     }
      triangle drawing functions
     */
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     if (c->render_mode == GL_SELECT) {
         c->draw_triangle_front = gl_draw_triangle_select;
         c->draw_triangle_back = gl_draw_triangle_select;
@@ -171,7 +172,7 @@ static void gl_transform_to_viewport_vertex_c(GLVertex *v)
 int gl_V3_Norm_Fast(V3 *a)
 {
     GLfloat n;
-#if TGL_FEATURE_FISR == 1
+#if TGL_HAS(FISR)
     n = fastInvSqrt(a->X * a->X + a->Y * a->Y + a->Z * a->Z);
     if (n > 1E+3)
         return 1;
@@ -257,14 +258,11 @@ void glopVertex(GLParam *p)
     GLVertex *v;
     GLint n, i, cnt;
     GLContext *c = gl_get_context();
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (c->in_begin == 0)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
-#else
-
 #endif
-
         n = c->vertex_n;
     cnt = c->vertex_cnt;
     cnt++;
@@ -326,7 +324,7 @@ void glopVertex(GLParam *p)
         }
         break;
     case GL_LINE_STRIP:
-#if TGL_FEATURE_GL_POLYGON == 1
+#if TGL_HAS(GL_POLYGON)
     case GL_LINE_LOOP:
 #endif
         switch (n) {
@@ -393,11 +391,11 @@ void glopVertex(GLParam *p)
         }
         break;
 
-#if TGL_FEATURE_GL_POLYGON == 1
+#if TGL_HAS(GL_POLYGON)
     case GL_POLYGON:
         break;
 #endif
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     default:
         gl_fatal_error("glBegin: type %x not handled\n", c->begin_type);
 #else
@@ -412,7 +410,7 @@ void glopVertex(GLParam *p)
 void glopEnd(GLParam *param)
 {
     GLContext *c = gl_get_context();
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (c->in_begin != 1)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
@@ -421,7 +419,7 @@ void glopEnd(GLParam *param)
     /* Assume it went alright.*/
 #endif
 
-#if TGL_FEATURE_GL_POLYGON == 1
+#if TGL_HAS(GL_POLYGON)
         if (c->begin_type == GL_LINE_LOOP) {
             if (c->vertex_cnt >= 3) {
                 gl_draw_line(&c->vertex[0], &c->vertex[2]);

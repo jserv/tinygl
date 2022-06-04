@@ -3,20 +3,20 @@
 void gl_add_op(GLParam *p)
 {
     GLContext *c = gl_get_context();
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #include "error_check.h"
 #endif
     GLint op;
     op = p[0].op;
     if (c->exec_flag) {
         op_table_func[op](p);
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #include "error_check.h"
 #endif
     }
     if (c->compile_flag) {
         gl_compile_op(p);
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #include "error_check.h"
 #endif
     }
@@ -159,7 +159,7 @@ void glEdgeFlag(GLint flag)
     GLParam p[2];
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (flag != GL_TRUE && flag != GL_FALSE)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -177,7 +177,7 @@ void glShadeModel(GLint mode)
     GLParam p[2];
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (mode != GL_FLAT && mode != GL_SMOOTH)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -196,7 +196,7 @@ void glCullFace(GLint mode)
     GLParam p[2];
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (!(mode == GL_BACK || mode == GL_FRONT || mode == GL_FRONT_AND_BACK))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -216,7 +216,7 @@ void glFrontFace(GLint mode)
     GLParam p[2];
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (!(mode == GL_CCW || mode == GL_CW))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -236,7 +236,7 @@ void glPolygonMode(GLint face, GLint mode)
     GLParam p[3];
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (!((face == GL_BACK || face == GL_FRONT || face == GL_FRONT_AND_BACK) &&
           (mode == GL_POINT || mode == GL_LINE || mode == GL_FILL)))
 #define ERROR_FLAG GL_INVALID_ENUM
@@ -291,11 +291,11 @@ void glBegin(GLint mode)
 #include "error_check_no_context.h"
     p[0].op = OP_Begin;
     p[1].i = mode;
-#if TGL_FEATURE_ERROR_CHECK == 1
 
+#if TGL_HAS(ERROR_CHECK)
     if (mode != GL_POINTS && mode != GL_LINES && mode != GL_LINE_LOOP &&
         mode != GL_LINE_STRIP &&
-#if TGL_FEATURE_GL_POLYGON == 1
+#if TGL_HAS(GL_POLYGON)
         mode != GL_POLYGON &&
 #endif
         mode != GL_TRIANGLES && mode != GL_TRIANGLE_FAN &&
@@ -456,7 +456,7 @@ void glMaterialfv(GLint mode, GLint type, GLfloat *v)
     GLint i, n;
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (!(mode == GL_FRONT || mode == GL_BACK || mode == GL_FRONT_AND_BACK))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"

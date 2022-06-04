@@ -2,7 +2,7 @@
 
 GLint glRenderMode(GLint mode)
 {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     switch (c->render_mode) {
     case GL_RENDER:
         break;
@@ -34,7 +34,7 @@ GLint glRenderMode(GLint mode)
         break;
     case GL_SELECT:
 
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
         if (c->select_buffer == NULL)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #define RETVAL 0
@@ -50,7 +50,7 @@ GLint glRenderMode(GLint mode)
         c->select_hit = NULL;
         break;
     case GL_FEEDBACK:
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
         if (c->feedback_buffer == NULL)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #define RETVAL 0
@@ -65,11 +65,10 @@ GLint glRenderMode(GLint mode)
         c->feedback_overflow = 0;
         break;
     default:
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define RETVAL 0
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
-
 #else
         return 0;
 #endif
@@ -83,9 +82,9 @@ GLint glRenderMode(GLint mode)
 
 void glSelectBuffer(GLint size, GLuint *buf)
 {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     GLContext *c = gl_get_context();
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (c->render_mode == GL_SELECT)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
@@ -103,9 +102,9 @@ void glSelectBuffer(GLint size, GLuint *buf)
 
 void glFeedbackBuffer(GLint size, GLenum type, GLfloat *buf)
 {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     GLContext *c = gl_get_context();
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (c->render_mode == GL_FEEDBACK ||
         !(type == GL_2D || type == GL_3D || type == GL_3D_COLOR ||
           type == GL_3D_COLOR_TEXTURE || type == GL_4D_COLOR_TEXTURE))
@@ -131,7 +130,7 @@ void gl_add_feedback(GLfloat token,
                      GLVertex *v3,
                      GLfloat passthrough_token_value)
 {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     GLContext *c = gl_get_context();
     if (c->feedback_overflow)
         return;
@@ -140,7 +139,7 @@ void gl_add_feedback(GLfloat token,
     GLuint vertex_pos_hits_needed = 2;
     GLuint vertex_color_hits_needed = 4;
     GLuint vertex_texture_hits_needed = 4;
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     GLuint done = 0;
 #endif
     switch (c->feedback_type) {
@@ -202,7 +201,7 @@ void gl_add_feedback(GLfloat token,
         return;
     }
 
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define DONE_ERROR_CHECK                                              \
     {                                                                 \
         if (++done > feedback_hits_needed) {                          \
@@ -210,8 +209,9 @@ void gl_add_feedback(GLfloat token,
         }                                                             \
     }
 #else
-#define DONE_ERROR_CHECK /* a comment*/
+#define DONE_ERROR_CHECK
 #endif
+
 #define WRITE_FLOAT(f)            \
     {                             \
         DONE_ERROR_CHECK;         \
@@ -272,7 +272,7 @@ void gl_add_feedback(GLfloat token,
         WRITE_UINT(token);
         WRITE_VERTEX(v1);
     }
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (done != feedback_hits_needed)
         gl_fatal_error("Failed to write enough information to the buffer.");
 #endif
@@ -280,14 +280,16 @@ void gl_add_feedback(GLfloat token,
 #endif
     return;
 }
+
 void glPassThrough(GLfloat token)
 {
 #include "error_check_no_context.h"
     gl_add_feedback(GL_PASS_THROUGH_TOKEN, NULL, NULL, NULL, token);
 }
+
 void glopInitNames(GLParam *p)
 {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     GLContext *c = gl_get_context();
     if (c->render_mode == GL_SELECT) {
         c->name_stack_size = 0;
@@ -298,7 +300,7 @@ void glopInitNames(GLParam *p)
 
 void glopPushName(GLParam *p)
 {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     GLContext *c = gl_get_context();
     if (c->render_mode == GL_SELECT) {
         c->name_stack[c->name_stack_size++] = p[1].i;
@@ -309,7 +311,7 @@ void glopPushName(GLParam *p)
 
 void glopPopName(GLParam *p)
 {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     GLContext *c = gl_get_context();
     if (c->render_mode == GL_SELECT) {
         c->name_stack_size--;
@@ -320,7 +322,7 @@ void glopPopName(GLParam *p)
 
 void glopLoadName(GLParam *p)
 {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     GLContext *c = gl_get_context();
     if (c->render_mode == GL_SELECT) {
         c->name_stack[c->name_stack_size - 1] = p[1].i;
@@ -331,7 +333,7 @@ void glopLoadName(GLParam *p)
 
 void gl_add_select(GLuint zmin, GLuint zmax)
 {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     GLContext *c = gl_get_context();
     GLuint *ptr;
     GLint n, i;

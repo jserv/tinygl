@@ -10,7 +10,7 @@ void glTextSize(GLTEXTSIZE mode)
 {
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (mode < 1 || GL_MAX_TEXT_SIZE < mode)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -77,7 +77,7 @@ void glDrawText(const GLubyte *text, GLint x, GLint y, GLuint p)
     GLint i = 0;
 #include "error_check.h"
 
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (!text)
 #define ERROR_FLAG GL_INVALID_VALUE
 #include "error_check.h"

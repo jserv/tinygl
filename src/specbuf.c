@@ -3,8 +3,7 @@
 #include "msghandling.h"
 #include "zgl.h"
 
-#if TGL_FEATURE_SPECULAR_BUFFERS == 1
-
+#if TGL_HAS(SPECULAR_BUFFERS)
 static void calc_buf(GLSpecBuf *buf, const GLfloat shininess)
 {
     GLint i;
@@ -36,13 +35,11 @@ GLSpecBuf *specbuf_get_buffer(GLContext *c,
     if (oldest == NULL || c->specbuf_num_buffers < MAX_SPECULAR_BUFFERS) {
         /* create new buffer */
         GLSpecBuf *buf = gl_malloc(sizeof(GLSpecBuf));
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
         if (!buf)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #define RETVAL NULL
 #include "error_check.h"
-#else
-
 #endif
             c->specbuf_num_buffers++;
         buf->next = c->specbuf_first;

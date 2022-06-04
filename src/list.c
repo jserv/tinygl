@@ -1,23 +1,13 @@
 #include "msghandling.h"
 #include "zgl.h"
 
-/*
-static char* op_table_str[] = {
-#define ADD_OP(a, b, c) "gl" #a " " #c,
-
-#include "opinfo.h"
-};
-*/
-
 void (*op_table_func[])(GLParam *) = {
 #define ADD_OP(a, b, c) glop##a,
-
 #include "opinfo.h"
 };
 
 GLint op_table_size[] = {
 #define ADD_OP(a, b, c) b + 1,
-
 #include "opinfo.h"
 };
 
@@ -71,7 +61,7 @@ static GLList *alloc_list(GLint list)
     l = gl_zalloc(sizeof(GLList));
     ob = gl_zalloc(sizeof(GLParamBuffer));
 
-#if TGL_FEATURE_ERROR_CHECK
+#if TGL_HAS(ERROR_CHECK)
     if (!l || !ob)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #define RETVAL NULL
@@ -130,7 +120,7 @@ void glCallLists(GLsizei n, GLenum type, const GLuint *lists)
     GLint i;
     GLContext *c = gl_get_context();
 #include "error_check.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (type != GL_UNSIGNED_INT && type != GL_INT)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -154,7 +144,7 @@ void gl_compile_op(GLParam *p)
     if ((index + op_size) > (OP_BUFFER_MAX_SIZE - 2)) {
         ob1 = gl_zalloc(sizeof(GLParamBuffer));
 
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
         if (!ob1)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
@@ -198,12 +188,10 @@ void glopCallList(GLParam *p)
     list = p[1].ui;
     l = find_list(list);
 
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (l == NULL) {
         gl_fatal_error("Bad list op, not defined");
     }
-#else
-
 #endif
     p = l->first_op_buffer->ops;
 
@@ -228,8 +216,7 @@ void glNewList(GLuint list, GLint mode)
     GLContext *c = gl_get_context();
 #include "error_check.h"
 
-#if TGL_FEATURE_ERROR_CHECK == 1
-
+#if TGL_HAS(ERROR_CHECK)
     if (!(mode == GL_COMPILE || mode == GL_COMPILE_AND_EXECUTE))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -237,16 +224,13 @@ void glNewList(GLuint list, GLint mode)
         if (!(c->compile_flag == 0))
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
-
-#else
-
 #endif
             l = find_list(list);
     if (l != NULL)
         delete_list(list);
     l = alloc_list(list);
 #include "error_check.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (l == NULL)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
@@ -267,7 +251,7 @@ void glEndList(void)
     GLContext *c = gl_get_context();
     GLParam p[1];
 #include "error_check.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (c->compile_flag != 1)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"

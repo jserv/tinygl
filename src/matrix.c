@@ -93,7 +93,7 @@ void glopPushMatrix(GLParam *p)
     GLint n = c->matrix_mode;
     M4 *m;
 
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (!((c->matrix_stack_ptr[n] - c->matrix_stack[n] + 1) <
           c->matrix_stack_depth_max[n]))
 #define ERROR_FLAG GL_INVALID_OPERATION
@@ -112,7 +112,7 @@ void glopPopMatrix(GLParam *p)
     GLContext *c = gl_get_context();
     GLint n = c->matrix_mode;
 
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (!(c->matrix_stack_ptr[n] > c->matrix_stack[n]))
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
@@ -160,8 +160,7 @@ void glopRotate(GLParam *p)
         GLfloat cost, sint;
 
         /* normalize vector */
-
-#if TGL_FEATURE_FISR == 1
+#if TGL_HAS(FISR)
         GLfloat len = u[0] + u[1] + u[2];
         if (len == 0.0f)
             return;

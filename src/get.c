@@ -511,7 +511,7 @@ void glGetIntegerv(GLint pname, GLint *params)
         *params = MAX_LIGHTS;
         break;
     case GL_MAX_TEXTURE_SIZE:
-        *params = TGL_FEATURE_TEXTURE_DIM; /* not completely true, but... */
+        *params = TGL_HAS(TEXTURE_DIM); /* not completely true, but... */
         break;
     case GL_CULL_FACE:
         *params = c->cull_face_enabled;

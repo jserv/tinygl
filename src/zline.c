@@ -23,7 +23,7 @@ void ZB_plot(ZBuffer *zb, ZBufferPoint *p)
             (PIXEL *) ((GLbyte *) zb->pbuf + zb->linesize * p->y + p->x * PSZB);
 
         if (ZCMP(zz, *pz)) {
-#if TGL_FEATURE_BLEND == 1
+#if TGL_HAS(BLEND)
             if (!zb->enable_blend)
                 *pp = RGB_TO_PIXEL(p->r, p->g, p->b);
             else
@@ -52,7 +52,7 @@ void ZB_plot(ZBuffer *zb, ZBufferPoint *p)
                                        x * PSZB);
 
                 if (ZCMP(zz, *pz)) {
-#if TGL_FEATURE_BLEND == 1
+#if TGL_HAS(BLEND)
                     if (!zb->enable_blend)
                         *pp = col;
                     else

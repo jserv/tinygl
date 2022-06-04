@@ -29,7 +29,7 @@ fast on platforms without SSE2 7) Fewer variables is usually better
 
     GLint part;
     GLint dx1, dy1, dx2, dy2;
-#if TGL_FEATURE_POLYGON_STIPPLE == 1
+#if TGL_HAS(POLYGON_STIPPLE)
     GLint the_y;
 #endif
     GLint error, derror;
@@ -170,7 +170,7 @@ fast on platforms without SSE2 7) Fewer variables is usually better
     /* screen coordinates */
 
     pp1 = (PIXEL *) (zb->pbuf) + zb->xsize * p0->y;
-#if TGL_FEATURE_POLYGON_STIPPLE == 1
+#if TGL_HAS(POLYGON_STIPPLE)
     the_y = p0->y;
 #endif
     pz1 = zb->zbuf + p0->y * zb->xsize;
@@ -399,7 +399,7 @@ fast on platforms without SSE2 7) Fewer variables is usually better
             /* screen coordinates */
 
             pp1 += zb->xsize;
-#if TGL_FEATURE_POLYGON_STIPPLE == 1
+#if TGL_HAS(POLYGON_STIPPLE)
             the_y++;
 #endif
             pz1 += zb->xsize;

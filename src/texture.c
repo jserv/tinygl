@@ -47,7 +47,7 @@ GLboolean glIsTexture(GLuint texture)
 void *glGetTexturePixmap(GLint text, GLint level, GLint *xsize, GLint *ysize)
 {
     GLTexture *tex;
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (!(text >= 0 && level < MAX_TEXTURE_LEVELS))
 #define ERROR_FLAG GL_INVALID_ENUM
 #define RETVAL NULL
@@ -57,7 +57,7 @@ void *glGetTexturePixmap(GLint text, GLint level, GLint *xsize, GLint *ysize)
 #endif
         tex = find_texture(text);
     if (!tex)
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_ENUM
 #define RETVAL NULL
 #include "error_check.h"
@@ -95,7 +95,7 @@ GLTexture *alloc_texture(GLint h)
 #include "error_check.h"
     t = gl_zalloc(sizeof(GLTexture));
     if (!t)
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #define RETVAL NULL
 #include "error_check.h"
@@ -170,7 +170,7 @@ void glopBindTexture(GLParam *p)
     GLint texture = p[2].i;
     GLTexture *t;
     GLContext *c = gl_get_context();
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (!(target == GL_TEXTURE_2D && target > 0))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -183,7 +183,7 @@ void glopBindTexture(GLParam *p)
 #include "error_check.h"
     }
     if (t == NULL) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
 #else
@@ -233,9 +233,9 @@ void glopCopyTexImage2D(GLParam *p)
 
     if (c->readbuffer != GL_FRONT || c->current_texture == NULL ||
         target != GL_TEXTURE_2D || border != 0 ||
-        w != TGL_FEATURE_TEXTURE_DIM || /*TODO Implement image interp*/
+        w != TGL_FEATURE_TEXTURE_DIM || /*TODO Implement image interp */
         h != TGL_FEATURE_TEXTURE_DIM) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
 #else
@@ -248,7 +248,7 @@ void glopCopyTexImage2D(GLParam *p)
     im->ysize = TGL_FEATURE_TEXTURE_DIM;
     /* TODO implement the scaling and stuff that the GL spec says it should
      * have.*/
-#if TGL_FEATURE_MULTITHREADED_COPY_TEXIMAGE_2D == 1
+#if TGL_HAS(MULTITHREADED_COPY_TEXIMAGE_2D)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
@@ -285,7 +285,7 @@ void glopTexImage1D(GLParam *p)
     GLint do_free = 0;
     GLContext *c = gl_get_context();
     {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
         if (!(c->current_texture != NULL && target == GL_TEXTURE_1D &&
               level == 0 && components == 3 && border == 0 &&
               format == GL_RGB && type == GL_UNSIGNED_BYTE))
@@ -302,9 +302,9 @@ void glopTexImage1D(GLParam *p)
     }
     if (width != TGL_FEATURE_TEXTURE_DIM || height != TGL_FEATURE_TEXTURE_DIM) {
         pixels1 = gl_malloc(TGL_FEATURE_TEXTURE_DIM * TGL_FEATURE_TEXTURE_DIM *
-                            3); /* GUARDED*/
+                            3); /* GUARDED */
         if (pixels1 == NULL) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
 #else
@@ -353,7 +353,7 @@ void glopTexImage2D(GLParam *p)
     GLint do_free = 0;
     GLContext *c = gl_get_context();
     {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
         if (!(c->current_texture != NULL && target == GL_TEXTURE_2D &&
               level == 0 && components == 3 && border == 0 &&
               format == GL_RGB && type == GL_UNSIGNED_BYTE))
@@ -372,7 +372,7 @@ void glopTexImage2D(GLParam *p)
         pixels1 = gl_malloc(TGL_FEATURE_TEXTURE_DIM * TGL_FEATURE_TEXTURE_DIM *
                             3); /* GUARDED*/
         if (pixels1 == NULL) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
 #else
@@ -405,65 +405,3 @@ void glopTexImage2D(GLParam *p)
     if (do_free)
         gl_free(pixels1);
 }
-
-/* TODO: not all tests are done */
-/*
-void glopTexEnv(GLContext* c, GLParam* p) {
-    GLint target = p[1].i;
-    GLint pname = p[2].i;
-    GLint param = p[3].i;
-
-    if (target != GL_TEXTURE_ENV) {
-
-    error:
-#if TGL_FEATURE_ERROR_CHECK == 1
-
-#define ERROR_FLAG GL_INVALID_ENUM
-#include "error_check.h"
-#else
-        gl_fatal_error("glTexParameter: unsupported option");
-#endif
-
-    }
-
-    if (pname != GL_TEXTURE_ENV_MODE)
-        goto error;
-
-    if (param != GL_DECAL)
-        goto error;
-}
-*/
-/* TODO: not all tests are done */
-/*
-void glopTexParameter(GLContext* c, GLParam* p) {
-    GLint target = p[1].i;
-    GLint pname = p[2].i;
-    GLint param = p[3].i;
-
-    if (target != GL_TEXTURE_2D &&
-        target != GL_TEXTURE_1D) {
-    error:
-        tgl_warning("glTexParameter: unsupported option");
-        return;
-    }
-
-    switch (pname) {
-    case GL_TEXTURE_WRAP_S:
-    case GL_TEXTURE_WRAP_T:
-        if (param != GL_REPEAT)
-            goto error;
-        break;
-    }
-}
-*/
-
-/*
-void glopPixelStore(GLContext* c, GLParam* p) {
-    GLint pname = p[1].i;
-    GLint param = p[2].i;
-
-    if (pname != GL_UNPACK_ALIGNMENT || param != 1) {
-        gl_fatal_error("glPixelStore: unsupported option");
-    }
-}
-*/

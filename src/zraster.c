@@ -160,18 +160,18 @@ void glopDrawPixels(GLParam *p)
     GLfloat pzoomy = c->pzoomy;
 
     GLint zz = c->rasterpos_zz;
-#if TGL_FEATURE_BLEND_DRAW_PIXELS == 1
+#if TGL_HAS(BLEND_DRAW_PIXELS)
     TGL_BLEND_VARS
 #endif
-#if TGL_FEATURE_BLEND == 1
-#if TGL_FEATURE_BLEND_DRAW_PIXELS == 1
+#if TGL_HAS(BLEND)
+#if TGL_HAS(BLEND_DRAW_PIXELS)
     GLuint zbeb = zb->enable_blend;
 #endif
 #endif
     if (!c->rasterposvalid)
         return;
 
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     if (c->render_mode == GL_SELECT) {
         gl_add_select(zz, zz);
         return;
@@ -181,8 +181,7 @@ void glopDrawPixels(GLParam *p)
     }
 #endif
 
-#if TGL_FEATURE_MULTITHREADED_DRAWPIXELS == 1
-
+#if TGL_HAS(MULTITHREADED_DRAWPIXELS)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
@@ -201,8 +200,8 @@ void glopDrawPixels(GLParam *p)
                         GLushort *pz = zbuf + (ty * tw + tx);
 
                         if (ZCMP(zz, *pz)) {
-#if TGL_FEATURE_BLEND == 1
-#if TGL_FEATURE_BLEND_DRAW_PIXELS == 1
+#if TGL_HAS(BLEND)
+#if TGL_HAS(BLEND_DRAW_PIXELS)
                             if (!zbeb)
                                 pbuf[tx + ty * tw] = col;
                             else
@@ -235,8 +234,8 @@ void glopDrawPixels(GLParam *p)
 
                         if (ZCMP(zz, *pz)) {
 
-#if TGL_FEATURE_BLEND == 1
-#if TGL_FEATURE_BLEND_DRAW_PIXELS == 1
+#if TGL_HAS(BLEND)
+#if TGL_HAS(BLEND_DRAW_PIXELS)
                             if (!zbeb)
                                 pbuf[tx + ty * tw] = col;
                             else

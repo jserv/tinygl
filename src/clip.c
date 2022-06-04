@@ -63,23 +63,22 @@ static void gl_transform_to_viewport_clip_c(GLVertex *v)
         c->dir = sign c->W;                       \
         return t;                                 \
     }
+
+/* clang-format off */
 clip_funcdef(clip_xmin, -, X, Y, Z)
+clip_funcdef(clip_xmax, +, X, Y, Z)
+clip_funcdef(clip_ymin, -, Y, X, Z)
+clip_funcdef(clip_ymax, +, Y, X, Z)
+clip_funcdef(clip_zmin, -, Z, X, Y)
+clip_funcdef(clip_zmax, +, Z, X, Y)
 
-    clip_funcdef(clip_xmax, +, X, Y, Z)
+static GLfloat (*clip_proc[6])(V4 *, V4 *, V4 *) = {
+    clip_xmin, clip_xmax, clip_ymin, clip_ymax, clip_zmin, clip_zmax,
+};
+/* clang-format on */
 
-        clip_funcdef(clip_ymin, -, Y, X, Z)
-
-            clip_funcdef(clip_ymax, +, Y, X, Z)
-
-                clip_funcdef(clip_zmin, -, Z, X, Y)
-
-                    clip_funcdef(clip_zmax, +, Z, X, Y)
-
-                        static GLfloat (*clip_proc[6])(V4 *, V4 *, V4 *) = {
-                            clip_xmin, clip_xmax, clip_ymin,
-                            clip_ymax, clip_zmin, clip_zmax};
 /* point */
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
 static void gl_add_select1(GLint z1, GLint z2, GLint z3)
 {
     GLint min, max;
@@ -102,7 +101,7 @@ void gl_draw_point(GLVertex *p0)
 {
     GLContext *c = gl_get_context();
     if (p0->clip_code == 0) {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
         if (c->render_mode == GL_SELECT) {
             gl_add_select(p0->zp.z, p0->zp.z);
 
@@ -170,7 +169,7 @@ void gl_draw_line(GLVertex *p1, GLVertex *p2)
     cc2 = p2->clip_code;
 
     if ((cc1 | cc2) == 0) {
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
         if (c->render_mode == GL_SELECT) {
             gl_add_select1(p1->zp.z, p2->zp.z, p2->zp.z);
         } else if (c->render_mode == GL_FEEDBACK) {
@@ -207,7 +206,7 @@ void gl_draw_line(GLVertex *p1, GLVertex *p2)
             GLinterpolate(&q2, p1, p2, tmax);
             gl_transform_to_viewport_clip_c(&q1);
             gl_transform_to_viewport_clip_c(&q2);
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
             if (c->render_mode == GL_SELECT) {
                 gl_add_select1(q1.zp.z, q2.zp.z, q2.zp.z);
             } else if (c->render_mode == GL_FEEDBACK) {
@@ -436,7 +435,7 @@ void gl_draw_triangle_fill(GLVertex *p0, GLVertex *p1, GLVertex *p2)
     GLContext *c = gl_get_context();
     if (c->texture_2d_enabled) {
         /* if(c->current_texture)*/
-#if TGL_FEATURE_LIT_TEXTURES == 1
+#if TGL_HAS(LIT_TEXTURES)
         if (c->current_shade_model != GL_SMOOTH) {
             p1->zp.r = p2->zp.r;
             p1->zp.g = p2->zp.g;
@@ -449,7 +448,7 @@ void gl_draw_triangle_fill(GLVertex *p0, GLVertex *p1, GLVertex *p2)
 #endif
 
         ZB_setTexture(c->zb, c->current_texture->images[0].pixmap);
-#if TGL_FEATURE_BLEND == 1
+#if TGL_HAS(BLEND)
         if (c->zb->enable_blend)
             ZB_fillTriangleMappingPerspective(c->zb, &p0->zp, &p1->zp, &p2->zp);
         else
@@ -460,7 +459,7 @@ void gl_draw_triangle_fill(GLVertex *p0, GLVertex *p1, GLVertex *p2)
                                                  &p2->zp);
 #endif
     } else if (c->current_shade_model == GL_SMOOTH) {
-#if TGL_FEATURE_BLEND == 1
+#if TGL_HAS(BLEND)
         if (c->zb->enable_blend)
             ZB_fillTriangleSmooth(c->zb, &p0->zp, &p1->zp, &p2->zp);
         else
@@ -469,7 +468,7 @@ void gl_draw_triangle_fill(GLVertex *p0, GLVertex *p1, GLVertex *p2)
         ZB_fillTriangleSmoothNOBLEND(c->zb, &p0->zp, &p1->zp, &p2->zp);
 #endif
     } else {
-#if TGL_FEATURE_BLEND == 1
+#if TGL_HAS(BLEND)
         if (c->zb->enable_blend)
             ZB_fillTriangleFlat(c->zb, &p0->zp, &p1->zp, &p2->zp);
         else

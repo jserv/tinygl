@@ -1,6 +1,5 @@
-#include "zgl.h"
-
 #include "msghandling.h"
+#include "zgl.h"
 
 static GLint free_buffer(GLint handle)
 {
@@ -36,10 +35,8 @@ static GLint free_buffer(GLint handle)
         }
         gl_free(s->buffers[handle]);
         s->buffers[handle] = NULL;
-        return 0;
-    } else {
-        return 0;
     }
+    return 0;
 }
 static GLint check_buffer(GLint handle)
 {
@@ -72,7 +69,7 @@ static GLint create_buffer(GLint handle)
     s->buffers[handle] = gl_zalloc(sizeof(GLBuffer));
 
     if (!(s->buffers[handle])) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #define RETVAL 1
 #include "error_check.h"
@@ -143,7 +140,7 @@ void glBindBufferAsArray(GLenum target,
 #include "error_check.h"
     if (target != GL_VERTEX_BUFFER && target != GL_NORMAL_BUFFER &&
         target != GL_COLOR_BUFFER && target != GL_TEXTURE_COORD_BUFFER) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 #else
@@ -180,7 +177,7 @@ void glBindBufferAsArray(GLenum target,
             return;
         }
     if (check_buffer(buffer) != 1 || type != GL_FLOAT) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 #else
@@ -190,7 +187,7 @@ void glBindBufferAsArray(GLenum target,
     }
     GLBuffer *buf = c->shared_state.buffers[buffer - 1];
     if (!buf || (buf->data == NULL) || (buf->size == 0)) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
 #else
@@ -247,7 +244,7 @@ void *glMapBuffer(GLenum target, GLenum access)
         if (check_buffer(handle) == 1)
             return c->shared_state.buffers[handle - 1]->data;
     }
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define RETVAL NULL
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -274,7 +271,7 @@ void glBufferData(GLenum target, GLsizei size, const void *data, GLenum usage)
     if (check_buffer(handle) == 1)
         buf = c->shared_state.buffers[handle - 1];
     else {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 #else
@@ -290,7 +287,7 @@ void glBufferData(GLenum target, GLsizei size, const void *data, GLenum usage)
     buf->data = gl_malloc(size);
     buf->size = size;
     if (!(buf->data)) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
 #else
@@ -443,7 +440,7 @@ void glVertexPointer(GLint size,
     GLParam p[4];
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (type != GL_FLOAT)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -474,7 +471,7 @@ void glColorPointer(GLint size,
     GLParam p[4];
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (type != GL_FLOAT)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -500,7 +497,7 @@ void glNormalPointer(GLenum type, GLsizei stride, const GLvoid *pointer)
     GLParam p[3];
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (type != GL_FLOAT)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -529,7 +526,7 @@ void glTexCoordPointer(GLint size,
     GLParam p[4];
 #define NEED_CONTEXT
 #include "error_check_no_context.h"
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (type != GL_FLOAT)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"

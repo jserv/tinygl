@@ -43,7 +43,7 @@ void glopMaterial(GLParam *p)
         break;
     case GL_SHININESS:
         m->shininess = v[0];
-#if TGL_FEATURE_SPECULAR_BUFFERS == 1
+#if TGL_HAS(SPECULAR_BUFFERS)
         m->shininess_i = (v[0] / 128.0f) * SPECULAR_BUFFER_SIZE;
 #endif
         break;
@@ -55,7 +55,7 @@ void glopMaterial(GLParam *p)
             m->ambient.v[i] = clampf(v[i], 0, 1);
         break;
 
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     default:
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
@@ -86,7 +86,7 @@ void glopLight(GLParam *p)
 
     /* assert(light >= GL_LIGHT0 && light < GL_LIGHT0 + MAX_LIGHTS);*/
 
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     if (!(light >= GL_LIGHT0 && light < GL_LIGHT0 + MAX_LIGHTS))
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
@@ -143,7 +143,7 @@ void glopLight(GLParam *p)
     case GL_SPOT_CUTOFF: {
         GLfloat a = v.v[0];
 
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_VALUE
 #include "error_check.h"
 #else
@@ -164,7 +164,7 @@ void glopLight(GLParam *p)
         l->attenuation[2] = v.v[0];
         break;
     default:
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 #endif
@@ -191,7 +191,7 @@ void glopLightModel(GLParam *p)
         c->light_model_two_side = (GLint) v[0];
         break;
     default:
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 #endif
@@ -277,7 +277,7 @@ void gl_shade_vertex(GLVertex *v)
             d.X = l->position.v[0] - v->ec.v[0];
             d.Y = l->position.v[1] - v->ec.v[1];
             d.Z = l->position.v[2] - v->ec.v[2];
-#if TGL_FEATURE_FISR == 1
+#if TGL_HAS(FISR)
             tmp = fastInvSqrt(d.X * d.X + d.Y * d.Y +
                               d.Z * d.Z); /* FISR IMPL, MATCHED!*/
             {
@@ -347,12 +347,12 @@ void gl_shade_vertex(GLVertex *v)
                 if (twoside && dot_spec < 0)
                     dot_spec = -dot_spec;
                 if (dot_spec > 0) {
-#if TGL_FEATURE_SPECULAR_BUFFERS == 1
+#if TGL_HAS(SPECULAR_BUFFERS)
                     GLSpecBuf *specbuf;
                     GLint idx;
 #endif
                     dot_spec = clampf(dot_spec, 0, 1);
-#if TGL_FEATURE_FISR == 1
+#if TGL_HAS(FISR)
                     tmp = fastInvSqrt(s.X * s.X + s.Y * s.Y + s.Z * s.Z);
 
                     {
@@ -368,23 +368,21 @@ void gl_shade_vertex(GLVertex *v)
                         dot_spec = 0;
 #endif
                     /* dot_spec= pow(dot_spec,m->shininess);*/
-#if TGL_FEATURE_SPECULAR_BUFFERS == 1
+#if TGL_HAS(SPECULAR_BUFFERS)
                     specbuf =
                         specbuf_get_buffer(c, m->shininess_i, m->shininess);
-/* Check for GL_OUT_OF_MEMORY*/
-#if TGL_FEATURE_ERROR_CHECK == 1
+/* Check for GL_OUT_OF_MEMORY */
+#if TGL_HAS(ERROR_CHECK)
 #include "error_check.h"
 #endif
 #else
                     dot_spec = pow(dot_spec, m->shininess);
 #endif
 
-#if TGL_FEATURE_SPECULAR_BUFFERS == 1
+#if TGL_HAS(SPECULAR_BUFFERS)
                     idx = (GLint) (dot_spec * SPECULAR_BUFFER_SIZE);
                     if (idx > SPECULAR_BUFFER_SIZE)
-                        idx = SPECULAR_BUFFER_SIZE; /* NOTE by GEK: this is
-                                                       poorly written, it's
-                                                       actually 1 larger.*/
+                        idx = SPECULAR_BUFFER_SIZE; /* it is larger than 1. */
                     dot_spec = specbuf->buf[idx];
 #endif
                     lR += dot_spec * l->specular.v[0] * m->specular.v[0];

@@ -8,7 +8,7 @@ GLContext *gl_get_context(void)
 
 void glPolygonStipple(void *a)
 {
-#if TGL_FEATURE_POLYGON_STIPPLE == 1
+#if TGL_HAS(POLYGON_STIPPLE)
     GLContext *c = gl_get_context();
 #include "error_check.h"
     ZBuffer *zb = c->zb;
@@ -133,7 +133,7 @@ void glopEnableDisable(GLParam *p)
             c->offset_states &= ~TGL_OFFSET_FILL;
         break;
     case GL_POLYGON_STIPPLE:
-#if TGL_FEATURE_POLYGON_STIPPLE == 1
+#if TGL_HAS(POLYGON_STIPPLE)
         c->zb->dostipple = v;
 #endif
         break;
@@ -211,7 +211,7 @@ void glopPolygonOffset(GLParam *p)
 
 GLenum glGetError()
 {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     GLContext *c = gl_get_context();
     GLenum eflag = c->error_flag;
     if (eflag != GL_OUT_OF_MEMORY)
@@ -227,7 +227,7 @@ void glDrawBuffer(GLenum mode)
     GLContext *c = gl_get_context();
 #include "error_check.h"
     if ((mode != GL_FRONT && mode != GL_NONE) || c->in_begin) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
 #else
@@ -242,7 +242,7 @@ void glReadBuffer(GLenum mode)
     GLContext *c = gl_get_context();
 #include "error_check.h"
     if ((mode != GL_FRONT && mode != GL_NONE) || c->in_begin) {
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
 #else
@@ -274,7 +274,7 @@ void glReadPixels(GLint x,
 #endif
 
     ) {
-#if TGL_FEATURE_ERROR_CHECK
+#if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
 #else

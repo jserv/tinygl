@@ -71,7 +71,7 @@ static void endSharedState(GLContext *c)
     gl_free(s->buffers);
 }
 
-#if TGL_FEATURE_TINYGL_RUNTIME_COMPAT_TEST == 1
+#if TGL_HAS(TINYGL_RUNTIME_COMPAT_TEST)
 
 #define TGL_FLOAT_ERR(a, b) ((a - b) / b)
 static int TinyGLRuntimeCompatibilityTest()
@@ -107,7 +107,7 @@ static int TinyGLRuntimeCompatibilityTest()
         return 1;
     if ((GLshort) 65280 >> 8 != -1)
         return 1;
-#if TGL_FEATURE_FISR == 1
+#if TGL_HAS(FISR)
     t = fastInvSqrt(37);
     tf2 = 1.0 / sqrt(37);
     if (TGL_FLOAT_ERR(t, tf2) > 0.05)
@@ -164,7 +164,7 @@ void glInit(void *zbuffer1)
     GLViewport *v;
     GLint i;
     ZBuffer *zbuffer = (ZBuffer *) zbuffer1;
-#if TGL_FEATURE_TINYGL_RUNTIME_COMPAT_TEST == 1
+#if TGL_HAS(TINYGL_RUNTIME_COMPAT_TEST)
     if (TinyGLRuntimeCompatibilityTest())
         gl_fatal_error("TINYGL_FAILED_RUNTIME_COMPAT_TEST");
 #endif
@@ -174,7 +174,7 @@ void glInit(void *zbuffer1)
         gl_fatal_error("TINYGL_CANNOT_INIT_OOM");
 
     c->zb = zbuffer;
-#if TGL_FEATURE_ERROR_CHECK == 1
+#if TGL_HAS(ERROR_CHECK)
     c->error_flag = GL_NO_ERROR;
 #endif
     /* allocate GLVertex array */
@@ -280,7 +280,7 @@ void glInit(void *zbuffer1)
     c->current_shade_model = GL_SMOOTH;
     c->cull_face_enabled = 0;
 
-#if TGL_FEATURE_POLYGON_STIPPLE == 1
+#if TGL_HAS(POLYGON_STIPPLE)
     c->zb->dostipple = 0;
     for (GLint i = 0; i < 128; i++)
         c->zb->stipplepattern[i] = 0xFF;
@@ -293,7 +293,7 @@ void glInit(void *zbuffer1)
     c->clear_depth = 0;
 
     /* selection */
-#if TGL_FEATURE_ALT_RENDERMODES == 1
+#if TGL_HAS(ALT_RENDERMODES)
     c->render_mode = GL_RENDER;
     c->select_buffer = NULL;
     c->name_stack_size = 0;
@@ -339,7 +339,7 @@ void glInit(void *zbuffer1)
     c->gl_resize_viewport = NULL;
 
     /* specular buffer */
-#if TGL_FEATURE_SPECULAR_BUFFERS == 1
+#if TGL_HAS(SPECULAR_BUFFERS)
     c->specbuf_first = NULL;
     c->specbuf_used_counter = 0;
     c->specbuf_num_buffers = 0;
@@ -373,7 +373,7 @@ void glClose(void)
         gl_free(c->matrix_stack[i]);
     }
     i = 0;
-#if TGL_FEATURE_SPECULAR_BUFFERS == 1
+#if TGL_HAS(SPECULAR_BUFFERS)
     {
         GLSpecBuf *b, *n = NULL;
         for (b = c->specbuf_first; b != NULL; b = n) {
