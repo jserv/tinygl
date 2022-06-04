@@ -1,19 +1,16 @@
-#ifndef _tgl_zbuffer_h_
-#define _tgl_zbuffer_h_
+#ifndef TGL_ZBUFFER_H
+#define TGL_ZBUFFER_H
 
 /*
  * Z buffer
  */
 
-#include "TGL/gl.h"
+#include <TGL/gl.h>
 #include "zfeatures.h"
-
 
 #define ZB_Z_BITS 16
 
 #define ZB_POINT_Z_FRAC_BITS 14
-
-
 
 #define ZB_POINT_S_MIN ((1 << ZB_POINT_S_FRAC_BITS))
 #define ZB_POINT_S_MAX                                              \
@@ -60,9 +57,9 @@
 #define RGB_TO_PIXEL(r, g, b) \
     (COLOR_R_GET16(r) | COLOR_G_GET16(g) | COLOR_B_GET16(b))
 #endif
-/*This is how textures are sampled. if you want to do some sort of fancy texture
- * filtering,*/
-/*you do it here.*/
+/* This is how textures are sampled. if you want to do some sort of fancy
+ * texture filtering
+ */
 #define TEXTURE_SAMPLE(texture, s, t) \
     (*(PIXEL *) ((GLbyte *) texture + ST_TO_TEXTURE_BYTE_OFFSET(s, t)))
 /* display modes */
@@ -72,12 +69,8 @@
 #define ZB_MODE_RGB24 4  /* 24 bit rgb mode */
 #define ZB_NB_COLORS 225 /* number of colors for 8 bit display */
 
-
-
 #define TGL_CLAMPI(imp) \
     ((imp > 0) ? ((imp > COLOR_MASK) ? COLOR_MASK : imp) : 0)
-
-
 
 #if TGL_FEATURE_RENDER_BITS == 32
 
@@ -105,11 +98,9 @@ typedef GLuint PIXEL;
 #define GET_GREEN(p) ((p & 0x07E0) >> 3)
 #define GET_BLUE(p) ((p & 31) << 3)
 
-
 typedef GLushort PIXEL;
 #define PSZB 2
 #define PSZSH 4
-
 
 #else
 #error "wrong TGL_FEATURE_RENDER_BITS"
@@ -122,8 +113,6 @@ typedef GLushort PIXEL;
 #else
 #define RGB_MIX_FUNC(rr, gg, bb, tpix) (tpix)
 #endif
-
-
 
 #define TGL_NO_BLEND_FUNC(source, dest) \
     {                                   \
@@ -140,8 +129,7 @@ typedef GLushort PIXEL;
     GLuint sfactor = zb->sfactor;   \
     GLuint dfactor = zb->dfactor;
 
-/*SORCERY to achieve 32 bit signed integer clamping*/
-
+/* SORCERY to achieve 32 bit signed integer clamping */
 
 #define TGL_BLEND_SWITCH_CASE(sr, sg, sb, dr, dg, db, dest) \
     switch (zbblendeq) {                                    \
@@ -174,8 +162,6 @@ typedef GLushort PIXEL;
         dest = RGB_TO_PIXEL(sr, sg, sb);                    \
         break;                                              \
     }
-
-
 
 #define TGL_BLEND_FUNC(source, dest)                            \
     {                                                           \
@@ -288,20 +274,15 @@ typedef GLushort PIXEL;
     }
 #endif
 
-
 typedef struct {
     GLushort *zbuf;
     PIXEL *pbuf;
     PIXEL *current_texture;
 
-
     /* point size*/
     GLfloat pointsize;
 
-
-
-    /* opengl polygon stipple*/
-
+    /* opengl polygon stipple */
 #if TGL_FEATURE_POLYGON_STIPPLE == 1
     GLubyte stipplepattern[TGL_POLYGON_STIPPLE_BYTES];
     GLuint dostipple;
@@ -333,7 +314,6 @@ ZBuffer *ZB_open(int xsize,
 
 
                  void *frame_buffer);
-
 
 void ZB_close(ZBuffer *zb);
 
@@ -413,4 +393,4 @@ extern void gl_free(void *p);
 extern void *gl_malloc(GLint size);
 extern void *gl_zalloc(GLint size);
 
-#endif /* _tgl_zbuffer_h_ */
+#endif /* TGL_ZBUFFER_H */

@@ -1,5 +1,5 @@
-#ifndef GL_H
-#define GL_H
+#ifndef TGL_H
+#define TGL_H
 
 /* Uncomment the following to prefix the OpenGL
  * function names with t to avoid conflicts with
@@ -670,7 +670,6 @@ enum {
     GL_INDEX_ARRAY_POINTER_EXT = 0x8091,
     GL_TEXTURE_COORD_ARRAY_POINTER_EXT = 0x8092,
     GL_EDGE_FLAG_ARRAY_POINTER_EXT = 0x8093
-
 };
 
 typedef enum {
@@ -717,8 +716,6 @@ enum {
 };
 
 /* some types */
-
-
 typedef void GLvoid;
 typedef unsigned char GLboolean;
 typedef signed char GLbyte;      /* 1-byte signed */
@@ -735,12 +732,12 @@ typedef GLint GLsizei;           /* Same as GLint */
 
 #if COMPILETIME_TINYGL_COMPAT_TEST == 1
 /*
-Test to ensure that these types are the correct size
-If you get an "array is negative" error, simply change
-the typedefs above to types which match the sizes tested for here.
-Note that this library NEEDS a 4-byte float type (IEEE 754) so
-if you don't have one, TinyGL is incompatible.
-*/
+ * Test to ensure that these types are the correct size
+ * If you get an "array is negative" error, simply change
+ * the typedefs above to types which match the sizes tested for here.
+ * Note that this library NEEDS a 4-byte float type (IEEE 754) so
+ * if you don't have one, TinyGL is incompatible.
+ */
 extern char TGL_BUILDT_GLbyte[1 - 2 * (sizeof(GLbyte) != 1)];
 #ifdef __STDC_IEC_559__
 #if __STDC_IEC_559__ == 0
@@ -1175,8 +1172,6 @@ void glPostProcess(
     GLuint (*postprocess)(GLint x, GLint y, GLuint pixel, GLushort z));
 /* not implemented, just added to compile  */
 /*
-
-
 inline void glLineWidth(GLfloat) {}
 inline void glDepthFunc(GLint) {}
 
