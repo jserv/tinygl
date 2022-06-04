@@ -34,8 +34,9 @@
      ((t & ZB_T_MASK) >> (ZB_POINT_T_VALUE - PSZSH)))
 #endif
 
-/*The corrected mult mask prevents a bug relating to color interp. it's also why
- * the color bit depth is so damn high.*/
+/* The corrected mult mask prevents a bug relating to color interp.
+ * It is also why the color bit depth is so damn high.
+ */
 #define COLOR_MULT_MASK (0xff0000)
 #define COLOR_CORRECTED_MULT_MASK (0xfe0000)
 #define COLOR_MASK (0xffffff)
@@ -57,11 +58,13 @@
 #define RGB_TO_PIXEL(r, g, b) \
     (COLOR_R_GET16(r) | COLOR_G_GET16(g) | COLOR_B_GET16(b))
 #endif
-/* This is how textures are sampled. if you want to do some sort of fancy
- * texture filtering
+
+/* This is how textures are sampled.
+ * If you want to do some sort of fancy texture filtering.
  */
 #define TEXTURE_SAMPLE(texture, s, t) \
     (*(PIXEL *) ((GLbyte *) texture + ST_TO_TEXTURE_BYTE_OFFSET(s, t)))
+
 /* display modes */
 #define ZB_MODE_5R6G5B 1 /* true color 16 bits */
 #define ZB_MODE_INDEX 2  /* color index 8 bits */
@@ -73,9 +76,7 @@
     ((imp > 0) ? ((imp > COLOR_MASK) ? COLOR_MASK : imp) : 0)
 
 #if TGL_FEATURE_RENDER_BITS == 32
-
 /* 32 bit mode */
-
 #define GET_REDDER(p) ((p & 0xff0000))
 #define GET_GREENER(p) ((p & 0xff00) << 8)
 #define GET_BLUEER(p) ((p & 0xff) << 16)
@@ -88,7 +89,6 @@ typedef GLuint PIXEL;
 #define PSZSH 5
 
 #elif TGL_FEATURE_RENDER_BITS == 16
-
 /* 16 bit mode */
 #define GET_REDDER(p) ((p & 0xF800) << 8)
 #define GET_GREENER(p) ((p & 0x07E0) << 13)
@@ -97,7 +97,6 @@ typedef GLuint PIXEL;
 #define GET_RED(p) ((p & 0xF800) >> 8)
 #define GET_GREEN(p) ((p & 0x07E0) >> 3)
 #define GET_BLUE(p) ((p & 31) << 3)
-
 typedef GLushort PIXEL;
 #define PSZB 2
 #define PSZSH 4
@@ -106,7 +105,7 @@ typedef GLushort PIXEL;
 #error "wrong TGL_FEATURE_RENDER_BITS"
 #endif
 
-#if TGL_FEATURE_LIT_TEXTURES == 1
+#if TGL_HAS(LIT_TEXTURES)
 #define RGB_MIX_FUNC(rr, gg, bb, tpix)                                       \
     RGB_TO_PIXEL(((rr * GET_RED(tpix)) >> 8), ((gg * GET_GREEN(tpix)) >> 8), \
                  ((bb * GET_BLUE(tpix)) >> 8))
@@ -123,7 +122,7 @@ typedef GLushort PIXEL;
         dest = RGB_TO_PIXEL(rr, gg, bb);        \
     }
 
-#if TGL_FEATURE_BLEND == 1
+#if TGL_HAS(BLEND)
 #define TGL_BLEND_VARS              \
     GLuint zbblendeq = zb->blendeq; \
     GLuint sfactor = zb->sfactor;   \
@@ -263,7 +262,7 @@ typedef GLushort PIXEL;
     }
 
 #else
-#define TGL_BLEND_VARS /* a comment */
+#define TGL_BLEND_VARS
 #define TGL_BLEND_FUNC(source, dest) \
     {                                \
         dest = source;               \
@@ -279,11 +278,11 @@ typedef struct {
     PIXEL *pbuf;
     PIXEL *current_texture;
 
-    /* point size*/
+    /* point size */
     GLfloat pointsize;
 
-    /* opengl polygon stipple */
-#if TGL_FEATURE_POLYGON_STIPPLE == 1
+    /* OpenGL polygon stipple */
+#if TGL_HAS(POLYGON_STIPPLE)
     GLubyte stipplepattern[TGL_POLYGON_STIPPLE_BYTES];
     GLuint dostipple;
 #endif

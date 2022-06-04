@@ -1,13 +1,13 @@
 #ifndef TGL_H
 #define TGL_H
 
-/* Uncomment the following to prefix the OpenGL
- * function names with t to avoid conflicts with
- * system OpenGL definitions */
+/* prefix the OpenGL function names with "t" to avoid conflicts with * system
+ * OpenGL definitions
+ */
 #define TGL_PREFIX 1
 
 /*
- * The following constants come from Mesa
+ * The following constants come from Mesa 3D Graphics Library.
  */
 #define COMPILETIME_TINYGL_COMPAT_TEST 0
 
@@ -341,9 +341,9 @@ enum {
     GL_NONE = 0,
     GL_LEFT = 0x0406,
     GL_RIGHT = 0x0407,
-    /*GL_FRONT			= 0x0404, */
-    /*GL_BACK			= 0x0405, */
-    /*GL_FRONT_AND_BACK		= 0x0408, */
+    /*GL_FRONT = 0x0404, */
+    /*GL_BACK = 0x0405, */
+    /*GL_FRONT_AND_BACK = 0x0408, */
     GL_FRONT_LEFT = 0x0400,
     GL_FRONT_RIGHT = 0x0401,
     GL_BACK_LEFT = 0x0402,
@@ -420,7 +420,6 @@ enum {
     GL_TEXTURE_MATRIX = 0x0BA8,
     GL_TEXTURE_STACK_DEPTH = 0x0BA5,
     GL_VIEWPORT = 0x0BA2,
-
 
     /* Evaluators */
     GL_AUTO_NORMAL = 0x0D80,
@@ -691,6 +690,7 @@ typedef enum {
     GL_TEXT_SIZE128x128 = 16,
     GL_MAX_TEXT_SIZE = 16
 } GLTEXTSIZE;
+
 enum {
     GL_CURRENT_BIT = 0x00000001,
     GL_POINT_BIT = 0x00000002,
@@ -728,7 +728,6 @@ typedef unsigned int GLuint;     /* 4-byte unsigned */
 typedef float GLfloat;           /* single precision float */
 typedef double GLdouble;         /* double precision float */
 typedef GLint GLsizei;           /* Same as GLint */
-
 
 #if COMPILETIME_TINYGL_COMPAT_TEST == 1
 /*
@@ -927,7 +926,6 @@ extern char TGL_BUILDT_RshiftGLshort[1 - 2 * ((GLshort) 65280 >> 8 != -1)];
 void glEnable(GLint code);
 void glDisable(GLint code);
 
-
 void glShadeModel(GLint mode);
 void glCullFace(GLint mode);
 void glPolygonMode(GLint face, GLint mode);
@@ -1034,6 +1032,7 @@ void glCallLists(GLsizei n, GLenum type, const GLuint *lists);
 void glListBase(GLint n);
 void glDeleteList(GLuint list);
 void glDeleteLists(GLuint list, GLuint range);
+
 /* clear */
 void glClear(GLint mask);
 void glClearColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
@@ -1090,8 +1089,8 @@ GLboolean glAreTexturesResident(GLsizei n,
                                 const GLuint *textures,
                                 GLboolean *residences);
 GLboolean glIsTexture(GLuint texture);
-/* lighting */
 
+/* lighting */
 void glMaterialfv(GLint mode, GLint type, GLfloat *v);
 void glMaterialf(GLint mode, GLint type, GLfloat v);
 void glColorMaterial(GLint mode, GLint type);
@@ -1112,7 +1111,7 @@ const GLubyte *glGetString(GLenum name);
 GLenum glGetError();
 void glFrontFace(GLint mode);
 
-/* opengl 1.2 arrays */
+/* OpenGL 1.2 arrays */
 void glEnableClientState(GLenum array);
 void glDisableClientState(GLenum array);
 void glArrayElement(GLint i);
@@ -1129,7 +1128,8 @@ void glTexCoordPointer(GLint size,
                        GLenum type,
                        GLsizei stride,
                        const GLvoid *pointer);
-/* opengl 2.0 buffers */
+
+/* OpenGL 2.0 buffers */
 void glGenBuffers(GLsizei n, GLuint *buffers);
 void glDeleteBuffers(GLsizei n, const GLuint *buffers);
 void glBindBuffer(GLenum target, GLuint buffer);
@@ -1143,7 +1143,7 @@ void glBindBufferAsArray(GLenum target,
                          GLint size,
                          GLint stride);
 
-/* opengl 1.2 polygon offset */
+/* OpenGL 1.2 polygon offset */
 void glPolygonOffset(GLfloat factor, GLfloat units);
 void glBlendFunc(GLint, GLint);
 void glBlendEquation(GLenum mode);
@@ -1170,8 +1170,9 @@ void glPixelZoom(GLfloat x, GLfloat y);
 /* PostProcessing pass implementation */
 void glPostProcess(
     GLuint (*postprocess)(GLint x, GLint y, GLuint pixel, GLushort z));
+
 /* not implemented, just added to compile  */
-/*
+#if 0
 inline void glLineWidth(GLfloat) {}
 inline void glDepthFunc(GLint) {}
 
@@ -1183,7 +1184,8 @@ inline void glFogi(GLint, GLint) {}
 inline void glFogfv(GLint, const GLfloat*) {}
 inline void glFogf(GLint, GLfloat) {}
 inline void glTexParameterf(GLint, GLint, GLint) {};
-*/
+#endif
+
 void glPolygonStipple(void *a);
 /* non compatible functions */
 
