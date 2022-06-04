@@ -1,8 +1,3 @@
-/* OPENIMGUI STANDARD DEMO
-Demo of Gek's proposed Open Immediate Mode Gui Standard
-*/
-//#define PLAY_MUSIC
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,11 +9,7 @@ Demo of Gek's proposed Open Immediate Mode Gui Standard
 #define CHAD_API_IMPL
 #define CHAD_MATH_IMPL
 #include "../3dMath.h"
-#ifdef PLAY_MUSIC
-#include "../api_audio.h"
-#else
 typedef unsigned char uchar;
-#endif
 #include <SDL.h>
 
 // Gek's OpenIMGUI standard.
@@ -321,17 +312,10 @@ int main(int argc, char** argv) {
 			larg = argv[i];
 		}
 	}
-#ifdef PLAY_MUSIC
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-#else
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-#endif
 		fprintf(stderr, "ERROR: cannot initialize SDL video.\n");
 		return 1;
 	}
-#ifdef PLAY_MUSIC
-	ainit(0);
-#endif
 	SDL_Window *window = NULL;
         SDL_Renderer *renderer = NULL;
         SDL_Surface *screen = NULL;
@@ -367,11 +351,6 @@ int main(int argc, char** argv) {
 	printf("\nASHIFT IS %u\n", screen->format->Ashift);
 	fflush(stdout);
 
-#ifdef PLAY_MUSIC
-	track* myTrack = NULL;
-	myTrack = lmus("WWGW.mp3");
-	mplay(myTrack, -1, 1000);
-#endif
 	SDL_ShowCursor(SDL_ENABLE);
 
 	// initialize TinyGL:
@@ -485,11 +464,6 @@ int main(int argc, char** argv) {
                 SDL_DestroyRenderer(renderer);
                 SDL_DestroyWindow(window);
         }
-#ifdef PLAY_MUSIC
-	mhalt();
-	Mix_FreeMusic(myTrack);
-	acleanup();
-#endif
 
 	SDL_Quit();
 	return 0;

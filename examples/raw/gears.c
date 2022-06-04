@@ -5,8 +5,6 @@
  * ported to libSDL/TinyGL by Gerald Franz (gfz@o2online.de)
  */
 
-//#define PLAY_MUSIC
-
 //Only C standard library includes.
 //These are ALL the external dependencies of this program!!! ALL of them!!!
 #include <math.h>

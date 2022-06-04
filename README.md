@@ -312,7 +312,6 @@ SDL is by no means required to compile or use this library.
 SDL is used as a reasonable means of displaying the output of TinyGL for testing.
 
 (I also included some bonus libraries that work well with SDL in the SDL examples if you want to write games using TinyGL!)
-(Try compiling the demos with -D PLAY_MUSIC if you have mixer!)
 * A c99 compiler
 * 32 bit signed and unsigned integer types
 * 32 bit binary float type (STDC_IEC_559)
