@@ -1,7 +1,5 @@
-/* texture.c */
 /*
  * Texture test written by Gek
- *
  */
 
 #include <math.h>
@@ -9,18 +7,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../include/TGL/gl.h"
+#include <TGL/gl.h>
+#include "zbuffer.h"
 
-#include "../../include/zbuffer.h"
-#define CHAD_API_IMPL
-#define CHAD_MATH_IMPL
-#include "../3dMath.h"
+#include "3dMath.h"
 typedef unsigned char uchar;
+
 #define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image.h"
+#include "stb_image.h"
+
 #include <SDL.h>
-int noSDL = 0;
-int doPostProcess = 0;
+static int doPostProcess = 0;
 
 #include <math.h>
 #ifndef M_PI

@@ -3,18 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../include/TGL/gl.h"
+#include <TGL/gl.h>
+#include "zbuffer.h"
 
-#include "../../include/zbuffer.h"
-#define CHAD_API_IMPL
-#define CHAD_MATH_IMPL
-#include "../3dMath.h"
+#include "3dMath.h"
+
 typedef unsigned char uchar;
+
 #include <SDL.h>
 
-// Gek's OpenIMGUI standard.
 #define OPENIMGUI_IMPL
-#include "../openimgui.h"
+#include "openimgui.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265

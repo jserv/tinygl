@@ -3,19 +3,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../include/TGL/gl.h"
+#include <TGL/gl.h>
+#include "zbuffer.h"
+
 #define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image.h"
-#define CHAD_MATH_IMPL
-#include "../3dMath.h"
-#include "../tobjparse.h"
-#define CHAD_API_IMPL
-#include "../../include/zbuffer.h"
+#include "stb_image.h"
+#include "3dMath.h"
+#include "tobjparse.h"
+
 typedef unsigned char uchar;
 #include <SDL.h>
 #include <time.h>
-int noSDL = 0;
-int doblend = 0;
+
+static int doblend = 0;
+
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif

@@ -1,4 +1,3 @@
-/* sdlGears.c */
 /*
  * 3-D gear wheels by Brian Paul. This program is in the public domain.
  */
@@ -9,17 +8,19 @@
 #include <string.h>
 
 #include <TGL/gl.h>
-
 #include "zbuffer.h"
-#define CHAD_API_IMPL
-#define CHAD_MATH_IMPL
-#include "../3dMath.h"
+
+#include "3dMath.h"
 typedef unsigned char uchar;
+
 #include <SDL.h>
-int noSDL = 0;
+
+static int noSDL = 0;
+
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif
+
 int override_drawmodes = 0;
 GLubyte stipplepattern[128] = {0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55, 0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
 							   0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55, 0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,

@@ -2,7 +2,7 @@ include ../../config.mk
 
 ALL_T= gears texture model helloworld menu game
 
-CFLAGS += -I../../include
+CFLAGS += -I../../include -I..
 LDFLAGS += ../../lib/libTinyGL.a -lm
 
 SDL_CONFIG ?= sdl2-config
