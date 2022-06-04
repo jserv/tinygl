@@ -402,9 +402,6 @@ int main(int argc, char **argv)
     while (isRunning) {
         ++frames;
         // Depending on SDL to give us ticks even without a window open...
-        //	test = TEST_fastInvSqrt(tNow);
-        //	printf("\n%f",test);
-        // do event handling:
 
         // draw scene:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
