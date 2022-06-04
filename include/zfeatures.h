@@ -138,4 +138,7 @@
 
 #define TINYGL_VERSION 1.0
 
+/* Feature test macro */
+#define TGL_HAS(x) TGL_FEATURE_##x
+
 #endif
