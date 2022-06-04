@@ -8,9 +8,8 @@
 *~
 
 # Ignore build outputs
-src/*.o
-src/.*.o.d
-src/*.a
+*.o
+.*.o.d
 lib/*.a
 
 # Examples
@@ -19,7 +18,7 @@ examples/raw/gears
 examples/raw/t2i
 examples/sdl/game
 examples/sdl/gears
-examples/sdl/helloworld
+examples/sdl/hello
 examples/sdl/menu
 examples/sdl/model
 examples/sdl/texture
