@@ -8,7 +8,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "3dMath.h"
+#include "3dmath.h"
 #include "tobjparse.h"
 
 typedef unsigned char uchar;

@@ -1,28 +1,20 @@
-/* Public Domain / CC0 C99 Vector Math Library
-
-*/
+/* Public Domain / CC0 C99 Vector Math Library */
 
 #ifndef CHAD_MATH_H
 #define CHAD_MATH_H
-/* Default behavior- compatibility.
 
-*/
 #ifndef CHAD_MATH_NO_ALIGN
 #define CHAD_MATH_NO_ALIGN
 #endif
-
-#ifdef __TINYC__
-#define CHAD_MATH_NO_ALIGN
-#endif
-
 
 #ifndef CHAD_MATH_NO_ALIGN
 #include <stdalign.h>
 #define CHAD_ALIGN alignas(16)
 #warning "Chad math library compiling with alignas of 16, malloc and realloc MUST return 16-byte-aligned pointers."
 #else
-#define CHAD_ALIGN /*a comment*/
+#define CHAD_ALIGN
 #endif
+
 #include <math.h>
 #include <string.h>
 typedef float f_;
@@ -238,7 +230,6 @@ static inline mat4 rotate( vec3 rotation){
 	rm.d[3*4 + 2] = 0;
 	return rm;
 }
-
 
 static inline f_ clampf( f_ a,  f_ min,  f_ max){
 	if(a<min) return min;
@@ -579,8 +570,5 @@ static inline vec4 spherevaabb( vec4 sph,  aabb box){
 		};
 		
 }
-
-
-/*END Math_Library.h~~~~~~~~~~~~~~~~~~~~*/
 
 #endif

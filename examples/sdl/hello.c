@@ -6,7 +6,7 @@
 #include <TGL/gl.h>
 #include "zbuffer.h"
 
-#include "3dMath.h"
+#include "3dmath.h"
 typedef unsigned char uchar;
 
 #include <SDL.h>

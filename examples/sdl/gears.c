@@ -10,7 +10,6 @@
 #include <TGL/gl.h>
 #include "zbuffer.h"
 
-#include "3dMath.h"
 typedef unsigned char uchar;
 
 #include <SDL.h>
