@@ -27,7 +27,6 @@ typedef struct {
 typedef struct {
     TGL_ALIGN GLfloat v[3];
 } V3;
-
 typedef struct {
     TGL_ALIGN GLfloat v[4];
 } V4;
@@ -53,7 +52,7 @@ V4 gl_V4_New(GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 GLint gl_Matrix_Inv(GLfloat *r, GLfloat *m, GLint n);
 
 #if TGL_HAS(FISR)
-static GLfloat fastInvSqrt(GLfloat x)
+static inline GLfloat fastInvSqrt(GLfloat x)
 {
     GLint i;
     GLfloat x2;

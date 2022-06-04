@@ -1,10 +1,9 @@
 #include "msghandling.h"
 #include "zgl.h"
+
 void gl_print_matrix(const GLfloat *m)
 {
-    GLint i;
-
-    for (i = 0; i < 4; i++) {
+    for (GLint i = 0; i < 4; i++) {
         tgl_warning("%f %f %f %f\n", m[i], m[4 + i], m[8 + i], m[12 + i]);
     }
 }
@@ -37,15 +36,10 @@ void glopMatrixMode(GLParam *p)
 void glopLoadMatrix(GLParam *p)
 {
     GLContext *c = gl_get_context();
-    M4 *m;
-    GLint i;
+    M4 *m = c->matrix_stack_ptr[c->matrix_mode];
+    GLParam *q = p + 1;
 
-    GLParam *q;
-
-    m = c->matrix_stack_ptr[c->matrix_mode];
-    q = p + 1;
-
-    for (i = 0; i < 4; i++) {
+    for (GLint i = 0; i < 4; i++) {
         m->m[0][i] = q[0].f;
         m->m[1][i] = q[1].f;
         m->m[2][i] = q[2].f;
@@ -59,7 +53,6 @@ void glopLoadMatrix(GLParam *p)
 void glopLoadIdentity(GLParam *p)
 {
     GLContext *c = gl_get_context();
-
     gl_M4_Id(c->matrix_stack_ptr[c->matrix_mode]);
 
     gl_matrix_update();
@@ -69,12 +62,9 @@ void glopMultMatrix(GLParam *p)
 {
     GLContext *c = gl_get_context();
     M4 m;
-    GLint i;
+    GLParam *q = p + 1;
 
-    GLParam *q;
-    q = p + 1;
-
-    for (i = 0; i < 4; i++) {
+    for (GLint i = 0; i < 4; i++) {
         m.m[0][i] = q[0].f;
         m.m[1][i] = q[1].f;
         m.m[2][i] = q[2].f;
@@ -164,7 +154,7 @@ void glopRotate(GLParam *p)
         GLfloat len = u[0] + u[1] + u[2];
         if (len == 0.0f)
             return;
-        len = fastInvSqrt(len); /* FISR*/
+        len = fastInvSqrt(len); /* FISR */
 #else
         GLfloat len = u[0] * u[0] + u[1] * u[1] + u[2] * u[2];
         if (len == 0.0f)
@@ -204,10 +194,8 @@ void glopRotate(GLParam *p)
 void glopScale(GLParam *p)
 {
     GLContext *c = gl_get_context();
-    GLfloat *m;
     GLfloat x = p[1].f, y = p[2].f, z = p[3].f;
-
-    m = &c->matrix_stack_ptr[c->matrix_mode]->m[0][0];
+    GLfloat *m = &c->matrix_stack_ptr[c->matrix_mode]->m[0][0];
 
     m[0] *= x;
     m[1] *= y;
@@ -227,10 +215,8 @@ void glopScale(GLParam *p)
 void glopTranslate(GLParam *p)
 {
     GLContext *c = gl_get_context();
-    GLfloat *m;
     GLfloat x = p[1].f, y = p[2].f, z = p[3].f;
-
-    m = &c->matrix_stack_ptr[c->matrix_mode]->m[0][0];
+    GLfloat *m = &c->matrix_stack_ptr[c->matrix_mode]->m[0][0];
 
     m[3] = m[0] * x + m[1] * y + m[2] * z + m[3];
     m[7] = m[4] * x + m[5] * y + m[6] * z + m[7];
@@ -244,7 +230,7 @@ void glopFrustum(GLParam *p)
 {
     GLContext *c = gl_get_context();
     GLfloat *r;
-    M4 m;
+    M4 m = {0};
     GLfloat left = p[1].f;
     GLfloat right = p[2].f;
     GLfloat bottom = p[3].f;
