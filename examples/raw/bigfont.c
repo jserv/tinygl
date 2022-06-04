@@ -5,7 +5,7 @@
 #include <TGL/gl.h>
 
 #include "../../src/font8x8_basic.h"
-#include "../stringutil.h"
+#include "stringutil.h"
 
 char fillchar = '#';
 void render(unsigned char *bitmap, int x) {

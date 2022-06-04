@@ -2,13 +2,21 @@ include ../../config.mk
 
 ALL_T= gears t2i bigfont
 
-CFLAGS += -I../../include
+CFLAGS += -I../../include -I..
 LDFLAGS += ../../lib/libTinyGL.a -lm
 
 all: $(ALL_T)
 
-$(ALL_T): %: %.c
-	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+OBJS := $(ALL_T:%=%.o)
+deps := $(OBJS:%.o=.%.o.d)
+
+$(ALL_T): %: %.o
+	$(CC) -o $@ $< $(LDFLAGS)
+
+%.o: %.c
+	$(CC) -o $@ $(CFLAGS) -c -MMD -MF .$@.d $<
 
 clean:
-	$(RM) $(ALL_T)
+	$(RM) $(ALL_T) $(OBJS) $(deps)
+
+-include $(deps)
