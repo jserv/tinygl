@@ -8,11 +8,11 @@ $(LIB):
 	$(MAKE) -C src
 
 sdl_examples: $(LIB) examples/stb_image.h
-	@echo "These demos require SDL 1.2 to compile."
+	@echo "These demos require SDL2 to build."
 	$(MAKE) -C examples/sdl
 
 raw_examples: $(LIB) examples/stb_image_write.h
-	@echo "Building the RAW DEMOS. These do not require anything special on your system, so they should succeed."
+	@echo "Building the raw demos."
 	$(MAKE) -C examples/raw
 	
 clean:
