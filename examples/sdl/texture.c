@@ -361,8 +361,12 @@ int main(int argc, char** argv) {
 	// cleanup:
 	ZB_close(frameBuffer);
 	glClose();
-	if (SDL_WasInit(SDL_INIT_VIDEO))
+	if (SDL_WasInit(SDL_INIT_VIDEO)) {
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+                SDL_DestroyTexture(texture);
+                SDL_DestroyRenderer(renderer);
+                SDL_DestroyWindow(window);
+        }
 #ifdef PLAY_MUSIC
 	mhalt();
 	Mix_FreeMusic(myTrack);
