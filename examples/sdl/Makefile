@@ -5,7 +5,7 @@ ALL_T= gears texture model helloworld menu game
 CFLAGS += -I../../include
 LDFLAGS += ../../lib/libTinyGL.a -lm
 
-SDL_CONFIG ?= sdl-config
+SDL_CONFIG ?= sdl2-config
 CFLAGS += $(shell $(SDL_CONFIG) --cflags)
 LDFLAGS += $(shell $(SDL_CONFIG) --libs)
 

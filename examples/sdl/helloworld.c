@@ -145,12 +145,26 @@ int main(int argc, char** argv) {
 	if (!noSDL)
 		ainit(0);
 #endif
-	SDL_Surface* screen = NULL;
-	if (!noSDL)
-		if ((screen = SDL_SetVideoMode(winSizeX, winSizeY, TGL_FEATURE_RENDER_BITS, SDL_SWSURFACE)) == 0) {
+	SDL_Window *window = NULL;
+        SDL_Renderer *renderer = NULL;
+        SDL_Surface *screen = NULL;
+	if (!noSDL) {
+		if ((window = SDL_CreateWindow(argv[0], SDL_WINDOWPOS_UNDEFINED,
+                                        SDL_WINDOWPOS_UNDEFINED, winSizeX, winSizeY, 0)) == 0) {
 			fprintf(stderr, "ERROR: Video mode set failed.\n");
 			return 1;
 		}
+
+                if((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE)) == 0) {
+			fprintf(stderr, "ERROR: cannot create SDL renderer.\n");
+                        return 1;
+                }
+
+                if((screen = SDL_GetWindowSurface(window)) == 0) {
+			fprintf(stderr, "ERROR: cannot get window surface.\n");
+                        return 1;
+                }
+        }
 	if (!noSDL) {
 		printf("\nRMASK IS %u", screen->format->Rmask);
 		printf("\nGMASK IS %u", screen->format->Gmask);
@@ -181,12 +195,10 @@ int main(int argc, char** argv) {
 #endif
 	if (!noSDL)
 		SDL_ShowCursor(SDL_DISABLE);
-	if (!noSDL)
-		SDL_WM_SetCaption(argv[0], 0);
 
 	// initialize TinyGL:
 	// unsigned int pitch;
-	int mode;
+        SDL_Texture* texture = NULL;
 	if (!noSDL)
 		switch (screen->format->BitsPerPixel) {
 		case 8:
@@ -195,19 +207,18 @@ int main(int argc, char** argv) {
 			return 1;
 		case 16:
 
-			// fprintf(stderr,"\nUnsupported by maintainer!!!");
-			mode = ZB_MODE_5R6G5B;
-			// return 1;
+			fprintf(stderr,"\nUnsupported by maintainer!!!");
+			return 1;
 			break;
 		case 24:
 
 			fprintf(stderr, "\nUnsupported by maintainer!!!");
-			mode = ZB_MODE_RGB24;
 			return 1;
 			break;
 		case 32:
 
-			mode = ZB_MODE_RGBA;
+                        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
+                                SDL_TEXTUREACCESS_STREAMING, winSizeX, winSizeY);
 			break;
 		default:
 			return 1;
@@ -296,8 +307,12 @@ int main(int argc, char** argv) {
 		if (!noSDL)
 			if (SDL_MUSTLOCK(screen))
 				SDL_UnlockSurface(screen);
-		if (!noSDL)
-			SDL_Flip(screen);
+		if (!noSDL) {
+                        SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
+                        SDL_RenderClear(renderer);
+                        SDL_RenderCopy(renderer, texture, NULL, NULL);
+                        SDL_RenderPresent(renderer);
+                }
 		if (!noSDL)
 			if (fps > 0)
 				if ((1000 / fps) > (SDL_GetTicks() - tNow)) {
@@ -305,7 +320,7 @@ int main(int argc, char** argv) {
 				}
 		// check for error conditions:
 		{
-			char* sdl_error = SDL_GetError();
+			const char* sdl_error = SDL_GetError();
 			if (sdl_error[0] != '\0') {
 				fprintf(stderr, "SDL ERROR: \"%s\"\n", sdl_error);
 				SDL_ClearError();
@@ -324,8 +339,12 @@ int main(int argc, char** argv) {
 	ZB_close(frameBuffer);
 	glClose();
 	if (!noSDL)
-		if (SDL_WasInit(SDL_INIT_VIDEO))
+		if (SDL_WasInit(SDL_INIT_VIDEO)) {
 			SDL_QuitSubSystem(SDL_INIT_VIDEO);
+                        SDL_DestroyTexture(texture);
+                        SDL_DestroyRenderer(renderer);
+                        SDL_DestroyWindow(window);
+                }
 #ifdef PLAY_MUSIC
 	if (!noSDL)
 		mhalt();
