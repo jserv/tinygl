@@ -1,6 +1,6 @@
 include ../../config.mk
 
-ALL_T= gears texture model helloworld menu game
+ALL_T= gears texture model hello menu game
 
 CFLAGS += -I../../include -I..
 LDFLAGS += ../../lib/libTinyGL.a -lm
