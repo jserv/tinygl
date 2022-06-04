@@ -3,6 +3,10 @@
 *.files
 *.includes
 
+# working files
+.DS_Store
+*~
+
 # Ignore build outputs
 src/*.o
 src/.*.o.d
