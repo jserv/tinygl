@@ -18,5 +18,6 @@ $(ALL_T): %: %.o
 
 clean:
 	$(RM) $(ALL_T) $(OBJS) $(deps)
+	$(RM) render.png
 
 -include $(deps)
