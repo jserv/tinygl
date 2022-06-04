@@ -1,6 +1,6 @@
 include ../../config.mk
 
-ALL_T= gears t2i bigfont
+ALL_T= gears
 
 CFLAGS += -I../../include -I..
 LDFLAGS += ../../lib/libTinyGL.a -lm

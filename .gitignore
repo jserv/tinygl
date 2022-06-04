@@ -13,9 +13,8 @@
 lib/*.a
 
 # Examples
-examples/raw/bigfont
+examples/raw/render.png
 examples/raw/gears
-examples/raw/t2i
 examples/sdl/game
 examples/sdl/gears
 examples/sdl/hello

@@ -1,9 +1,4 @@
-/* sdlGears.c */
-/*
- * 3-D gear wheels by Brian Paul. This program is in the public domain.
- *
- * ported to libSDL/TinyGL by Gerald Franz (gfz@o2online.de)
- */
+/* 3D gear wheels written by Brian Paul. */
 
 #include <math.h>
 #include <stdarg.h>
@@ -14,16 +9,13 @@
 #include <TGL/gl.h>
 #include "zbuffer.h"
 
-#define STBIW_ASSERT(x) /* a comment */
+#define STBIW_ASSERT(x)
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
 typedef unsigned char uchar;
 
-#ifndef M_PI
-#define M_PI 3.14159265
-#endif
-int override_drawmodes = 0;
+static int override_drawmodes = 0;
 GLubyte stipplepattern[128] = {
     0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55, 0xAA, 0xAA, 0xAA,
     0xAA, 0x55, 0x55, 0x55, 0x55, 0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55,
@@ -39,7 +31,8 @@ GLubyte stipplepattern[128] = {
 
     0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55, 0xAA, 0xAA, 0xAA,
     0xAA, 0x55, 0x55, 0x55, 0x55, 0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55,
-    0x55, 0x55, 0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55};
+    0x55, 0x55, 0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55,
+};
 
 /*
  * Draw a gear wheel.  You'll probably want to call this function when
@@ -75,9 +68,8 @@ static void gear(GLfloat inner_radius,
         glBegin(GL_LINES);
     else if (override_drawmodes == 2)
         glBegin(GL_POINTS);
-    else {
+    else
         glBegin(GL_QUAD_STRIP);
-    }
     for (i = 0; i <= teeth; i++) {
         angle = i * 2.0 * M_PI / teeth;
         glVertex3f(r0 * cos(angle), r0 * sin(angle), width * 0.5);
@@ -187,7 +179,6 @@ static void gear(GLfloat inner_radius,
 
     glEnd();
 
-
     /* draw inside radius cylinder */
     if (override_drawmodes == 1)
         glBegin(GL_LINES);
@@ -214,7 +205,6 @@ void draw()
     glPushMatrix();
     glRotatef(view_rotx, 1.0, 0.0, 0.0);
     glRotatef(view_roty, 0.0, 1.0, 0.0);
-    // glRotatef( view_rotz, 0.0, 0.0, 1.0 );
 
     glPushMatrix();
     glTranslatef(-3.0, -2.0, 0.0);
@@ -239,10 +229,7 @@ void draw()
 
 void initScene()
 {
-    // static GLfloat pos[4] = {0.408248290463863, 0.408248290463863,
-    // 0.816496580927726, 0.0 }; //Light at infinity.
     static GLfloat pos[4] = {5, 5, 10, 0.0};  // Light at infinity.
-    // static GLfloat pos[4] = {5, 5, -10, 0.0}; // Light at infinity.
 
     static GLfloat red[4] = {1.0, 0.0, 0.0, 0.0};
     static GLfloat green[4] = {0.0, 1.0, 0.0, 0.0};
@@ -251,19 +238,16 @@ void initScene()
     static GLfloat shininess = 5;
     glLightfv(GL_LIGHT0, GL_POSITION, pos);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
-    // glLightfv( GL_LIGHT0, GL_AMBIENT, white);
     glLightfv(GL_LIGHT0, GL_SPECULAR, white);
     glEnable(GL_CULL_FACE);
 
     glEnable(GL_LIGHT0);
-    // glEnable(GL_DEPTH_TEST);
-
 
     glEnable(GL_POLYGON_STIPPLE);
-    //	glDisable(GL_POLYGON_STIPPLE);
     glPolygonStipple(stipplepattern);
     glPointSize(10.0f);
     glTextSize(GL_TEXT_SIZE24x24);
+
     /* make the gears */
     gear1 = glGenLists(1);
     glNewList(gear1, GL_COMPILE);
@@ -279,8 +263,8 @@ void initScene()
     glMaterialfv(GL_FRONT, GL_DIFFUSE, red);
     glMaterialfv(GL_FRONT, GL_SPECULAR, white);
     glColor3fv(red);
-    gear(0.5, 2.0, 2.0, 10,
-         0.7);  // The small gear with the smaller hole, to the right.
+    /* The small gear with the smaller hole, to the right. */
+    gear(0.5, 2.0, 2.0, 10, 0.7);
     glEndList();
 
     gear3 = glGenLists(1);
@@ -288,16 +272,14 @@ void initScene()
     glMaterialfv(GL_FRONT, GL_DIFFUSE, green);
     glMaterialfv(GL_FRONT, GL_SPECULAR, white);
     glColor3fv(green);
-    gear(1.3, 2.0, 0.5, 10, 0.7);  // The small gear above with the large hole.
+    /* The small gear above with the large hole. */
+    gear(1.3, 2.0, 0.5, 10, 0.7);
     glEndList();
-    // glEnable( GL_NORMALIZE );
 }
 
 int main(int argc, char **argv)
 {
-    // initialize SDL video:
-    int winSizeX = 640;
-    int winSizeY = 480;
+    int winSizeX = 640, winSizeY = 480;
     PIXEL *imbuf = NULL;
     uchar *pbuf = NULL;
     unsigned int flat = 0;
@@ -329,12 +311,9 @@ int main(int argc, char **argv)
         }
     }
 
-
     fflush(stdout);
     imbuf = calloc(1, sizeof(PIXEL) * winSizeX * winSizeY);
     // initialize TinyGL:
-    // unsigned int pitch;
-    // int mode;
     ZBuffer *frameBuffer = NULL;
     if (TGL_FEATURE_RENDER_BITS == 32)
         frameBuffer = ZB_open(winSizeX, winSizeY, ZB_MODE_RGBA, 0);
@@ -347,25 +326,18 @@ int main(int argc, char **argv)
     glInit(frameBuffer);
 
     // Print version info
-    printf("\nVersion string:\n%s", glGetString(GL_VERSION));
-    printf("\nVendor string:\n%s", glGetString(GL_VENDOR));
-    printf("\nRenderer string:\n%s", glGetString(GL_RENDERER));
-    printf("\nExtensions string:\n%s", glGetString(GL_EXTENSIONS));
-    printf("\nLicense string:\n%s", glGetString(GL_LICENSE));
+    printf("Version string:\n%s", glGetString(GL_VERSION));
+    printf("Vendor string:\n%s", glGetString(GL_VENDOR));
+    printf("Renderer string:\n%s", glGetString(GL_RENDERER));
+    printf("Extensions string:\n%s", glGetString(GL_EXTENSIONS));
+    printf("\n");
+ 
     // initialize GL:
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glViewport(0, 0, winSizeX, winSizeY);
-    if (flat)
-        glShadeModel(GL_FLAT);
-    else
-        glShadeModel(GL_SMOOTH);
-    // TESTING BLENDING...
-    // glDisable(GL_DEPTH_TEST);
+    glShadeModel(flat ? GL_FLAT : GL_SMOOTH);
 
-
-    // glDisable( GL_LIGHTING );
     glEnable(GL_LIGHTING);
-    // glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_ZERO);
     glBlendEquation(GL_FUNC_ADD);
     if (blending) {
         glDisable(GL_DEPTH_TEST);
@@ -391,17 +363,11 @@ int main(int argc, char **argv)
         glSetEnableSpecular(GL_TRUE);
     else
         glSetEnableSpecular(GL_FALSE);
-    // variables for timing:
     unsigned int frames = 0;
-    // unsigned int tLastFps = tNow;
 
-    // main loop:
     int isRunning = 1;
-    // float test = 0;
-
     while (isRunning) {
         ++frames;
-        // Depending on SDL to give us ticks even without a window open...
 
         // draw scene:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -415,7 +381,6 @@ int main(int argc, char **argv)
         }
         // swap buffers:
         // Quickly convert all pixels to the correct format
-
         ZB_copyFrameBuffer(frameBuffer, imbuf, winSizeX * sizeof(PIXEL));
         if (frames > 0)
             break;
@@ -423,9 +388,6 @@ int main(int argc, char **argv)
     if (TGL_FEATURE_RENDER_BITS == 32) {  // very little conversion.
         pbuf = malloc(3 * winSizeX * winSizeY);
         for (int i = 0; i < winSizeX * winSizeY; i++) {
-            // pbuf[3*i+0] = (imbuf[i]&0xff0000)>>16;
-            // pbuf[3*i+1] = (imbuf[i]&0x00ff00)>>8;
-            // pbuf[3*i+2] = (imbuf[i]&0x0000ff);
             pbuf[3 * i + 0] = GET_RED(imbuf[i]);
             pbuf[3 * i + 1] = GET_GREEN(imbuf[i]);
             pbuf[3 * i + 2] = GET_BLUE(imbuf[i]);
@@ -445,11 +407,12 @@ int main(int argc, char **argv)
         free(imbuf);
         free(pbuf);
     }
+
     // cleanup:
     glDeleteList(gear1);
     glDeleteList(gear2);
     glDeleteList(gear3);
-    // ZB_close(frameBuffer);
+
     glClose();
     glInit(frameBuffer);
     glClose();
@@ -460,5 +423,6 @@ int main(int argc, char **argv)
     glInit(frameBuffer);
     ZB_close(frameBuffer);
     glClose();
+
     return 0;
 }
