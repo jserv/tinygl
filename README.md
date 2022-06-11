@@ -84,9 +84,6 @@ Blending:
 Specular:
 ![GIF Video of demo](assets/specular.gif)
 
-OpenIMGUI standard demo:
-![OpenIMGUI](assets/menu.gif)
-
 Notable changes:
 * Disabled 8, 15, and 24 bit rendering modes. 16 and 32 are the only supported rendering modes (Coincidentally, they are also the fastest)
 * Allowed the fixed texture size to be changed at compile time. It must be a power of 2, but that is the only limitation.
