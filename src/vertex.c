@@ -3,11 +3,8 @@
 
 void glopNormal(GLParam *p)
 {
-    V3 v;
     GLContext *c = gl_get_context();
-    v.X = p[1].f;
-    v.Y = p[2].f;
-    v.Z = p[3].f;
+    V3 v = {.X = p[1].f, .Y = p[2].f, .Z = p[3].f};
 
     c->current_normal.X = v.X;
     c->current_normal.Y = v.Y;
@@ -39,14 +36,15 @@ void glopColor(GLParam *p)
     c->current_color.W = p[4].f;
 
     if (c->color_material_enabled) {
-        GLParam q[7];
-        q[0].op = OP_Material;
-        q[1].i = c->current_color_material_mode;
-        q[2].i = c->current_color_material_type;
-        q[3].f = p[1].f;
-        q[4].f = p[2].f;
-        q[5].f = p[3].f;
-        q[6].f = p[4].f;
+        GLParam q[7] = {
+            [0].op = OP_Material,
+            [1].i = c->current_color_material_mode,
+            [2].i = c->current_color_material_type,
+            [3].f = p[1].f,
+            [4].f = p[2].f,
+            [5].f = p[3].f,
+            [6].f = p[4].f,
+        };
         glopMaterial(q);
     }
 }
@@ -54,7 +52,6 @@ void glopColor(GLParam *p)
 void glopBegin(GLParam *p)
 {
     GLint type;
-    M4 tmp;
     GLContext *c = gl_get_context();
 #if TGL_HAS(ERROR_CHECK)
     if (c->in_begin != 0)
@@ -72,6 +69,7 @@ void glopBegin(GLParam *p)
     if (c->matrix_model_projection_updated) {
         if (c->lighting_enabled) {
             /* precompute inverse modelview */
+            M4 tmp;
             gl_M4_Inv(&tmp, c->matrix_stack_ptr[0]);
             gl_M4_Transpose(&c->matrix_model_view_inv, &tmp);
         } else {
@@ -190,15 +188,11 @@ int gl_V3_Norm_Fast(V3 *a)
 
 static void gl_vertex_transform(GLVertex *v)
 {
-    GLfloat *m;
     GLContext *c = gl_get_context();
 
-    if (c->lighting_enabled)
-
-    {
+    if (c->lighting_enabled) {
         /* eye coordinates needed for lighting */
-        V4 *n;
-        m = &c->matrix_stack_ptr[0]->m[0][0];
+        GLfloat *m = &c->matrix_stack_ptr[0]->m[0][0];
         v->ec.X =
             (v->coord.X * m[0] + v->coord.Y * m[1] + v->coord.Z * m[2] + m[3]);
         v->ec.Y =
@@ -220,7 +214,7 @@ static void gl_vertex_transform(GLVertex *v)
                    v->ec.W * m[15]);
 
         m = &c->matrix_model_view_inv.m[0][0];
-        n = &c->current_normal;
+        V4 *n = &c->current_normal;
 
         v->normal.X = (n->X * m[0] + n->Y * m[1] + n->Z * m[2]);
         v->normal.Y = (n->X * m[4] + n->Y * m[5] + n->Z * m[6]);
@@ -229,12 +223,10 @@ static void gl_vertex_transform(GLVertex *v)
         if (c->normalize_enabled) {
             gl_V3_Norm_Fast(&v->normal);
         }
-    }
-
-    else {
+    } else {
         /* no eye coordinates needed, no normal */
         /* NOTE: W = 1 is assumed */
-        m = &c->matrix_model_projection.m[0][0];
+        GLfloat *m = &c->matrix_model_projection.m[0][0];
 
         v->pc.X =
             (v->coord.X * m[0] + v->coord.Y * m[1] + v->coord.Z * m[2] + m[3]);
@@ -255,8 +247,7 @@ static void gl_vertex_transform(GLVertex *v)
 
 void glopVertex(GLParam *p)
 {
-    GLVertex *v;
-    GLint n, i, cnt;
+    GLint n;
     GLContext *c = gl_get_context();
 #if TGL_HAS(ERROR_CHECK)
     if (c->in_begin == 0)
@@ -264,12 +255,12 @@ void glopVertex(GLParam *p)
 #include "error_check.h"
 #endif
         n = c->vertex_n;
-    cnt = c->vertex_cnt;
+    GLint cnt = c->vertex_cnt;
     cnt++;
     c->vertex_cnt = cnt;
 
     /* new vertex entry */
-    v = &c->vertex[n];
+    GLVertex *v = &c->vertex[n];
     n++;
 
     v->coord.X = p[1].f;
@@ -385,7 +376,7 @@ void glopVertex(GLParam *p)
         if (n == 4) {
             gl_draw_triangle(&c->vertex[0], &c->vertex[1], &c->vertex[2]);
             gl_draw_triangle(&c->vertex[1], &c->vertex[3], &c->vertex[2]);
-            for (i = 0; i < 2; i++)
+            for (GLint i = 0; i < 2; i++)
                 c->vertex[i] = c->vertex[i + 2];
             n = 2;
         }
