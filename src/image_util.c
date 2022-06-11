@@ -9,12 +9,9 @@ void gl_convertRGB_to_5R6G5B(GLushort *pixmap,
                              GLint xsize,
                              GLint ysize)
 {
-    GLint i, n;
-    GLubyte *p;
-
-    p = rgb;
-    n = xsize * ysize;
-    for (i = 0; i < n; i++) {
+    GLubyte *p = rgb;
+    GLint n = xsize * ysize;
+    for (GLint i = 0; i < n; i++) {
         pixmap[i] =
             ((p[0] & 0xF8) << 8) | ((p[1] & 0xFC) << 3) | ((p[2] & 0xF8) >> 3);
         p += 3;
@@ -22,20 +19,17 @@ void gl_convertRGB_to_5R6G5B(GLushort *pixmap,
 }
 
 /*
- This actually converts to ARGB!!!
- This is the format of the entire engine!!!
-*/
+ * This actually converts to ARGB.
+ * This is the format of the entire engine.
+ */
 void gl_convertRGB_to_8A8R8G8B(GLuint *pixmap,
                                GLubyte *rgb,
                                GLint xsize,
                                GLint ysize)
 {
-    GLint i, n;
-    GLubyte *p;
-
-    p = rgb;
-    n = xsize * ysize;
-    for (i = 0; i < n; i++) {
+    GLubyte *p = rgb;
+    GLint n = xsize * ysize;
+    for (GLint i = 0; i < n; i++) {
         pixmap[i] = (((GLuint) p[0]) << 16) | (((GLuint) p[1]) << 8) |
                     (((GLuint) p[2]));
         p += 3;
@@ -69,27 +63,21 @@ void gl_resizeImage(GLubyte *dest,
                     GLint xsize_src,
                     GLint ysize_src)
 {
-    GLubyte *pix, *pix_src;
-    GLfloat x1, y1, x1inc, y1inc;
-    GLint xi, yi, j, xf, yf, x, y;
+    GLubyte *pix = dest, *pix_src = src;
 
-    pix = dest;
-    pix_src = src;
+    GLfloat x1inc = (GLfloat) (xsize_src - 1) / (GLfloat) (xsize_dest - 1);
+    GLfloat y1inc = (GLfloat) (ysize_src - 1) / (GLfloat) (ysize_dest - 1);
 
-    x1inc = (GLfloat) (xsize_src - 1) / (GLfloat) (xsize_dest - 1);
-    y1inc = (GLfloat) (ysize_src - 1) / (GLfloat) (ysize_dest - 1);
-
-    y1 = 0;
-    for (y = 0; y < ysize_dest; y++) {
-        x1 = 0;
-        for (x = 0; x < xsize_dest; x++) {
-            xi = (GLint) x1;
-            yi = (GLint) y1;
-            xf = (GLint) ((x1 - floor(x1)) * INTERP_NORM);
-            yf = (GLint) ((y1 - floor(y1)) * INTERP_NORM);
+    GLfloat y1 = 0;
+    for (GLint y = 0; y < ysize_dest; y++) {
+        GLfloat x1 = 0;
+        for (GLint x = 0; x < xsize_dest; x++) {
+            GLint xi = (GLint) x1, yi = (GLint) y1;
+            GLint xf = (GLint) ((x1 - floor(x1)) * INTERP_NORM);
+            GLint yf = (GLint) ((y1 - floor(y1)) * INTERP_NORM);
 
             if ((xf + yf) <= INTERP_NORM) {
-                for (j = 0; j < 3; j++) {
+                for (GLint j = 0; j < 3; j++) {
                     pix[j] = GLinterpolate_imutil(
                         pix_src[(yi * xsize_src + xi) * 3 + j],
                         pix_src[(yi * xsize_src + xi + 1) * 3 + j],
@@ -98,7 +86,7 @@ void gl_resizeImage(GLubyte *dest,
             } else {
                 xf = INTERP_NORM - xf;
                 yf = INTERP_NORM - yf;
-                for (j = 0; j < 3; j++) {
+                for (GLint j = 0; j < 3; j++) {
                     pix[j] = GLinterpolate_imutil(
                         pix_src[((yi + 1) * xsize_src + xi + 1) * 3 + j],
                         pix_src[((yi + 1) * xsize_src + xi) * 3 + j],
@@ -124,25 +112,19 @@ void gl_resizeImageNoInterpolate(GLubyte *dest,
                                  GLint xsize_src,
                                  GLint ysize_src)
 {
-    GLubyte *pix, *pix_src, *pix1;
-    GLint x1, y1, x1inc, y1inc;
-    GLint xi, yi, x, y;
+    GLubyte *pix = dest, *pix_src = src;
 
-    pix = dest;
-    pix_src = src;
-
-    x1inc =
+    GLint x1inc =
         (GLint) ((GLfloat) ((xsize_src) << FRAC_BITS) / (GLfloat) (xsize_dest));
-    y1inc =
+    GLint y1inc =
         (GLint) ((GLfloat) ((ysize_src) << FRAC_BITS) / (GLfloat) (ysize_dest));
 
-    y1 = 0;
-    for (y = 0; y < ysize_dest; y++) {
-        x1 = 0;
-        for (x = 0; x < xsize_dest; x++) {
-            xi = x1 >> FRAC_BITS;
-            yi = y1 >> FRAC_BITS;
-            pix1 = pix_src + (yi * xsize_src + xi) * 3;
+    GLint y1 = 0;
+    for (GLint y = 0; y < ysize_dest; y++) {
+        GLint x1 = 0;
+        for (GLint x = 0; x < xsize_dest; x++) {
+            GLint xi = x1 >> FRAC_BITS, yi = y1 >> FRAC_BITS;
+            GLubyte *pix1 = pix_src + (yi * xsize_src + xi) * 3;
 
             pix[0] = pix1[0];
             pix[1] = pix1[1];
