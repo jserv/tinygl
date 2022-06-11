@@ -9,10 +9,9 @@ static GLTexture *find_texture(GLint h)
     GLTexture *t;
     GLContext *c = gl_get_context();
     t = c->shared_state.texture_hash_table[h & TEXTURE_HASH_TABLE_MASK];
-    while (t != NULL) {
+    for (; t; t = t->next) {
         if (t->handle == h)
             return t;
-        t = t->next;
     }
     return NULL;
 }
@@ -23,10 +22,9 @@ GLboolean glAreTexturesResident(GLsizei n,
 {
 #define RETVAL GL_FALSE
     GLboolean retval = GL_TRUE;
-    GLint i;
 #include "error_check_no_context.h"
 
-    for (i = 0; i < n; i++)
+    for (GLint i = 0; i < n; i++)
         if (find_texture(textures[i])) {
             residences[i] = GL_TRUE;
         } else {
@@ -35,6 +33,7 @@ GLboolean glAreTexturesResident(GLsizei n,
         }
     return retval;
 }
+
 GLboolean glIsTexture(GLuint texture)
 {
 #define RETVAL GL_FALSE
@@ -52,8 +51,6 @@ void *glGetTexturePixmap(GLint text, GLint level, GLint *xsize, GLint *ysize)
 #define ERROR_FLAG GL_INVALID_ENUM
 #define RETVAL NULL
 #include "error_check.h"
-#else
-    /*assert(text >= 0 && level < MAX_TEXTURE_LEVELS);*/
 #endif
         tex = find_texture(text);
     if (!tex)
@@ -71,17 +68,16 @@ void *glGetTexturePixmap(GLint text, GLint level, GLint *xsize, GLint *ysize)
 
 static void free_texture(GLContext *c, GLint h)
 {
-    GLTexture *t, **ht;
-
-    t = find_texture(h);
-    if (t->prev == NULL) {
-        ht = &c->shared_state
-                  .texture_hash_table[t->handle & TEXTURE_HASH_TABLE_MASK];
+    GLTexture *t = find_texture(h);
+    if (!t->prev) {
+        GLTexture **ht =
+            &c->shared_state
+                 .texture_hash_table[t->handle & TEXTURE_HASH_TABLE_MASK];
         *ht = t->next;
     } else {
         t->prev->next = t->next;
     }
-    if (t->next != NULL)
+    if (t->next)
         t->next->prev = t->prev;
 
     gl_free(t);
@@ -90,10 +86,10 @@ static void free_texture(GLContext *c, GLint h)
 GLTexture *alloc_texture(GLint h)
 {
     GLContext *c = gl_get_context();
-    GLTexture *t, **ht;
+    GLTexture **ht;
 #define RETVAL NULL
 #include "error_check.h"
-    t = gl_zalloc(sizeof(GLTexture));
+    GLTexture *t = gl_zalloc(sizeof(GLTexture));
     if (!t)
 #if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
@@ -130,32 +126,27 @@ void glInitTextures()
 void glGenTextures(GLint n, GLuint *textures)
 {
     GLContext *c = gl_get_context();
-    GLint max, i;
-    GLTexture *t;
 #include "error_check.h"
-    max = 0;
-    for (i = 0; i < TEXTURE_HASH_TABLE_SIZE; i++) {
-        t = c->shared_state.texture_hash_table[i];
-        while (t != NULL) {
+    GLint max = 0;
+    for (GLint i = 0; i < TEXTURE_HASH_TABLE_SIZE; i++) {
+        GLTexture *t = c->shared_state.texture_hash_table[i];
+        for (; t; t = t->next) {
             if (t->handle > max)
                 max = t->handle;
-            t = t->next;
         }
     }
-    for (i = 0; i < n; i++) {
+    for (GLint i = 0; i < n; i++) {
         textures[i] = max + i + 1; /* MARK: How texture handles are created.*/
     }
 }
 
 void glDeleteTextures(GLint n, const GLuint *textures)
 {
-    GLint i;
-    GLTexture *t;
     GLContext *c = gl_get_context();
 #include "error_check.h"
-    for (i = 0; i < n; i++) {
-        t = find_texture(textures[i]);
-        if (t != NULL && t != 0) {
+    for (GLint i = 0; i < n; i++) {
+        GLTexture *t = find_texture(textures[i]);
+        if (t) {
             if (t == c->current_texture) {
                 glBindTexture(GL_TEXTURE_2D, 0);
 #include "error_check.h"
@@ -178,11 +169,11 @@ void glopBindTexture(GLParam *p)
 
 #endif
         t = find_texture(texture);
-    if (t == NULL) {
+    if (!t) {
         t = alloc_texture(texture);
 #include "error_check.h"
     }
-    if (t == NULL) {
+    if (!t) {
 #if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
@@ -202,25 +193,24 @@ void glCopyTexImage2D(GLenum target,
                       GLsizei height,
                       GLint border)
 {
-    GLParam p[9];
 #include "error_check_no_context.h"
 
-    p[0].op = OP_CopyTexImage2D;
-    p[1].i = target;
-    p[2].i = level;
-    p[3].i = internalformat;
-    p[4].i = x;
-    p[5].i = y;
-    p[6].i = width;
-    p[7].i = height;
-    p[8].i = border;
+    GLParam p[9] = {
+        [0].op = OP_CopyTexImage2D,
+        [1].i = target,
+        [2].i = level,
+        [3].i = internalformat,
+        [4].i = x,
+        [5].i = y,
+        [6].i = width,
+        [7].i = height,
+        [8].i = border,
+    };
     gl_add_op(p);
 }
+
 void glopCopyTexImage2D(GLParam *p)
 {
-    GLImage *im;
-    PIXEL *data;
-    GLint i, j;
     GLint target = p[1].i;
     GLint level = p[2].i;
     GLint x = p[4].i;
@@ -242,25 +232,27 @@ void glopCopyTexImage2D(GLParam *p)
         return;
 #endif
     }
-    im = &c->current_texture->images[level];
-    data = c->current_texture->images[level].pixmap;
+
+    GLImage *im = &c->current_texture->images[level];
+    PIXEL *data = c->current_texture->images[level].pixmap;
     im->xsize = TGL_FEATURE_TEXTURE_DIM;
     im->ysize = TGL_FEATURE_TEXTURE_DIM;
     /* TODO implement the scaling and stuff that the GL spec says it should
-     * have.*/
+     * have.
+     */
 #if TGL_HAS(MULTITHREADED_COPY_TEXIMAGE_2D)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (j = 0; j < h; j++)
-        for (i = 0; i < w; i++) {
+    for (GLint j = 0; j < h; j++)
+        for (GLint i = 0; i < w; i++) {
             data[i + j * w] =
                 c->zb->pbuf[((i + x) % (c->zb->xsize)) +
                             ((j + y) % (c->zb->ysize)) * (c->zb->xsize)];
         }
 #else
-    for (j = 0; j < h; j++)
-        for (i = 0; i < w; i++) {
+    for (GLint j = 0; j < h; j++)
+        for (GLint i = 0; i < w; i++) {
             data[i + j * w] =
                 c->zb->pbuf[((i + x) % (c->zb->xsize)) +
                             ((j + y) % (c->zb->ysize)) * (c->zb->xsize)];
@@ -280,10 +272,10 @@ void glopTexImage1D(GLParam *p)
     GLint format = p[6].i;
     GLint type = p[7].i;
     void *pixels = p[8].p;
-    GLImage *im;
     GLubyte *pixels1;
     GLint do_free = 0;
     GLContext *c = gl_get_context();
+
     {
 #if TGL_HAS(ERROR_CHECK)
         if (!(c->current_texture != NULL && target == GL_TEXTURE_1D &&
@@ -291,7 +283,6 @@ void glopTexImage1D(GLParam *p)
               format == GL_RGB && type == GL_UNSIGNED_BYTE))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
-
 #else
         if (!(c->current_texture != NULL && target == GL_TEXTURE_1D &&
               level == 0 && components == 3 && border == 0 &&
@@ -300,10 +291,11 @@ void glopTexImage1D(GLParam *p)
                 "glTexImage2D: combination of parameters not handled!!");
 #endif
     }
+
     if (width != TGL_FEATURE_TEXTURE_DIM || height != TGL_FEATURE_TEXTURE_DIM) {
         pixels1 = gl_malloc(TGL_FEATURE_TEXTURE_DIM * TGL_FEATURE_TEXTURE_DIM *
                             3); /* GUARDED */
-        if (pixels1 == NULL) {
+        if (!pixels1) {
 #if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
@@ -311,9 +303,10 @@ void glopTexImage1D(GLParam *p)
             gl_fatal_error("GL_OUT_OF_MEMORY");
 #endif
         }
-        /* no GLinterpolation is done here to respect the original image
-         * aliasing ! */
 
+        /* no GLinterpolation is done here to respect the original image
+         * aliasing.
+         */
         gl_resizeImageNoInterpolate(pixels1, TGL_FEATURE_TEXTURE_DIM,
                                     TGL_FEATURE_TEXTURE_DIM, pixels, width,
                                     height);
@@ -324,7 +317,7 @@ void glopTexImage1D(GLParam *p)
         pixels1 = pixels;
     }
 
-    im = &c->current_texture->images[level];
+    GLImage *im = &c->current_texture->images[level];
     im->xsize = width;
     im->ysize = height;
 #if TGL_FEATURE_RENDER_BITS == 32
@@ -337,6 +330,7 @@ void glopTexImage1D(GLParam *p)
     if (do_free)
         gl_free(pixels1);
 }
+
 void glopTexImage2D(GLParam *p)
 {
     GLint target = p[1].i;
@@ -348,7 +342,6 @@ void glopTexImage2D(GLParam *p)
     GLint format = p[7].i;
     GLint type = p[8].i;
     void *pixels = p[9].p;
-    GLImage *im;
     GLubyte *pixels1;
     GLint do_free = 0;
     GLContext *c = gl_get_context();
@@ -371,7 +364,7 @@ void glopTexImage2D(GLParam *p)
     if (width != TGL_FEATURE_TEXTURE_DIM || height != TGL_FEATURE_TEXTURE_DIM) {
         pixels1 = gl_malloc(TGL_FEATURE_TEXTURE_DIM * TGL_FEATURE_TEXTURE_DIM *
                             3); /* GUARDED*/
-        if (pixels1 == NULL) {
+        if (!pixels1) {
 #if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
@@ -392,7 +385,7 @@ void glopTexImage2D(GLParam *p)
         pixels1 = pixels;
     }
 
-    im = &c->current_texture->images[level];
+    GLImage *im = &c->current_texture->images[level];
     im->xsize = width;
     im->ysize = height;
 #if TGL_FEATURE_RENDER_BITS == 32
