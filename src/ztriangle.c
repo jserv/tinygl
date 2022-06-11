@@ -2,17 +2,8 @@
 #include "msghandling.h"
 #include "zbuffer.h"
 
-#if 0
-/* TODO: Switch from scanline rasterizer to easily parallelized cross product rasterizer.*/
-static GLfloat edgeFunction(GLfloat ax, GLfloat ay, GLfloat bx, GLfloat by, GLfloat cx, GLfloat cy) {
-	return (cx - ax) * (by - ay) - (cy - ay) * (bx - ax);
-}
-#endif
-
-#if TGL_FEATURE_RENDER_BITS == 32
-#elif TGL_FEATURE_RENDER_BITS == 16
-#else
-#error "WRONG MODE!!!"
+#if (TGL_FEATURE_RENDER_BITS != 32) && (TGL_FEATURE_RENDER_BITS != 16)
+#error "Incorrect render bits"
 #endif
 
 #if TGL_HAS(POLYGON_STIPPLE)
@@ -277,8 +268,6 @@ void ZB_setTexture(ZBuffer *zb, PIXEL *texture)
     zb->current_texture = texture;
 }
 
-#if 1
-
 #define DRAW_LINE_TRI_TEXTURED()                              \
     {                                                         \
         register GLushort *pz;                                \
@@ -379,12 +368,13 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb,
     or1 += drdx;    \
     ob1 += dbdx;
 #else
-#define OR1OG1OB1DECL /*A comment*/
-#define OR1G1B1INCR   /*Another comment*/
+#define OR1OG1OB1DECL
+#define OR1G1B1INCR
 #define or1 COLOR_MULT_MASK
 #define og1 COLOR_MULT_MASK
 #define ob1 COLOR_MULT_MASK
 #endif
+
 #if !TGL_HAS(NO_DRAW_COLOR)
 #define PUT_PIXEL(_a)                                                          \
     {                                                                          \
@@ -455,6 +445,7 @@ void ZB_fillTriangleMappingPerspectiveNOBLEND(ZBuffer *zb,
         ndszdx = NB_INTERP * dszdx;    \
         ndtzdx = NB_INTERP * dtzdx;    \
     }
+
 #if TGL_HAS(LIT_TEXTURES)
 #define OR1OG1OB1DECL             \
     register GLint or1, og1, ob1; \
@@ -472,6 +463,7 @@ void ZB_fillTriangleMappingPerspectiveNOBLEND(ZBuffer *zb,
 #define og1 COLOR_MULT_MASK
 #define ob1 COLOR_MULT_MASK
 #endif
+
 #if !TGL_HAS(NO_DRAW_COLOR)
 #define PUT_PIXEL(_a)                                                 \
     {                                                                 \
@@ -514,5 +506,3 @@ void ZB_fillTriangleMappingPerspectiveNOBLEND(ZBuffer *zb,
     }
 #include "ztriangle.h"
 }
-
-#endif

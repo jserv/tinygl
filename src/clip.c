@@ -337,9 +337,6 @@ static void gl_draw_triangle_clip(GLVertex *p0,
 
         /* this test can be true only in case of rounding errors */
         if (clip_bit == 6) { /* The 2 bit and the 4 bit.*/
-#if 0
-      tgl_warning("Error:\n");tgl_warning("%f %f %f %f\n",p0->pc.X,p0->pc.Y,p0->pc.Z,p0->pc.W);tgl_warning("%f %f %f %f\n",p1->pc.X,p1->pc.Y,p1->pc.Z,p1->pc.W);tgl_warning("%f %f %f %f\n",p2->pc.X,p2->pc.Y,p2->pc.Z,p2->pc.W);
-#endif
             return;
         }
 
