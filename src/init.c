@@ -1,5 +1,6 @@
 #include "msghandling.h"
 #include "zgl.h"
+
 GLContext gl_ctx;
 static const GLContext empty_gl_ctx = {0};
 
@@ -23,16 +24,12 @@ static void initSharedState(GLContext *c)
 static void endSharedState(GLContext *c)
 {
     GLSharedState *s = &c->shared_state;
-    GLint i;
-    GLList *l;
-    GLParamBuffer *pb, *pb1;
-    GLTexture *t, *n;
-    for (i = 0; i < MAX_DISPLAY_LISTS; i++)
+    for (GLint i = 0; i < MAX_DISPLAY_LISTS; i++)
         if (s->lists[i]) {
-            l = s->lists[i];
-            pb = l->first_op_buffer;
-            while (pb != NULL) {
-                pb1 = pb->next;
+            GLList *l = s->lists[i];
+            GLParamBuffer *pb = l->first_op_buffer;
+            while (pb) {
+                GLParamBuffer *pb1 = pb->next;
                 gl_free(pb);
                 pb = pb1;
             }
@@ -40,11 +37,12 @@ static void endSharedState(GLContext *c)
             s->lists[i] = NULL;
         }
     gl_free(s->lists);
-    for (i = 0; i < TEXTURE_HASH_TABLE_SIZE; i++) {
-        t = s->texture_hash_table[i];
+
+    for (GLint i = 0; i < TEXTURE_HASH_TABLE_SIZE; i++) {
+        GLTexture *t = s->texture_hash_table[i];
         while (t) {
             GLTexture **ht;
-            if (t->prev == NULL) {
+            if (!t->prev) {
                 ht = &c->shared_state
                           .texture_hash_table[t->handle &
                                               TEXTURE_HASH_TABLE_MASK];
@@ -52,15 +50,17 @@ static void endSharedState(GLContext *c)
             } else {
                 t->prev->next = t->next;
             }
-            n = t->next;
-            if (t->next != NULL)
+
+            GLTexture *n = t->next;
+            if (t->next)
                 t->next->prev = t->prev;
             gl_free(t);
             t = n;
         }
     }
     gl_free(s->texture_hash_table);
-    for (i = 0; i < MAX_BUFFERS; i++) {
+
+    for (GLint i = 0; i < MAX_BUFFERS; i++) {
         if (s->buffers[i]) {
             if (s->buffers[i]->data) {
                 gl_free(s->buffers[i]->data);
@@ -72,7 +72,6 @@ static void endSharedState(GLContext *c)
 }
 
 #if TGL_HAS(TINYGL_RUNTIME_COMPAT_TEST)
-
 #define TGL_FLOAT_ERR(a, b) ((a - b) / b)
 static int TinyGLRuntimeCompatibilityTest()
 {
@@ -141,7 +140,7 @@ static int TinyGLRuntimeCompatibilityTest()
     }
     if (sizeof(void *) < 4)
         return 1;
-    /* ZALLOC TEST*/
+    /* ZALLOC TEST */
     {
         GLint i, j;
         for (i = 0; i < 10; i++) {
@@ -162,7 +161,6 @@ void glInit(void *zbuffer1)
 {
     GLContext *c;
     GLViewport *v;
-    GLint i;
     ZBuffer *zbuffer = (ZBuffer *) zbuffer1;
 #if TGL_HAS(TINYGL_RUNTIME_COMPAT_TEST)
     if (TinyGLRuntimeCompatibilityTest())
@@ -181,6 +179,7 @@ void glInit(void *zbuffer1)
     /*c->vertex_max = POLYGON_MAX_VERTEX;*/
     /*c->vertex = gl_malloc(POLYGON_MAX_VERTEX * sizeof(GLVertex));*/
     /*if(!c->vertex) gl_fatal_error("TINYGL_CANNOT_INIT_OOM");*/
+
     /* viewport */
     v = &c->viewport;
     v->xmin = 0;
@@ -188,21 +187,25 @@ void glInit(void *zbuffer1)
     v->xsize = zbuffer->xsize;
     v->ysize = zbuffer->ysize;
     gl_eval_viewport();
+
     /* buffer stuff GL 1.1 */
     c->drawbuffer = GL_FRONT;
     c->readbuffer = GL_FRONT;
+
     /* shared state */
     initSharedState(c);
+
     /* ztext */
     c->textsize = 1;
+
     /* buffer */
     c->boundarraybuffer = 0;
     c->boundvertexbuffer = 0;
     c->boundcolorbuffer = 0;
     c->boundnormalbuffer = 0;
     c->boundtexcoordbuffer = 0;
-    /* lists */
 
+    /* lists */
     c->exec_flag = 1;
     c->compile_flag = 0;
     c->print_flag = 0;
@@ -210,7 +213,7 @@ void glInit(void *zbuffer1)
     c->in_begin = 0;
 
     /* lights */
-    for (i = 0; i < MAX_LIGHTS; i++) {
+    for (GLint i = 0; i < MAX_LIGHTS; i++) {
         GLLight *l = &c->lights[i];
         l->ambient = gl_V4_New(0, 0, 0, 1);
         l->diffuse = gl_V4_New(1, 1, 1, 1);
@@ -233,7 +236,7 @@ void glInit(void *zbuffer1)
     c->light_model_two_side = 0;
 
     /* default materials */
-    for (i = 0; i < 2; i++) {
+    for (GLint i = 0; i < 2; i++) {
         GLMaterial *m = &c->materials[i];
         m->emission = gl_V4_New(0, 0, 0, 1);
         m->ambient = gl_V4_New(0.2, 0.2, 0.2, 1);
@@ -305,6 +308,7 @@ void glInit(void *zbuffer1)
     c->feedback_hits = 0;
     c->feedback_overflow = 0;
 #endif
+
     /* matrix */
     c->matrix_mode = 0;
 
@@ -312,7 +316,7 @@ void glInit(void *zbuffer1)
     c->matrix_stack_depth_max[1] = MAX_PROJECTION_STACK_DEPTH;
     c->matrix_stack_depth_max[2] = MAX_TEXTURE_STACK_DEPTH;
 
-    for (i = 0; i < 3; i++) {
+    for (GLint i = 0; i < 3; i++) {
         c->matrix_stack[i] =
             gl_zalloc(c->matrix_stack_depth_max[i] * sizeof(M4));
         if (!(c->matrix_stack[i]))
@@ -345,6 +349,7 @@ void glInit(void *zbuffer1)
     c->specbuf_num_buffers = 0;
 #endif
     c->zEnableSpecular = 0;
+
     /* depth test */
     c->zb->depth_test = 0;
     c->zb->depth_write = 1;
@@ -367,19 +372,17 @@ void glInit(void *zbuffer1)
 
 void glClose(void)
 {
-    GLuint i;
     GLContext *c = gl_get_context();
-    for (i = 0; i < 3; i++) {
+    for (GLuint i = 0; i < 3; i++) {
         gl_free(c->matrix_stack[i]);
     }
-    i = 0;
+
 #if TGL_HAS(SPECULAR_BUFFERS)
     {
-        GLSpecBuf *b, *n = NULL;
-        for (b = c->specbuf_first; b != NULL; b = n) {
+        GLSpecBuf *n = NULL;
+        for (GLSpecBuf *b = c->specbuf_first; b; b = n) {
             n = b->next;
             gl_free(b);
-            i++;
         }
     }
 #endif
