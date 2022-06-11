@@ -413,14 +413,6 @@ int main(int argc, char **argv)
     glDeleteList(gear2);
     glDeleteList(gear3);
 
-    glClose();
-    glInit(frameBuffer);
-    glClose();
-    glInit(frameBuffer);
-    glClose();
-    glInit(frameBuffer);
-    glClose();
-    glInit(frameBuffer);
     ZB_close(frameBuffer);
     glClose();
 
