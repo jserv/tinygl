@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,8 +13,6 @@
 #define STBIW_ASSERT(x)
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-
-typedef unsigned char uchar;
 
 static int override_drawmodes = 0;
 static GLubyte stipplepattern[128] = {
@@ -50,7 +49,6 @@ static void gear(GLfloat inner_radius,
                  GLint teeth,
                  GLfloat tooth_depth)
 {
-    GLint i;
     GLfloat r0, r1, r2;
     GLfloat angle, da;
     GLfloat u, v, len;
@@ -70,7 +68,7 @@ static void gear(GLfloat inner_radius,
         glBegin(GL_POINTS);
     else
         glBegin(GL_QUAD_STRIP);
-    for (i = 0; i <= teeth; i++) {
+    for (GLint i = 0; i <= teeth; i++) {
         angle = i * 2.0 * M_PI / teeth;
         glVertex3f(r0 * cos(angle), r0 * sin(angle), width * 0.5);
         glVertex3f(r1 * cos(angle), r1 * sin(angle), width * 0.5);
@@ -88,7 +86,7 @@ static void gear(GLfloat inner_radius,
     else
         glBegin(GL_QUADS);
     da = 2.0 * M_PI / teeth / 4.0;
-    for (i = 0; i < teeth; i++) {
+    for (GLint i = 0; i < teeth; i++) {
         angle = i * 2.0 * M_PI / teeth;
 
         glVertex3f(r1 * cos(angle), r1 * sin(angle), width * 0.5);
@@ -109,7 +107,7 @@ static void gear(GLfloat inner_radius,
         glBegin(GL_POINTS);
     else
         glBegin(GL_QUAD_STRIP);
-    for (i = 0; i <= teeth; i++) {
+    for (GLint i = 0; i <= teeth; i++) {
         angle = i * 2.0 * M_PI / teeth;
         glVertex3f(r1 * cos(angle), r1 * sin(angle), -width * 0.5);
         glVertex3f(r0 * cos(angle), r0 * sin(angle), -width * 0.5);
@@ -127,7 +125,7 @@ static void gear(GLfloat inner_radius,
     else
         glBegin(GL_QUADS);
     da = 2.0 * M_PI / teeth / 4.0;
-    for (i = 0; i < teeth; i++) {
+    for (GLint i = 0; i < teeth; i++) {
         angle = i * 2.0 * M_PI / teeth;
 
         glVertex3f(r1 * cos(angle + 3 * da), r1 * sin(angle + 3 * da),
@@ -146,7 +144,7 @@ static void gear(GLfloat inner_radius,
         glBegin(GL_POINTS);
     else
         glBegin(GL_QUAD_STRIP);
-    for (i = 0; i < teeth; i++) {
+    for (GLint i = 0; i < teeth; i++) {
         angle = i * 2.0 * M_PI / teeth;
 
         glVertex3f(r1 * cos(angle), r1 * sin(angle), width * 0.5);
@@ -186,7 +184,7 @@ static void gear(GLfloat inner_radius,
         glBegin(GL_POINTS);
     else
         glBegin(GL_QUAD_STRIP);
-    for (i = 0; i <= teeth; i++) {
+    for (GLint i = 0; i <= teeth; i++) {
         angle = i * 2.0 * M_PI / teeth;
         glNormal3f(-cos(angle), -sin(angle), 0.0);
         glVertex3f(r0 * cos(angle), r0 * sin(angle), -width * 0.5);
@@ -199,7 +197,7 @@ static GLfloat view_rotx = 20.0, view_roty = 30.0;
 static GLint gear1, gear2, gear3;
 static GLfloat angle = 0.0;
 
-void draw()
+static void draw()
 {
     angle += 2.0;
     glPushMatrix();
@@ -227,7 +225,7 @@ void draw()
     glPopMatrix();
 }
 
-void initScene()
+static void init_scene()
 {
     static GLfloat pos[4] = {5, 5, 10, 0.0};  // Light at infinity.
 
@@ -280,12 +278,11 @@ void initScene()
 int main(int argc, char **argv)
 {
     int winSizeX = 640, winSizeY = 480;
-    PIXEL *imbuf = NULL;
-    uchar *pbuf = NULL;
     unsigned int flat = 0;
     unsigned int setenspec = 1;
     unsigned int dotext = 1;
     unsigned int blending = 0;
+
     if (argc > 1) {
         char *larg = "";
         for (int i = 1; i < argc; i++) {
@@ -312,13 +309,16 @@ int main(int argc, char **argv)
     }
 
     fflush(stdout);
-    imbuf = calloc(1, sizeof(PIXEL) * winSizeX * winSizeY);
-    // initialize TinyGL:
-    ZBuffer *frameBuffer = NULL;
-    if (TGL_FEATURE_RENDER_BITS == 32)
-        frameBuffer = ZB_open(winSizeX, winSizeY, ZB_MODE_RGBA, 0);
-    else
-        frameBuffer = ZB_open(winSizeX, winSizeY, ZB_MODE_5R6G5B, 0);
+    PIXEL *imbuf = calloc(1, sizeof(PIXEL) * winSizeX * winSizeY);
+
+    // initialize TinyGL
+    ZBuffer *frameBuffer = ZB_open(winSizeX, winSizeY,
+#if TGL_FEATURE_RENDER_BITS == 32
+                                   ZB_MODE_RGBA,
+#else
+                                   ZB_MODE_5R6G5B,
+#endif
+                                   0);
     if (!frameBuffer) {
         printf("\nZB_open failed!");
         exit(1);
@@ -331,7 +331,7 @@ int main(int argc, char **argv)
     printf("Renderer string:\n%s", glGetString(GL_RENDERER));
     printf("Extensions string:\n%s", glGetString(GL_EXTENSIONS));
     printf("\n");
- 
+
     // initialize GL:
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glViewport(0, 0, winSizeX, winSizeY);
@@ -358,7 +358,7 @@ int main(int argc, char **argv)
     glLoadIdentity();
     glTranslatef(0.0, 0.0, -45.0);
 
-    initScene();
+    init_scene();
     if (setenspec)
         glSetEnableSpecular(GL_TRUE);
     else
@@ -373,31 +373,20 @@ int main(int argc, char **argv)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         draw();
         if (dotext) {
-            glDrawText((unsigned char *) "RED text", 0, 0, 0xFF0000);
-
-            glDrawText((unsigned char *) "GREEN text", 0, 24, 0x00FF00);
-
-            glDrawText((unsigned char *) "BLUE text", 0, 48, 0xFF);
+            glDrawText((GLubyte *) "RED text", 0, 0, 0xFF0000);
+            glDrawText((GLubyte *) "GREEN text", 0, 24, 0x00FF00);
+            glDrawText((GLubyte *) "BLUE text", 0, 48, 0xFF);
         }
+
         // swap buffers:
         // Quickly convert all pixels to the correct format
         ZB_copyFrameBuffer(frameBuffer, imbuf, winSizeX * sizeof(PIXEL));
         if (frames > 0)
             break;
     }
-    if (TGL_FEATURE_RENDER_BITS == 32) {  // very little conversion.
-        pbuf = malloc(3 * winSizeX * winSizeY);
-        for (int i = 0; i < winSizeX * winSizeY; i++) {
-            pbuf[3 * i + 0] = GET_RED(imbuf[i]);
-            pbuf[3 * i + 1] = GET_GREEN(imbuf[i]);
-            pbuf[3 * i + 2] = GET_BLUE(imbuf[i]);
-        }
-        stbi_write_png("render.png", winSizeX, winSizeY, 3, pbuf, 0);
-        free(imbuf);
-        free(pbuf);
-    } else if (TGL_FEATURE_RENDER_BITS == 16) {
-        puts("\nTesting 16 bit rendering...\n");
-        pbuf = malloc(3 * winSizeX * winSizeY);
+
+    {
+        uint8_t *pbuf = malloc(3 * winSizeX * winSizeY);
         for (int i = 0; i < winSizeX * winSizeY; i++) {
             pbuf[3 * i + 0] = GET_RED(imbuf[i]);
             pbuf[3 * i + 1] = GET_GREEN(imbuf[i]);
