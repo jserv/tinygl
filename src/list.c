@@ -19,18 +19,15 @@ static GLList *find_list(GLuint list)
 static void delete_list(GLint list)
 {
     GLContext *c = gl_get_context();
-    GLParamBuffer *pb, *pb1;
-    GLList *l;
 
-    l = find_list(list);
-    if (l == NULL) {
+    GLList *l = find_list(list);
+    if (!l)
         return;
-    }
 
     /* free param buffer */
-    pb = l->first_op_buffer;
-    while (pb != NULL) {
-        pb1 = pb->next;
+    GLParamBuffer *pb = l->first_op_buffer;
+    while (pb) {
+        GLParamBuffer *pb1 = pb->next;
         gl_free(pb);
         pb = pb1;
     }
@@ -38,13 +35,14 @@ static void delete_list(GLint list)
     gl_free(l);
     c->shared_state.lists[list] = NULL;
 }
+
 void glDeleteLists(GLuint list, GLuint range)
 {
-    GLuint i;
 #include "error_check_no_context.h"
-    for (i = 0; i < list + range; i++)
+    for (GLuint i = 0; i < list + range; i++)
         glDeleteList(list + i);
 }
+
 void glDeleteList(GLuint list)
 {
 #include "error_check_no_context.h"
@@ -53,25 +51,17 @@ void glDeleteList(GLuint list)
 
 static GLList *alloc_list(GLint list)
 {
-    GLList *l;
-    GLParamBuffer *ob;
     GLContext *c = gl_get_context();
 #define RETVAL NULL
 #include "error_check.h"
-    l = gl_zalloc(sizeof(GLList));
-    ob = gl_zalloc(sizeof(GLParamBuffer));
+    GLList *l = gl_zalloc(sizeof(GLList));
+    GLParamBuffer *ob = gl_zalloc(sizeof(GLParamBuffer));
 
 #if TGL_HAS(ERROR_CHECK)
     if (!l || !ob)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #define RETVAL NULL
 #include "error_check.h"
-
-#else
-    /*
-    if(!l || !ob) gl_fatal_error("GL_OUT_OF_MEMORY");
-     This will crash a few lines down, so, let it!
-     */
 #endif
         ob->next = NULL;
     l->first_op_buffer = ob;
@@ -81,34 +71,7 @@ static GLList *alloc_list(GLint list)
     c->shared_state.lists[list] = l;
     return l;
 }
-/*
-void gl_print_op(FILE* f, GLParam* p) {
-    GLint op;
-    char* s;
 
-    op = p[0].op;
-    p++;
-    s = op_table_str[op];
-    while (*s != 0) {
-        if (*s == '%') {
-            s++;
-            switch (*s++) {
-            case 'f':
-                fpr_ntf(f, "%g", p[0].f);
-                break;
-            default:
-                fpr_ntf(f, "%d", p[0].i);
-                break;
-            }
-            p++;
-        } else {
-            fputc(*s, f);
-            s++;
-        }
-    }
-    tgl_warning(f, "\n");
-}
-*/
 void glListBase(GLint n)
 {
     GLContext *c = gl_get_context();
@@ -117,7 +80,6 @@ void glListBase(GLint n)
 }
 void glCallLists(GLsizei n, GLenum type, const GLuint *lists)
 {
-    GLint i;
     GLContext *c = gl_get_context();
 #include "error_check.h"
 #if TGL_HAS(ERROR_CHECK)
@@ -125,24 +87,22 @@ void glCallLists(GLsizei n, GLenum type, const GLuint *lists)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 #endif
-        for (i = 0; i < n; i++)
+        for (GLint i = 0; i < n; i++)
             glCallList(c->listbase + lists[i]);
 }
+
 void gl_compile_op(GLParam *p)
 {
     GLContext *c = gl_get_context();
-    GLint op, op_size;
-    GLParamBuffer *ob, *ob1;
-    GLint index, i;
 #include "error_check.h"
-    op = p[0].op;
-    op_size = op_table_size[op];
-    index = c->current_op_buffer_index;
-    ob = c->current_op_buffer;
+    GLint op = p[0].op;
+    GLint op_size = op_table_size[op];
+    GLint index = c->current_op_buffer_index;
+    GLParamBuffer *ob = c->current_op_buffer;
 
     /* we should be able to add a NextBuffer opcode */
     if ((index + op_size) > (OP_BUFFER_MAX_SIZE - 2)) {
-        ob1 = gl_zalloc(sizeof(GLParamBuffer));
+        GLParamBuffer *ob1 = gl_zalloc(sizeof(GLParamBuffer));
 
 #if TGL_HAS(ERROR_CHECK)
         if (!ob1)
@@ -162,12 +122,13 @@ void gl_compile_op(GLParam *p)
         index = 0;
     }
 
-    for (i = 0; i < op_size; i++) {
+    for (GLint i = 0; i < op_size; i++) {
         ob->ops[index] = p[i];
         index++;
     }
     c->current_op_buffer_index = index;
 }
+
 /* this opcode is never called directly */
 void glopEndList(GLParam *p)
 {
@@ -182,16 +143,13 @@ void glopNextBuffer(GLParam *p)
 
 void glopCallList(GLParam *p)
 {
-    GLList *l;
-    GLint list;
 #include "error_check_no_context.h"
-    list = p[1].ui;
-    l = find_list(list);
+    GLint list = p[1].ui;
+    GLList *l = find_list(list);
 
 #if TGL_HAS(ERROR_CHECK)
-    if (l == NULL) {
+    if (!l)
         gl_fatal_error("Bad list op, not defined");
-    }
 #endif
     p = l->first_op_buffer->ops;
 
@@ -226,17 +184,17 @@ void glNewList(GLuint list, GLint mode)
 #include "error_check.h"
 #endif
             l = find_list(list);
-    if (l != NULL)
+    if (l)
         delete_list(list);
     l = alloc_list(list);
 #include "error_check.h"
 #if TGL_HAS(ERROR_CHECK)
-    if (l == NULL)
+    if (!l)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
 #else
 
-    if (l == NULL)
+    if (!l)
         gl_fatal_error("Could not find or allocate list.");
 #endif
         c->current_op_buffer = l->first_op_buffer;
@@ -269,25 +227,22 @@ void glEndList(void)
 
 GLint glIsList(GLuint list)
 {
-    GLList *l;
-    l = find_list(list);
+    GLList *l = find_list(list);
     return (l != NULL);
 }
 
 GLuint glGenLists(GLint range)
 {
-    GLint count, i, list;
-    GLList **lists;
     GLContext *c = gl_get_context();
 #define RETVAL 0
 #include "error_check.h"
-    lists = c->shared_state.lists;
-    count = 0;
-    for (i = 0; i < MAX_DISPLAY_LISTS; i++) {
-        if (lists[i] == NULL) {
+    GLList **lists = c->shared_state.lists;
+    GLint count = 0;
+    for (GLint i = 0; i < MAX_DISPLAY_LISTS; i++) {
+        if (!lists[i]) {
             count++;
             if (count == range) {
-                list = i - range + 1;
+                GLint list = i - range + 1;
                 for (i = 0; i < range; i++) {
                     alloc_list(list + i);
                 }
