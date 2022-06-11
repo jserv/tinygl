@@ -6,11 +6,9 @@
 #if TGL_HAS(SPECULAR_BUFFERS)
 static void calc_buf(GLSpecBuf *buf, const GLfloat shininess)
 {
-    GLint i;
-    GLfloat val, inc;
-    val = 0.0f;
-    inc = 1.0f / SPECULAR_BUFFER_SIZE;
-    for (i = 0; i <= SPECULAR_BUFFER_SIZE; i++) {
+    GLfloat val = 0.0f;
+    GLfloat inc = 1.0f / SPECULAR_BUFFER_SIZE;
+    for (GLint i = 0; i <= SPECULAR_BUFFER_SIZE; i++) {
         buf->buf[i] = pow(val, shininess);
         val += inc;
     }
@@ -28,11 +26,12 @@ GLSpecBuf *specbuf_get_buffer(GLContext *c,
         }
         found = found->next;
     }
-    if (found) { /* hey, found one! */
+    if (found) {
         found->last_used = c->specbuf_used_counter++;
         return found;
     }
-    if (oldest == NULL || c->specbuf_num_buffers < MAX_SPECULAR_BUFFERS) {
+
+    if (!oldest || c->specbuf_num_buffers < MAX_SPECULAR_BUFFERS) {
         /* create new buffer */
         GLSpecBuf *buf = gl_malloc(sizeof(GLSpecBuf));
 #if TGL_HAS(ERROR_CHECK)
@@ -49,8 +48,7 @@ GLSpecBuf *specbuf_get_buffer(GLContext *c,
         calc_buf(buf, shininess);
         return buf;
     }
-    /* overwrite the lru buffer */
-    /*tgl_trace("overwriting spec buffer :(\n");*/
+
     oldest->shininess_i = shininess_i;
     oldest->last_used = c->specbuf_used_counter++;
     calc_buf(oldest, shininess);
