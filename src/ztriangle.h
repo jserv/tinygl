@@ -1,25 +1,19 @@
 /*
- * An eXtReMeLy complicated, delicate, tuned triangle rasterizer
- * Aight, so basically this is the most complicated code you'll ever read in
-your life.
- * The lifetime of variables has been... SUPER Optimized, that's why there's so
-many random ass curly braces everywhere.
- * Yes, it is necessary to do that. This code is extremely delicate
- * and even a minor fuck-up is gonna tank the framerate
-
-Before committing any changes, run gears, model, and texture on your changed
-code to make sure you didn't fuck up!
-
-Things to keep in mind:
- 1) Tight control of the lifetimes, scopes, and usage of variables lets us use
-registers more often and memory less 2) Doing the same operation on multiple
-items is faster than doing different things on different items, generally,
-because they will be able to take advantage of any/all applicable SIMD/vector
-ops on your hardware. 3) Divide operations are vastly more expensive than
-add/sub/bitwise/etc 4) Bit shifting is your friend, it's the fast way to
-multiply or divide by 2. 5) Fixed point math is used for the depth "z" buffer 6)
-We're not just using floats for everything because this is still supposed to be
-fast on platforms without SSE2 7) Fewer variables is usually better
+ * An extremely complicated, delicate, tuned triangle rasterizer.
+ *
+ * Things to keep in mind:
+ * 1. Tight control of the lifetimes, scopes, and usage of variables lets us
+ *    use registers more often and memory less
+ * 2. Doing the same operation on multiple items is faster than doing different
+ *    things on different items, generally, because they will be able to take
+ *    advantage of any/all applicable SIMD/vector ops on your hardware.
+ * 3. Divide operations are vastly more expensive than add/sub/bitwise/etc
+ * 4. Bit shifting is your friend, it's the fast way to multiply or divide by
+ *    2.
+ * 5. Fixed point math is used for the depth "z" buffer
+ * 6. We are not just using floats for everything because this is still
+ *    supposed to be fast on platforms without SSE2
+ * 7. Fewer variables is usually better
  */
 
 {

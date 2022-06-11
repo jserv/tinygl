@@ -1,4 +1,3 @@
-
 {
     GLint n, dx, dy, sx, pp_inc_1, pp_inc_2;
     register GLint a;
