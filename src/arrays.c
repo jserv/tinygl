@@ -475,8 +475,6 @@ void glColorPointer(GLint size,
     if (type != GL_FLOAT)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
-#else
-    /* assert(type == GL_FLOAT);*/
 #endif
         p[0].op = OP_ColorPointer;
     p[1].i = size;

@@ -1,6 +1,7 @@
-#include "msghandling.h"
-#include <TGL/gl.h>
 #include <stdarg.h>
+
+#include <TGL/gl.h>
+#include "msghandling.h"
 #include "zgl.h"
 
 #ifdef __TINYC__
@@ -11,9 +12,10 @@
 #include <stdio.h>
 #endif
 /* Use this function to output messages when something unexpected
-   happens (which might be an indication of an error). *Don't* use it
-   when there's GLinternal errors in the code - these should be handled
-   by asserts. */
+ * happens (which might be an indication of an error). *Don't* use it
+ * when there's GLinternal errors in the code - these should be handled
+ * by asserts.
+ */
 void tgl_warning(const char *format, ...)
 {
 #ifndef NO_DEBUG_OUTPUT
@@ -38,8 +40,9 @@ void tgl_trace(const char *format, ...)
 }
 
 /* Use this function to output info about things in the code which
-   should be fixed (missing handling of special cases, important
-   features not implemented, known bugs/buglets, ...). */
+ * should be fixed (missing handling of special cases, important
+ * features not implemented, known bugs/buglets, ...).
+ */
 void tgl_fixme(const char *format, ...)
 {
 #ifndef NO_DEBUG_OUTPUT

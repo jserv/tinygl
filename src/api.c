@@ -200,10 +200,6 @@ void glCullFace(GLint mode)
     if (!(mode == GL_BACK || mode == GL_FRONT || mode == GL_FRONT_AND_BACK))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
-#else
-    /* assert(mode == GL_BACK || mode == GL_FRONT || mode ==
-     * GL_FRONT_AND_BACK);*/
-    /* Assume it's alrgiht.*/
 #endif
         p[0].op = OP_CullFace;
     p[1].i = mode;
@@ -241,10 +237,6 @@ void glPolygonMode(GLint face, GLint mode)
           (mode == GL_POINT || mode == GL_LINE || mode == GL_FILL)))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
-#else
-    /* assert(face == GL_BACK || face == GL_FRONT || face ==
-     * GL_FRONT_AND_BACK);*/
-    /* assert(mode == GL_POINT || mode == GL_LINE || mode == GL_FILL);*/
 #endif
         p[0].op = OP_PolygonMode;
     p[1].i = face;
@@ -460,9 +452,6 @@ void glMaterialfv(GLint mode, GLint type, GLfloat *v)
     if (!(mode == GL_FRONT || mode == GL_BACK || mode == GL_FRONT_AND_BACK))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
-#else
-    /* assert(mode == GL_FRONT || mode == GL_BACK || mode ==
-     * GL_FRONT_AND_BACK);*/
 #endif
         p[0].op = OP_Material;
     p[1].i = mode;

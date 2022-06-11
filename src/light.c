@@ -84,8 +84,6 @@ void glopLight(GLParam *p)
     GLLight *l;
     GLint i;
 
-    /* assert(light >= GL_LIGHT0 && light < GL_LIGHT0 + MAX_LIGHTS);*/
-
 #if TGL_HAS(ERROR_CHECK)
     if (!(light >= GL_LIGHT0 && light < GL_LIGHT0 + MAX_LIGHTS))
 #define ERROR_FLAG GL_INVALID_OPERATION
@@ -146,8 +144,6 @@ void glopLight(GLParam *p)
 #if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_INVALID_VALUE
 #include "error_check.h"
-#else
-        /* assert(a == 180 || (a >= 0 && a <= 90));*/
 #endif
 
         l->spot_cutoff = a;
@@ -195,10 +191,6 @@ void glopLightModel(GLParam *p)
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 #endif
-        /*
-                    tgl_warning("glopLightModel: illegal pname: 0x%x\n", pname);
-             assert(0);
-        */
         break;
     }
 }
