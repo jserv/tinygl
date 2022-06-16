@@ -314,3 +314,4 @@ make sure that only ONE of these values is 1.
 * [Vincent ES](https://github.com/hmwill/GLESv20) is a software renderer based on OpenGL ES 2.0 API.
 * [softgl](https://github.com/bit-hack/softgl) is a software renderer based on OpenGL 1.x.
 * [TinyGL.js](https://github.com/humu2009/tinygl.js) is based upon TinyGL's implementation written in C and compiled to JavaScript via Emscripten. It only uses software rasterization and does not require WebGL to run.
+* [scummvm/graphics/tinygl](https://github.com/scummvm/scummvm/tree/master/graphics/tinygl) contains a series of aggressive modifications against the original TinyGL.
