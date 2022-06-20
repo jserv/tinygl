@@ -88,7 +88,7 @@ void glDrawText(const GLubyte *text, GLint x, GLint y, GLuint p)
     GLint xoff = 0;
     GLint yoff = 0;
     GLint mult = c->textsize;
-    for (; text[i] != '\0' && y + 7 < h; i++) {
+    for (; text[i] != '\0' && y + yoff < h; i++) {
         if (text[i] != '\n' && xoff + x < w) {
             renderchar(font8x8_basic[text[i]], x + xoff, y + yoff, p);
             xoff += 8 * mult;
