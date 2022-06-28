@@ -460,7 +460,7 @@ void glMaterialfv(GLint mode, GLint type, GLfloat *v)
               hell?*/
     if (type == GL_SHININESS)
         n = 1;
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < n; i++)
         p[3 + i].f = v[i];
     for (i = n; i < 4; i++)
         p[3 + i].f = 0;
