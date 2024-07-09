@@ -14,8 +14,6 @@ typedef unsigned char uchar;
 
 #include <SDL.h>
 
-static int noSDL = 0;
-
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif
@@ -319,105 +317,91 @@ int main(int argc, char **argv)
                 override_drawmodes = 1;
             if (!strcmp(argv[i], "-points"))
                 override_drawmodes = 2;
-            if (!strcmp(argv[i], "-nosdl"))
-                noSDL = 1;
             if (!strcmp(argv[i], "-notext"))
                 dotext = 0;
             larg = argv[i];
         }
     }
-    if (!noSDL) {
-        if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-            fprintf(stderr, "ERROR: cannot initialize SDL video.\n");
-            return 1;
-        }
-    } else if (SDL_Init(0) < 0)
-        fprintf(stderr, "ERROR: cannot initialize SDL without video.\n");
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        fprintf(stderr, "ERROR: cannot initialize SDL video.\n");
+        return 1;
+    }
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     SDL_Surface *screen = NULL;
-    if (!noSDL) {
-        if ((window = SDL_CreateWindow(argv[0], SDL_WINDOWPOS_UNDEFINED,
-                                       SDL_WINDOWPOS_UNDEFINED, winSizeX,
-                                       winSizeY, 0)) == 0) {
-            fprintf(stderr, "ERROR: cannot create SDL window.\n");
-            return 1;
-        }
-
-        if ((renderer =
-                 SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE)) == 0) {
-            fprintf(stderr, "ERROR: cannot create SDL renderer.\n");
-            return 1;
-        }
-
-        if ((screen = SDL_GetWindowSurface(window)) == 0) {
-            fprintf(stderr, "ERROR: cannot get window surface.\n");
-            return 1;
-        }
+    if ((window = SDL_CreateWindow(argv[0], SDL_WINDOWPOS_UNDEFINED,
+                                   SDL_WINDOWPOS_UNDEFINED, winSizeX, winSizeY,
+                                   0)) == 0) {
+        fprintf(stderr, "ERROR: cannot create SDL window.\n");
+        return 1;
     }
-    if (!noSDL) {
-        printf("\nRMASK IS %u", screen->format->Rmask);
-        printf("\nGMASK IS %u", screen->format->Gmask);
-        printf("\nBMASK IS %u", screen->format->Bmask);
-        printf("\nAMASK IS %u", screen->format->Amask);
+
+    if ((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE)) ==
+        0) {
+        fprintf(stderr, "ERROR: cannot create SDL renderer.\n");
+        return 1;
     }
+
+    if ((screen = SDL_GetWindowSurface(window)) == 0) {
+        fprintf(stderr, "ERROR: cannot get window surface.\n");
+        return 1;
+    }
+    printf("\nRMASK IS %u", screen->format->Rmask);
+    printf("\nGMASK IS %u", screen->format->Gmask);
+    printf("\nBMASK IS %u", screen->format->Bmask);
+    printf("\nAMASK IS %u", screen->format->Amask);
 #if TGL_FEATURE_RENDER_BITS == 32
-    if (!noSDL)
-        if (screen->format->Rmask != 0x00FF0000 ||
-            screen->format->Gmask != 0x0000FF00 ||
-            screen->format->Bmask != 0x000000FF) {
-            needsRGBAFix = 1;
-            printf(
-                "\nYour screen is using an RGBA output different than this "
-                "library expects.");
-            printf(
-                "\nYou should consider using the 16 bit version for optimal "
-                "performance");
-        }
-#endif
-    if (!noSDL) {
-        printf("\nRSHIFT IS %u", screen->format->Rshift);
-        printf("\nGSHIFT IS %u", screen->format->Gshift);
-        printf("\nBSHIFT IS %u", screen->format->Bshift);
-        printf("\nASHIFT IS %u\n", screen->format->Ashift);
+    if (screen->format->Rmask != 0x00FF0000 ||
+        screen->format->Gmask != 0x0000FF00 ||
+        screen->format->Bmask != 0x000000FF) {
+        needsRGBAFix = 1;
+        printf(
+            "\nYour screen is using an RGBA output different than this "
+            "library expects.");
+        printf(
+            "\nYou should consider using the 16 bit version for optimal "
+            "performance");
     }
+#endif
+    printf("\nRSHIFT IS %u", screen->format->Rshift);
+    printf("\nGSHIFT IS %u", screen->format->Gshift);
+    printf("\nBSHIFT IS %u", screen->format->Bshift);
+    printf("\nASHIFT IS %u\n", screen->format->Ashift);
     fflush(stdout);
-    if (!noSDL)
-        SDL_ShowCursor(SDL_DISABLE);
+    SDL_ShowCursor(SDL_DISABLE);
 
     // initialize TinyGL:
     // unsigned int pitch;
     // int mode;
     SDL_Texture *texture = NULL;
-    if (!noSDL)
-        switch (screen->format->BitsPerPixel) {
-        case 8:
-            fprintf(stderr, "ERROR: Palettes are currently not supported.\n");
-            fprintf(stderr, "\nUnsupported by maintainer!!!");
-            return 1;
-        case 16:
-            // pitch = screen->pitch;
-            fprintf(stderr, "\nUnsupported by maintainer!!!");
-            // mode = ZB_MODE_5R6G5B;
-            return 1;
-            break;
-        case 24:
-            // pitch = ( screen->pitch * 2 ) / 3;
-            fprintf(stderr, "\nUnsupported by maintainer!!!");
-            // mode = ZB_MODE_RGB24;
-            return 1;
-            break;
-        case 32:
-            // pitch = screen->pitch / 2;
-            // mode = ZB_MODE_RGBA;
-            texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
-                                        SDL_TEXTUREACCESS_STREAMING, winSizeX,
-                                        winSizeY);
-            break;
-        default:
-            return 1;
-            break;
-        }
+    switch (screen->format->BitsPerPixel) {
+    case 8:
+        fprintf(stderr, "ERROR: Palettes are currently not supported.\n");
+        fprintf(stderr, "\nUnsupported by maintainer!!!");
+        return 1;
+    case 16:
+        // pitch = screen->pitch;
+        fprintf(stderr, "\nUnsupported by maintainer!!!");
+        // mode = ZB_MODE_5R6G5B;
+        return 1;
+        break;
+    case 24:
+        // pitch = ( screen->pitch * 2 ) / 3;
+        fprintf(stderr, "\nUnsupported by maintainer!!!");
+        // mode = ZB_MODE_RGB24;
+        return 1;
+        break;
+    case 32:
+        // pitch = screen->pitch / 2;
+        // mode = ZB_MODE_RGBA;
+        texture =
+            SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
+                              SDL_TEXTUREACCESS_STREAMING, winSizeX, winSizeY);
+        break;
+    default:
+        return 1;
+        break;
+    }
     ZBuffer *frameBuffer = NULL;
     if (TGL_FEATURE_RENDER_BITS == 32)
         frameBuffer = ZB_open(winSizeX, winSizeY, ZB_MODE_RGBA, 0);
@@ -485,36 +469,34 @@ int main(int argc, char **argv)
         tNow = SDL_GetTicks();
 
         // do event handling:
-        if (!noSDL) {
-            SDL_Event evt;
-            while (SDL_PollEvent(&evt))
-                switch (evt.type) {
-                case SDL_KEYDOWN:
-                    switch (evt.key.keysym.sym) {
-                    case SDLK_UP:
-                        view_rotx += 5.0;
-                        break;
-                    case SDLK_DOWN:
-                        view_rotx -= 5.0;
-                        break;
-                    case SDLK_LEFT:
-                        view_roty += 5.0;
-                        break;
-                    case SDLK_RIGHT:
-                        view_roty -= 5.0;
-                        break;
-                    case SDLK_ESCAPE:
-                    case SDLK_q:
-                        isRunning = 0;
-                    default:
-                        break;
-                    }
+        SDL_Event evt;
+        while (SDL_PollEvent(&evt))
+            switch (evt.type) {
+            case SDL_KEYDOWN:
+                switch (evt.key.keysym.sym) {
+                case SDLK_UP:
+                    view_rotx += 5.0;
                     break;
-                case SDL_QUIT:
+                case SDLK_DOWN:
+                    view_rotx -= 5.0;
+                    break;
+                case SDLK_LEFT:
+                    view_roty += 5.0;
+                    break;
+                case SDLK_RIGHT:
+                    view_roty -= 5.0;
+                    break;
+                case SDLK_ESCAPE:
+                case SDLK_q:
                     isRunning = 0;
+                default:
                     break;
                 }
-        }
+                break;
+            case SDL_QUIT:
+                isRunning = 0;
+                break;
+            }
         // draw scene:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         draw();
@@ -529,13 +511,12 @@ int main(int argc, char **argv)
 					   0, 48, 0xFF);
         }
         // swap buffers:
-        if (!noSDL)
-            if (SDL_MUSTLOCK(screen) && (SDL_LockSurface(screen) < 0)) {
-                fprintf(stderr, "SDL ERROR: Can't lock screen: %s\n",
-                        SDL_GetError());
-                return 1;
-            }
-            // Quickly convert all pixels to the correct format
+        if (SDL_MUSTLOCK(screen) && (SDL_LockSurface(screen) < 0)) {
+            fprintf(stderr, "SDL ERROR: Can't lock screen: %s\n",
+                    SDL_GetError());
+            return 1;
+        }
+        // Quickly convert all pixels to the correct format
 #if TGL_FEATURE_RENDER_BITS == 32
         // for testing!
         if (needsRGBAFix)
@@ -548,30 +529,23 @@ int main(int argc, char **argv)
             }
 #endif
 
-        if (!noSDL)
-            ZB_copyFrameBuffer(frameBuffer, screen->pixels, screen->pitch);
-        if (!noSDL)
-            if (SDL_MUSTLOCK(screen))
-                SDL_UnlockSurface(screen);
-        if (!noSDL) {
-            SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, texture, NULL, NULL);
-            SDL_RenderPresent(renderer);
-        }
-        if (!noSDL)
-            if (fps > 0)
-                if ((1000 / fps) > (SDL_GetTicks() - tNow)) {
-                    SDL_Delay((1000 / fps) - (SDL_GetTicks() -
-                                              tNow));  // Yay stable framerate!
-                }
-        // check for error conditions:
-        if (!noSDL) {
-            const char *sdl_error = SDL_GetError();
-            if (sdl_error[0] != '\0') {
-                fprintf(stderr, "SDL ERROR: \"%s\"\n", sdl_error);
-                SDL_ClearError();
+        ZB_copyFrameBuffer(frameBuffer, screen->pixels, screen->pitch);
+        if (SDL_MUSTLOCK(screen))
+            SDL_UnlockSurface(screen);
+        SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_RenderPresent(renderer);
+        if (fps > 0)
+            if ((1000 / fps) > (SDL_GetTicks() - tNow)) {
+                SDL_Delay((1000 / fps) -
+                          (SDL_GetTicks() - tNow));  // Yay stable framerate!
             }
+        // check for error conditions:
+        const char *sdl_error = SDL_GetError();
+        if (sdl_error[0] != '\0') {
+            fprintf(stderr, "SDL ERROR: \"%s\"\n", sdl_error);
+            SDL_ClearError();
         }
         // update fps:
         if (tNow >= tLastFps + 5000) {
@@ -591,13 +565,12 @@ int main(int argc, char **argv)
     // glDeleteList(gear3);
     ZB_close(frameBuffer);
     glClose();
-    if (!noSDL)
-        if (SDL_WasInit(SDL_INIT_VIDEO)) {
-            SDL_QuitSubSystem(SDL_INIT_VIDEO);
-            SDL_DestroyTexture(texture);
-            SDL_DestroyRenderer(renderer);
-            SDL_DestroyWindow(window);
-        }
+    if (SDL_WasInit(SDL_INIT_VIDEO)) {
+        SDL_QuitSubSystem(SDL_INIT_VIDEO);
+        SDL_DestroyTexture(texture);
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+    }
     SDL_Quit();
     return 0;
 }
