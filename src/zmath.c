@@ -5,7 +5,7 @@
 
 void gl_M4_Id(M4 *a)
 {
-    const M4 c = (M4){{
+    const M4 c = (M4) {{
         {1, 0, 0, 0},
         {0, 1, 0, 0},
         {0, 0, 1, 0},
@@ -16,7 +16,7 @@ void gl_M4_Id(M4 *a)
 
 GLint gl_M4_IsId(M4 *a)
 {
-    const M4 c = (M4){{
+    const M4 c = (M4) {{
         {1, 0, 0, 0},
         {0, 1, 0, 0},
         {0, 0, 1, 0},

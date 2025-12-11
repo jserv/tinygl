@@ -275,8 +275,8 @@
                 else
                     dx2dy2 = 0;
                 x2 = pr1->x << 16; /*LAST USAGE OF PR1*/
-            }                      /*EOF update right*/
-        }                          /*End of lifetime for ZBufferpoints*/
+            } /*EOF update right*/
+        } /*End of lifetime for ZBufferpoints*/
         /* we draw all the scan line of the part */
 
         while (nb_lines > 0) {

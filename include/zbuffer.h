@@ -43,7 +43,7 @@
 #define COLOR_MIN_MULT (0x00ffff)
 #define COLOR_SHIFT 16
 
-#define COLOR_R_GET32(r) ((r) &0xff0000)
+#define COLOR_R_GET32(r) ((r) & 0xff0000)
 #define COLOR_G_GET32(g) ((g >> 8) & 0xff00)
 #define COLOR_B_GET32(b) ((b >> 16) & 0xff)
 
@@ -162,103 +162,95 @@ typedef GLushort PIXEL;
         break;                                              \
     }
 
-#define TGL_BLEND_FUNC(source, dest)                            \
-    {                                                           \
-        {                                                       \
-            GLuint sr, sg, sb, dr, dg, db;                      \
-            {                                                   \
-                GLuint temp = source;                           \
-                sr = GET_REDDER(temp);                          \
-                sg = GET_GREENER(temp);                         \
-                sb = GET_BLUEER(temp);                          \
-                temp = dest;                                    \
-                dr = GET_REDDER(temp);                          \
-                dg = GET_GREENER(temp);                         \
-                db = GET_BLUEER(temp);                          \
-            }                                                   \
-            /*printf("\nShould never reach this point!");*/     \
-            switch (sfactor) {                                  \
-            case GL_ONE:                                        \
-            default:                                            \
-                break;                                          \
-            case GL_ONE_MINUS_SRC_COLOR:                        \
-                sr = ~sr & COLOR_MASK;                          \
-                sg = ~sg & COLOR_MASK;                          \
-                sb = ~sb & COLOR_MASK;                          \
-                break;                                          \
-            case GL_ZERO:                                       \
-                sr = 0;                                         \
-                sg = 0;                                         \
-                sb = 0;                                         \
-                break;                                          \
-                break;                                          \
-            }                                                   \
-            switch (dfactor) {                                  \
-            case GL_ONE:                                        \
-            default:                                            \
-                break;                                          \
-            case GL_ONE_MINUS_DST_COLOR:                        \
-                dr = ~dr & COLOR_MASK;                          \
-                dg = ~dg & COLOR_MASK;                          \
-                db = ~db & COLOR_MASK;                          \
-                break;                                          \
-            case GL_ZERO:                                       \
-                dr = 0;                                         \
-                dg = 0;                                         \
-                db = 0;                                         \
-                break;                                          \
-                break;                                          \
-            }                                                   \
-            TGL_BLEND_SWITCH_CASE(sr, sg, sb, dr, dg, db, dest) \
-        }                                                       \
+#define TGL_BLEND_FUNC(source, dest)                    \
+    {{GLuint sr, sg, sb, dr, dg, db;                    \
+    {                                                   \
+        GLuint temp = source;                           \
+        sr = GET_REDDER(temp);                          \
+        sg = GET_GREENER(temp);                         \
+        sb = GET_BLUEER(temp);                          \
+        temp = dest;                                    \
+        dr = GET_REDDER(temp);                          \
+        dg = GET_GREENER(temp);                         \
+        db = GET_BLUEER(temp);                          \
+    }                                                   \
+    /*printf("\nShould never reach this point!");*/     \
+    switch (sfactor) {                                  \
+    case GL_ONE:                                        \
+    default:                                            \
+        break;                                          \
+    case GL_ONE_MINUS_SRC_COLOR:                        \
+        sr = ~sr & COLOR_MASK;                          \
+        sg = ~sg & COLOR_MASK;                          \
+        sb = ~sb & COLOR_MASK;                          \
+        break;                                          \
+    case GL_ZERO:                                       \
+        sr = 0;                                         \
+        sg = 0;                                         \
+        sb = 0;                                         \
+        break;                                          \
+    }                                                   \
+    switch (dfactor) {                                  \
+    case GL_ONE:                                        \
+    default:                                            \
+        break;                                          \
+    case GL_ONE_MINUS_DST_COLOR:                        \
+        dr = ~dr & COLOR_MASK;                          \
+        dg = ~dg & COLOR_MASK;                          \
+        db = ~db & COLOR_MASK;                          \
+        break;                                          \
+    case GL_ZERO:                                       \
+        dr = 0;                                         \
+        dg = 0;                                         \
+        db = 0;                                         \
+        break;                                          \
+    }                                                   \
+    TGL_BLEND_SWITCH_CASE(sr, sg, sb, dr, dg, db, dest) \
+    }                                                   \
     }
 
-#define TGL_BLEND_FUNC_RGB(rr, gg, bb, dest)                    \
-    {                                                           \
-        {                                                       \
-            GLint sr = rr & COLOR_MASK, sg = gg & COLOR_MASK,   \
-                  sb = bb & COLOR_MASK, dr, dg, db;             \
-            {                                                   \
-                GLuint temp = dest;                             \
-                dr = GET_REDDER(temp);                          \
-                dg = GET_GREENER(temp);                         \
-                db = GET_BLUEER(temp);                          \
-            }                                                   \
-            /*printf("\nShould never reach this point!");*/     \
-            switch (sfactor) {                                  \
-            case GL_ONE:                                        \
-            default:                                            \
-                break;                                          \
-            case GL_ONE_MINUS_SRC_COLOR:                        \
-                sr = ~sr & COLOR_MASK;                          \
-                sg = ~sg & COLOR_MASK;                          \
-                sb = ~sb & COLOR_MASK;                          \
-                break;                                          \
-            case GL_ZERO:                                       \
-                sr = 0;                                         \
-                sg = 0;                                         \
-                sb = 0;                                         \
-                break;                                          \
-                break;                                          \
-            }                                                   \
-            switch (dfactor) {                                  \
-            case GL_ONE:                                        \
-            default:                                            \
-                break;                                          \
-            case GL_ONE_MINUS_DST_COLOR:                        \
-                dr = ~dr & COLOR_MASK;                          \
-                dg = ~dg & COLOR_MASK;                          \
-                db = ~db & COLOR_MASK;                          \
-                break;                                          \
-            case GL_ZERO:                                       \
-                dr = 0;                                         \
-                dg = 0;                                         \
-                db = 0;                                         \
-                break;                                          \
-                break;                                          \
-            }                                                   \
-            TGL_BLEND_SWITCH_CASE(sr, sg, sb, dr, dg, db, dest) \
-        }                                                       \
+#define TGL_BLEND_FUNC_RGB(rr, gg, bb, dest)                                  \
+    {{GLint sr = rr & COLOR_MASK, sg = gg & COLOR_MASK, sb = bb & COLOR_MASK, \
+      dr, dg, db;                                                             \
+    {                                                                         \
+        GLuint temp = dest;                                                   \
+        dr = GET_REDDER(temp);                                                \
+        dg = GET_GREENER(temp);                                               \
+        db = GET_BLUEER(temp);                                                \
+    }                                                                         \
+    /*printf("\nShould never reach this point!");*/                           \
+    switch (sfactor) {                                                        \
+    case GL_ONE:                                                              \
+    default:                                                                  \
+        break;                                                                \
+    case GL_ONE_MINUS_SRC_COLOR:                                              \
+        sr = ~sr & COLOR_MASK;                                                \
+        sg = ~sg & COLOR_MASK;                                                \
+        sb = ~sb & COLOR_MASK;                                                \
+        break;                                                                \
+    case GL_ZERO:                                                             \
+        sr = 0;                                                               \
+        sg = 0;                                                               \
+        sb = 0;                                                               \
+        break;                                                                \
+    }                                                                         \
+    switch (dfactor) {                                                        \
+    case GL_ONE:                                                              \
+    default:                                                                  \
+        break;                                                                \
+    case GL_ONE_MINUS_DST_COLOR:                                              \
+        dr = ~dr & COLOR_MASK;                                                \
+        dg = ~dg & COLOR_MASK;                                                \
+        db = ~db & COLOR_MASK;                                                \
+        break;                                                                \
+    case GL_ZERO:                                                             \
+        dr = 0;                                                               \
+        dg = 0;                                                               \
+        db = 0;                                                               \
+        break;                                                                \
+    }                                                                         \
+    TGL_BLEND_SWITCH_CASE(sr, sg, sb, dr, dg, db, dest)                       \
+    }                                                                         \
     }
 
 #else
@@ -316,7 +308,8 @@ ZBuffer *ZB_open(int xsize,
 
 void ZB_close(ZBuffer *zb);
 
-void ZB_resize(ZBuffer *zb, void *frame_buffer, GLint xsize, GLint ysize);
+/* Returns 0 on success, -1 on allocation failure (original state preserved) */
+GLint ZB_resize(ZBuffer *zb, void *frame_buffer, GLint xsize, GLint ysize);
 void ZB_clear(ZBuffer *zb,
               GLint clear_z,
               GLint z,

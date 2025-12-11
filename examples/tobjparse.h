@@ -35,19 +35,19 @@ typedef struct {
 } model;
 static inline objraw initobjraw()
 {
-    return (objraw){.npos = 0,
-                    .nnorm = 0,
-                    .ntexcoords = 0,
-                    .ncolors = 0,
-                    .nfaces = 0,
-                    .positions = NULL,
-                    .normals = NULL,
-                    .texcoords = NULL,
-                    .faces = NULL};
+    return (objraw) {.npos = 0,
+                     .nnorm = 0,
+                     .ntexcoords = 0,
+                     .ncolors = 0,
+                     .nfaces = 0,
+                     .positions = NULL,
+                     .normals = NULL,
+                     .texcoords = NULL,
+                     .faces = NULL};
 }
 static inline model initmodel()
 {
-    return (model){.npoints = 0, .d = NULL, .n = NULL, .t = NULL, .c = NULL};
+    return (model) {.npoints = 0, .d = NULL, .n = NULL, .t = NULL, .c = NULL};
 }
 static inline void freeobjraw(objraw *o)
 {

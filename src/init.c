@@ -168,8 +168,6 @@ void glInit(void *zbuffer1)
 #endif
     gl_ctx = empty_gl_ctx;
     c = &gl_ctx;
-    if (!c)
-        gl_fatal_error("TINYGL_CANNOT_INIT_OOM");
 
     c->zb = zbuffer;
 #if TGL_HAS(ERROR_CHECK)

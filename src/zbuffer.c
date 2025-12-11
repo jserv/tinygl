@@ -75,35 +75,52 @@ void ZB_close(ZBuffer *zb)
     gl_free(zb);
 }
 
-void ZB_resize(ZBuffer *zb, void *frame_buffer, GLint xsize, GLint ysize)
+/*
+ * Resize the ZBuffer. Returns 0 on success, -1 on allocation failure.
+ * On failure, the original buffer state is preserved.
+ */
+GLint ZB_resize(ZBuffer *zb, void *frame_buffer, GLint xsize, GLint ysize)
 {
     GLint size;
+    GLushort *new_zbuf;
+    PIXEL *new_pbuf = NULL;
 
     /* xsize must be a multiple of 4 */
     xsize = xsize & ~3;
 
+    size = xsize * ysize * sizeof(GLushort);
+
+    new_zbuf = gl_malloc(size);
+    if (new_zbuf == NULL)
+        return -1;
+
+    if (frame_buffer == NULL) {
+        new_pbuf = gl_malloc(ysize * (xsize * PSZB));
+        if (!new_pbuf) {
+            gl_free(new_zbuf);
+            return -1;
+        }
+    }
+
+    /* Only free old buffers after successful allocation */
+    gl_free(zb->zbuf);
+    if (zb->frame_buffer_allocated)
+        gl_free(zb->pbuf);
+
+    zb->zbuf = new_zbuf;
     zb->xsize = xsize;
     zb->ysize = ysize;
     zb->linesize = (xsize * PSZB);
 
-    size = zb->xsize * zb->ysize * sizeof(GLushort);
-
-    gl_free(zb->zbuf);
-    zb->zbuf = gl_malloc(size);
-    if (zb->zbuf == NULL)
-        exit(1);
-    if (zb->frame_buffer_allocated)
-        gl_free(zb->pbuf);
-
     if (frame_buffer == NULL) {
-        zb->pbuf = gl_malloc(zb->ysize * zb->linesize);
-        if (!zb->pbuf)
-            exit(1);
+        zb->pbuf = new_pbuf;
         zb->frame_buffer_allocated = 1;
     } else {
         zb->pbuf = frame_buffer;
         zb->frame_buffer_allocated = 0;
     }
+
+    return 0;
 }
 
 #if TGL_HAS(32_BITS)
@@ -119,6 +136,9 @@ PIXEL pxReverse32(PIXEL x)
 static void ZB_copyBuffer(ZBuffer *zb, void *buf, GLint linesize)
 {
     GLint y;
+#if TGL_HAS(NO_COPY_COLOR)
+    GLint i;
+#endif
 #if TGL_HAS(MULTITHREADED_ZB_COPYBUFFER)
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -164,7 +184,7 @@ void ZB_copyFrameBuffer(ZBuffer *zb, void *buf, GLint linesize)
 
 #if TGL_FEATURE_RENDER_BITS == 32
 #define RGB32_TO_RGB16(v) \
-    (((v >> 8) & 0xf800) | (((v) >> 5) & 0x07e0) | (((v) &0xff) >> 3))
+    (((v >> 8) & 0xf800) | (((v) >> 5) & 0x07e0) | (((v) & 0xff) >> 3))
 
 void ZB_copyFrameBuffer(ZBuffer *zb, void *buf, GLint linesize)
 {

@@ -74,8 +74,8 @@
     a = 2 * dy - dx;                                                          \
     dy = 2 * dy;                                                              \
     dx = 2 * dx - dy;                                                         \
-    pp_inc_1 = (inc_1) *PSZB;                                                 \
-    pp_inc_2 = (inc_2) *PSZB;                                                 \
+    pp_inc_1 = (inc_1) * PSZB;                                                \
+    pp_inc_2 = (inc_2) * PSZB;                                                \
     do {                                                                      \
         PUTPIXEL();                                                           \
         ZZ(z += zinc);                                                        \
