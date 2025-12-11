@@ -1,5 +1,6 @@
 #include "msghandling.h"
 #include "zgl.h"
+
 /* fill triangle profile */
 /* #define PROFILE */
 
@@ -14,13 +15,13 @@ static void gl_transform_to_viewport_clip_c(GLContext *c, GLVertex *v)
 { /* MARK: NOT_INLINED_IN_OG*/
     /* coordinates */
     {
-        GLfloat winv = 1.0 / v->pc.W;
-        v->zp.x = (GLint) (v->pc.X * winv * c->viewport.scale.X +
-                           c->viewport.trans.X);
-        v->zp.y = (GLint) (v->pc.Y * winv * c->viewport.scale.Y +
-                           c->viewport.trans.Y);
-        v->zp.z = (GLint) (v->pc.Z * winv * c->viewport.scale.Z +
-                           c->viewport.trans.Z);
+        GLfloat winv = 1.0f / v->pc.W;
+        v->zp.x = clamp_viewport_coord(v->pc.X * winv * c->viewport.scale.X +
+                                       c->viewport.trans.X);
+        v->zp.y = clamp_viewport_coord(v->pc.Y * winv * c->viewport.scale.Y +
+                                       c->viewport.trans.Y);
+        v->zp.z = clamp_viewport_coord(v->pc.Z * winv * c->viewport.scale.Z +
+                                       c->viewport.trans.Z);
     }
     /* color */
     v->zp.r =

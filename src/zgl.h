@@ -10,6 +10,7 @@
 #include "zfeatures.h"
 #include "zmath.h"
 
+#include <limits.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +18,23 @@
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795
 #endif
+
+/* Clamp viewport coordinates to prevent integer overflow.
+ *
+ * Edge cases handled:
+ * - NaN/Inf: isfinite() check returns 0 (safe fallback)
+ * - INT_MAX boundary: >= handles float rounding (2^31 rounds up)
+ */
+static inline GLint clamp_viewport_coord(GLfloat result)
+{
+    if (!isfinite(result))
+        return 0;
+    if (result >= (GLfloat) INT_MAX)
+        return INT_MAX;
+    if (result <= (GLfloat) INT_MIN)
+        return INT_MIN;
+    return (GLint) result;
+}
 
 enum {
 #define ADD_OP(a, b, c) OP_##a,
