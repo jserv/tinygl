@@ -278,7 +278,7 @@ void ZB_setTexture(ZBuffer *zb, PIXEL *texture)
         GLfloat sz, tz, fzl, zinv;                            \
         n = (x2 >> 16) - x1;                                  \
         fzl = (GLfloat) z1;                                   \
-        zinv = 1.0 / fzl;                                     \
+        zinv = (GLfloat) (1.0 / fzl);                         \
         pp = (PIXEL *) ((GLbyte *) pp1 + x1 * PSZB);          \
         pz = pz1 + x1;                                        \
         z = z1;                                               \
@@ -296,7 +296,14 @@ void ZB_setTexture(ZBuffer *zb, PIXEL *texture)
                 dtdx = (GLint) ((dtzdx - tt * fdzdx) * zinv); \
             }                                                 \
             fzl += fndzdx;                                    \
-            zinv = 1.0 / fzl;                                 \
+            /* Newton-Raphson iteration for 1/fzl:            \
+             * Two iterations provide accuracy comparable to  \
+             * division. Previous zinv is a good estimate     \
+             * since fzl changes incrementally by fndzdx.     \
+             * Error after 2 iterations: O((delta_z/z)^4)     \
+             */                                               \
+            zinv = zinv * (2.0f - fzl * zinv);                \
+            zinv = zinv * (2.0f - fzl * zinv);                \
             PUT_PIXEL(0); /*the_x++;*/                        \
             PUT_PIXEL(1); /*the_x++;*/                        \
             PUT_PIXEL(2); /*the_x++;*/                        \
