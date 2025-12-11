@@ -14,7 +14,15 @@ sdl_examples: $(LIB) examples/stb_image.h
 raw_examples: $(LIB) examples/stb_image_write.h
 	@echo "Building the raw demos."
 	$(MAKE) -C examples/raw
-	
+
+check: $(LIB) raw_examples
+	@echo "Running test suite..."
+	CC=$(CC) ./tests/driver.sh
+
+check-generate: $(LIB) raw_examples
+	@echo "Generating reference outputs..."
+	CC=$(CC) ./tests/driver.sh --generate-expected
+
 clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C examples/raw clean
