@@ -1,35 +1,34 @@
-# TinyGL fork
+# TinyGL Evolved
 
 ![tgl logo](assets/tgl_minimal.png)
-A comprehensive overhaul of [TinyGL](https://bellard.org/TinyGL/) as a better software rasterizer.
-It is a small, software-only and partial GL 1.1 implementation wth limited multithreading support.
 
-The original project was by [Fabrice Bellard](https://bellard.org/). We have forked it. 
+A portable, software-only OpenGL 1.1 rasterizer written in pure C99.
+
+Originally developed by [Fabrice Bellard](https://bellard.org/), this version has been extensively enhanced for performance and portability.
+It is a small, partial OpenGL 1.1 implementation with optional multithreading support.
 
 ## Architecture
+TinyGL consists of three major modules:
+- Mathematical routines (zmath)
+- OpenGL-like emulation (zgl)
+- Z-buffer and rasterization (zbuffer)
 
-TinyGL is made up 3 major modules:
-- Mathematical routines (zmath).
-- OpenGL-like emulation (zgl).
-- Z buffer and rasterisation (zbuffer).
+## Safety Features
 
-## Safety features
-
-TinyGL contains the following safety features:
-1. compiletime options for `glGetError()` functionality which obviously slows down speed but increases debugging capability.
-2. OpenGL 2.0 buffers, for easy memory management (Anything you put in a buffer using glBufferData will be free'd upon `glClose()`)
-3. Fully leak checked using Valgrind- The only leaks you'll see are from your system's SDL. the Raw demos have zero leaks.
-
-## Incredibly portable
-
-TinyGL is written in pure C99, and requires very few functions from the C standard library, it doesn't even require malloc and free
-(The calls are aliased to `gl_malloc()` and `gl_free()`, which you can replace with your own memory management model if you desire)
+TinyGL includes the following safety features:
+1. Compile-time options for `glGetError()` functionality (useful for debugging)
+2. OpenGL 2.0 style buffers for simplified memory management (data passed via `glBufferData` is freed upon `glClose()`)
+3. Fully leak-checked using Valgrind (the raw demos have zero leaks)
 
 ## Portability
 
-You can test compiling TinyGL by executing `make raw-examples`, which do not require ANYTHING Except the C standard library and stdio.
+TinyGL is written in pure C99 with minimal standard library dependencies.
+It does not require `malloc` or `free` directly; instead, allocation calls are aliased to `gl_malloc()` and `gl_free()`,
+allowing replacement with custom memory management.
 
-These are the C standard library includes used in the raw examples.
+You can test compiling TinyGL by executing `make raw-examples`, which requires only the C standard library.
+
+The raw examples use these standard library headers:
 ```c
 #include <math.h>
 #include <stdio.h>
@@ -38,280 +37,186 @@ These are the C standard library includes used in the raw examples.
 #include <stdarg.h>
 ```
 
-If your system supports it, the library can also take advantage of `alignas` to get improved SIMD support,
-which can be disabled in zfeatures.
-This adds a dependency to `<stdalign.h>` but greatly increases vertex processing speed.
-(This is disabled by default for maximum portability)
+If your system supports it, the library can use `alignas` for improved SIMD support. This adds a dependency on `<stdalign.h>` and can increase vertex processing speed (disabled by default for maximum portability).
 
-If you are unsure if your target platform can support TinyGL, compile it with the buildtime and runtime tests enabled (They are, by default)
+If you are unsure whether your target platform can support TinyGL, compile with the build-time and runtime tests enabled (they are enabled by default):
+- A `TGL_BUILDT` error indicates a failed build-time test
+- `TINYGL_FAILED_RUNTIME_COMPAT_TEST` printed to stdout indicates a failed runtime test
 
-if you get a `TGL_BUILDT` error, then you've failed the buildtime test.
+The SDL examples have been tested on Debian 10 and Windows 10, while the library itself has been confirmed to compile on many more platforms.
 
-if you try to initialize the library and you get a crash with a print to standard out `TINYGL_FAILED_RUNTIME_COMPAT_TEST` then you've failed the runtime test.
+## Notable Changes
 
-The SDL examples have been tested building on Debian 10 and Windows 10, while tinygl itself has been confirmed to compile on many more platforms.
+Compared to the original TinyGL:
 
-## Status
-
-There are graphical artifacts visible in these gifs which have been corrected in this version of the library.
-
-Without Polygon Stipple:
-![GIF Video of demo](assets/capture.gif)
-
-With Polygon Stipple:
-![GIF Video of demo](assets/capture2.gif)
-
-Hello World test:
-![model loading demo](assets/helloworld.gif)
-
-Texturing Test: 
-![Screenshot of Texture test](assets/texture_test.png)
-
-Model loading tests:
-![model loading demo](assets/model2_lit.gif)
-![model loading demo](assets/model_lit.gif)
-
-Without lighting: 
-![model loading demo](assets/model2.gif)
-![model loading demo](assets/model.gif)
-
-This is a demo of the `NO_DRAW_COLOR` feature. Notice that the object appears to have a hole in it.
-![model loading demo](assets/model_hole.gif)
-
-Blending:
-![model loading demo](assets/blend.gif)
-
-Specular:
-![GIF Video of demo](assets/specular.gif)
-
-Notable changes:
-* Disabled 8, 15, and 24 bit rendering modes. 16 and 32 are the only supported rendering modes (Coincidentally, they are also the fastest)
-* Allowed the fixed texture size to be changed at compile time. It must be a power of 2, but that is the only limitation.
-* Removed the entire GLX/NanoGLX part of the library. Not portable and mostly useless.
-* Implemented new functions and some more of GL 1.1's prototypes including polygon stipple.
-* Triangles can now be lit and textured at the same time!
-* Removed unused functions which bloat binary size and lengthen compile times.
-* Added support for glDepthMask and glDisable(`GL_DEPTH_TEST`) as per-GL-spec
-* ADDED BLENDING SUPPORT!
-* Added glDrawPixels
-* Added glPixelZoom
-* Added glRasterPos2f,3f,4f,2fv,3fv,4fv
-* Added glGetString() for `GL_VENDOR`, `GL_RENDERER`, and `GL_VERSION`
-* Added comprehensive, usable glGetError() functionality for debugging.
-* Fixed clientside arrays
-* Tuned the triangle rasterizer to near-perfection.
-* Tuned the transformations to absolute perfection
-* Added glDrawArrays
-* Added Buffers (For memory management purposes)
-* Added glTexImage1D (... it just resizes it to 2D, but it works!)
-* Added glPixelSize (TODO is to implement distance scaling)
+Rendering:
+* Disabled 8, 15, and 24-bit rendering modes; only 16-bit and 32-bit modes are supported (also the fastest)
+* Blending support
+* Triangles can be lit and textured simultaneously
+* Line rendering obeys `glDepthMask` and `glDepthTest`
+* Polygon stipple support
 * Fixed specular rendering
-* Added way more compile time options
-* Fixed all the memory leaks.
-* added Openmp multithreading and glPostProcess()
-* Line rendering now obeys glDepthMask and glDepthTest.
-* Implemented glRectf
-* Implemented compiletime toggles for `GL_SELECT` and `GL_FEEDBACK` which significantly boosts performance. Also, implemented `GL_FEEDBACK`.
+* Tuned triangle rasterizer and transformation pipeline
 
-Note that this softrast **is not GL 1.1 compliant** and does not constitute a complete GL implementation.
+Performance Optimizations:
+* Dirty rectangle tracking for partial framebuffer updates
+* Template-based rasterizer for reduced branching
+* Newton-Raphson approximation for inner loop division
+* Optimized depth buffer clear
+* Eliminated redundant context lookups in hot paths
+* OpenMP multithreading for `glDrawPixels`, `glPostProcess()`, `glCopyTexImage2D`, and `ZB_copyBuffer`
 
-Notable limitations:
-* The only supported texture size and format is decided at compile time. you can set it in zfeatures.h
-* A lot of prototypes are missing.
-* glPolygonOffset doesn't change anything about how rendering occurs. It does nothing, at the moment. 
-The "implementation specific multiplier" is 0.
-* There is no stencil buffer.
-* Blending can't use alpha values. the rasterizer has no concept of alpha.
-* There is no mipmapping, antialiasing, or any form of texture filtering.
-* No edge clamping. S and T are wrapped.
-* Display lists can be infinitely nested and doing so will crash TinyGL.
-* Lit triangles will use the current material properties, even if they are textured.
-  - If the diffuse color is black, then your
-textured triangles will appear black.
-* Textured triangles are affected by their vertex colors- the per-vertex color is used as a "mask" for the texture on triangles.
-  - It is recommended you call glColor3f(1,1,1); before rendering a textured object to get the expected result you only need to make this call once, and it can be before glBegin.
-* the X dimension of the rendering window with must be a multiple of 4.
+API Additions:
+* `glDrawPixels`, `glPixelZoom`
+* `glRasterPos2f/3f/4f/2fv/3fv/4fv`
+* `glGetString()` for `GL_VENDOR`, `GL_RENDERER`, `GL_VERSION`
+* `glGetError()` functionality
+* `glDrawArrays` and clientside arrays
+* Buffers (`glGenBuffers`, `glDeleteBuffers`, `glBindBuffer`)
+* `glTexImage1D`
+* `glRectf`
+* `glPointSize`
+* `glPostProcess()` for multithreaded post-processing
+* Compile-time toggles for `GL_SELECT` and `GL_FEEDBACK`
+
+Code Quality:
+* Removed GLX/NanoGLX (not portable)
+* Removed unused functions
+* Fixed memory leaks (Valgrind clean)
+* Viewport coordinate overflow protection
+* Fixed buffer overflow in `glDrawText`
+* Extensive compile-time configuration options
+
+Note that this softrast is not GL 1.1 compliant and does not constitute a complete GL implementation.
+
+## Limitations
+* Texture size and format are fixed at compile time (configurable in `zfeatures.h`)
+* Many GL 1.1 prototypes are missing
+* `glPolygonOffset` is a no-op (multiplier is 0)
+* No stencil buffer
+* Blending does not use alpha values; the rasterizer has no concept of alpha
+* No mipmapping, antialiasing, or texture filtering
+* No edge clamping; S and T coordinates are wrapped
+* Infinite display list nesting will crash
+* Lit triangles use current material properties even when textured (black diffuse = black textured triangles)
+* Textured triangles are affected by vertex colors (call `glColor3f(1,1,1)` before rendering textured objects for expected results)
+* Rendering window X dimension must be a multiple of 4
 * Line rendering is not blended
-* The ARB extension for point sprite size attenuation is not enabled.
-* Point smoothing is not implemented, points are always squares of a solid color.
-* glCopyTexImage2D only works with the size of texture you decided at compile time.
+* Point smoothing is not implemented (points are solid-color squares)
+* `glCopyTexImage2D` only works with the compile-time texture size
 
-## Integrations
+## Integration
+TinyGL is not header-only; it consists of C source files, internal headers, and external headers. The internal headers are only used while compiling the library. The external headers (`gl.h`, `zfeatures.h`, `zbuffer.h`) are required to use the library. You can also compile the library along with your program into a single compilation unit.
 
-TinyGL is not header only, it is a combination of C files, internal headers, and external headers.
-The internal headers are only used while compiling the library,
-the external headers (gl.h, zfeatures.h, zbuffer.h) are required to use the library.
-You CAN compile the library along with your final program into a single compilation unit without separating out the library.
-
-This is how you use TinyGL in a program:
+Basic usage:
 ```c
 #include <GL/gl.h>
 #include "zbuffer.h"
 
-/* Next, open a framebuffer.
- * The "0" parameter is where you pass in a framebuffer pointer if you've already made one.
- */
-ZBuffer *frameBuffer = ZB_open(winSizeX, winSizeY, mode, 0);
+/* Open a framebuffer (pass NULL to allocate internally) */
+ZBuffer *frameBuffer = ZB_open(winSizeX, winSizeY, mode, NULL);
 
-/* Tell TinyGL to initialize on that framebuffer */
+/* Initialize TinyGL with the framebuffer */
 glInit(frameBuffer);
 
-/* Begin making TinyGL calls! */
+/* Make TinyGL calls here */
 
-/* Update framebuffer when you want to copy to your target screen
- * Pitch is the width of the target in bytes, or bytes per pixel times width;
- */
+/* Copy framebuffer to display (pitch = bytes per row) */
 ZB_copyFrameBuffer(frameBuffer, screen->pixels, screen->pitch);
 
-/* At the end of your application, when you want to clean up. */
+/* Clean up */
 ZB_close(frameBuffer);
 glClose();
 ```
 
-Note that while you... *can* invoke `ZB_Resize` to resize the framebuffer, you really shouldn't. It isn't tested.
+Note: `ZB_resize()` exists but is not well tested.
 
-### Minimum requirements
+### Requirements
+* C99 compliant compiler
+* 32-bit signed and unsigned integer types
+* 32-bit binary float type (`STDC_IEC_559`)
+* `sin` and `cos` from `<math.h>`
+* `memcpy` from `<string.h>`
+* `assert` from `<assert.h>` (for debugging; can be stubbed)
+* Memory allocator (replacements for `malloc`, `calloc`, `free`)
 
-SDL2 is required to run most of the `sdl_examples`, but SDL is by no means required to compile or use this library.
-SDL is used as a reasonable means of displaying the output of TinyGL for testing.
+SDL2 is required only for the `sdl_examples`, not for the library itself. There is no `FILE*` usage or I/O outside of `msghandling.c`; stub those calls to remove all stdio dependency.
 
-Requirements
-* A C99 compliant compiler
-* 32 bit signed and unsigned integer types
-* 32 bit binary float type (`STDC_IEC_559`)
-* Some floating point type at least as large as a 32 bit float
-* sin and cos functions in math.h
-* memcpy in string.h
-* assert in assert.h (for debugging only, it can be stubbed)
-* a minimal C stdlib
-* A memory allocator of some sort with some equivalents or replacements for malloc, calloc, and free.
+### Multithreading Support
+OpenMP is used on supported platforms to parallelize certain operations:
+* `glDrawPixels` - each scanline drawn by a separate thread
+* `glPostProcess` - each callback invocation runs in a separate thread
+* `glCopyTexImage2D` - each scanline copied by a separate thread
+* `ZB_copyBuffer` - each scanline copied by a separate thread
 
-There is no FILE* usage, or I/O outside of 'msghandling.c' so if you want to remove all stdio dependency, just stub out the calls there.
+Compile with `-fopenmp` to enable (enabled by default in `config.mk`). Multithreading is not required to use TinyGL.
 
-### Multithreading support
-
-OpenMP is used on supported platforms to multithread certain operations.
-These are the operations that are accelerated by multithreading:
-* glDrawPixels
-  - Every scanline is drawn by a separate thread.
-* glPostProcess
-  - Every call of the function pointer is run by a separate thread.
-* glCopyTexImage2D
-  - Every scan line is copied by a separate thread.
-* ZBCopyBuffer
-  - Every scan line is copied by a separate thread.
-
-Compile the library with `-fopenmp` to see them in action (default). They are used in the texture demo, make sure to add the argument `-pp`
-
-You do not need a multithreaded processor to use TinyGL!
-
-## New functions
-
-These are functions not in the GL 1.1 spec that we haved added to make this library more useful.
-These functions cannot be added as opcodes to display lists unless specifically listed.
+## Extension Functions
+Functions not in the GL 1.1 spec, added for convenience. These cannot be added to display lists unless noted.
 
 ### glDeleteList
-An easier to use version of glDeleteLists. glDeleteLists is also implemented.
+Simpler alternative to `glDeleteLists` (which is also implemented).
 
-### glSetEnableSpecular(int shouldenablespecular);
-This function can be added to display lists.
-
-Allows you to configure specular rendering. Turn it off
-if you want to use GL_LIGHTING but don't plan on using
-specular lighting. it will save cycles.
+### glSetEnableSpecular(int enable)
+Display-list compatible. Enable/disable specular rendering. Turn off if not using specular lighting to save cycles.
 
 ### glGetTexturePixmap(int text, int level, int* xsize, int* ysize)
-Allows the user to retrieve the raw pixel data of a texture, for their own modification.
+Retrieve raw pixel data of a texture for modification.
 
 ### glDrawText(const unsigned char* text, int x, int y, unsigned int pixel)
-This function can be added to display lists as glPlotPixel calls, the text is not saved in a display list.
-
-Is capable of rendering the entire 8 bit latin extended character set (7 bit ascii plus characters 0xa0 and onward...)
-You can check how to embed non-standard characters in your strings in the gears demo.
-Draws a pre-made 8x8 font to the screen. You can change its displayed size with...
+Display-list compatible (as `glPlotPixel` calls). Renders 8-bit Latin extended character set using a built-in 8x8 font.
 
 ### glTextSize(GLTEXTSIZE mode)
-This function can be added to display lists.
-
-Set size of text drawn to the buffer in aforementioned function.
+Display-list compatible. Set the size of text drawn by `glDrawText`.
 
 ### glPlotPixel(int x, int y, unsigned int pixel)
-This function can be added to display lists.
+Display-list compatible. Plot a pixel directly to the buffer.
 
-Plot pixel directly to the buffer.
-
-### glGenBuffers, glDeleteBuffers, glBindBuffer (valid target: `ARRAY_BUFFER`), glBindBufferAsArray
-Serverside buffers! Makes it a bit easier to do clientside array stuff at the moment. 
-may be the site of future hardware acceleration.
-
-Please look at the model.c demo to see how to use these functions. They function very similarly to their GL 2.0+ counterparts.
+### glGenBuffers, glDeleteBuffers, glBindBuffer, glBindBufferAsArray
+Server-side buffers for clientside array data. Valid target: `GL_ARRAY_BUFFER`. See `model.c` demo for usage.
 
 ### glPostProcess(GLuint (*postprocess)(GLint x, GLint y, GLuint pixel, GLushort z))
-Fast, Multithreaded Postprocessing for TinyGL. 
+Multithreaded post-processing. The callback receives screen coordinates (x, y), current pixel color (ARGB or 5R6G5B), and depth value (z). Returns the new pixel color. Note: take care to prevent race conditions when multithreading is enabled.
 
-You simply send in a function pointer (The function's name) and glPostProcess does the heavy lifting
-The return value is the pixel (ARGB or 5R6G5B depending on mode).
-
-x and y are the screen coordinataes.
-
-pixel is the current color value of the pixel, ARGB or 5R6G5B depending on mode.
-
-z is TinyGL's internal Z buffer representation. Larger values are considered to be "in front" of smaller ones.
-
-This function is multithreaded on supported platforms for maximum execution speed. It of course still works without multithreading, but
-
-it will not be as fast.
-
-Note that you may have to take special care to prevent race conditions when using multithreading with this function.
-
-### New glGet calls
-You can query glGetIntegerV with these new definitions
+### Additional glGet Queries
+Query TinyGL configuration via `glGetIntegerv`:
 ```c
-	GL_POLYGON_MAX_VERTEX = 0xf001,
-	GL_MAX_BUFFERS = 0xf002,
-	GL_TEXTURE_HASH_TABLE_SIZE = 0xf003,
-	GL_MAX_TEXTURE_LEVELS = 0xf004,
-	GL_MAX_SPECULAR_BUFFERS = 0xf005,
-	GL_MAX_DISPLAY_LISTS = 0xf006,
-	GL_ERROR_CHECK_LEVEL = 0xf007,
-	GL_IS_SPECULAR_ENABLED = 0xf008,
+GL_POLYGON_MAX_VERTEX    = 0xf001,
+GL_MAX_BUFFERS           = 0xf002,
+GL_TEXTURE_HASH_TABLE_SIZE = 0xf003,
+GL_MAX_TEXTURE_LEVELS    = 0xf004,
+GL_MAX_SPECULAR_BUFFERS  = 0xf005,
+GL_MAX_DISPLAY_LISTS     = 0xf006,
+GL_ERROR_CHECK_LEVEL     = 0xf007,
+GL_IS_SPECULAR_ENABLED   = 0xf008,
 ```
 
-to query the configuration of TinyGL.
+## Build Configuration
+See `include/zfeatures.h` for all compile-time options. Key settings:
 
-## Configurable build-time features
-
-See `include/zfeatures.h`
-
-This changes too often to maintain documentation here.
-
-The compiletime test is now disabled by default since it may not be "liked" by some obscure compilers...
-you can enable it in `<GL/gl.h>`
-
+Pixel format (enable exactly one):
 ```c
-/* at the top of include/GL/gl.ha */
-#define COMPILETIME_TINYGL_COMPAT_TEST 1
+#define TGL_FEATURE_16_BITS 0  /* 5R6G5B format */
+#define TGL_FEATURE_32_BITS 1  /* ARGB format */
 ```
 
-## Fully compatible with RGBA
+Note: 32-bit output is ARGB; see SDL examples for format conversion if needed.
 
-The library is now able to be configured properly for RGBA rendering. Note that the output *is actually ARGB* 
-but adjusting it is easy, see the SDL examples.
-
-The library is sometimes by default configured for RGBA or 5R6G5B, check include/zfeatures.h and change the values in this table:
-```c
-#define TGL_FEATURE_8_BITS         0
-#define TGL_FEATURE_24_BITS        0
-#define TGL_FEATURE_16_BITS        1
-#define TGL_FEATURE_32_BITS        0
-```
-
-make sure that only ONE of these values is 1.
+Other notable options:
+* `TGL_FEATURE_TEXTURE_POW2` - texture dimension as power of 2 (default 8 = 256x256)
+* `TGL_FEATURE_BLEND` - enable blending support
+* `TGL_FEATURE_ERROR_CHECK` - enable `glGetError()` functionality
+* `TGL_FEATURE_DISPLAYLISTS` - enable display list support
+* `TGL_FEATURE_DIRTY_RECTANGLE` - enable dirty rectangle optimization
 
 ## Related Projects
-* [PortableGL](https://github.com/rswinkle/PortableGL) is an implementation of OpenGL 3.x core in clean C99 as a single header library.
-* [TinyGLES](https://github.com/lunixbochs/tinygles) is a software OpenGL ES driver.
-* [Vincent ES](https://github.com/hmwill/GLESv20) is a software renderer based on OpenGL ES 2.0 API.
-* [softgl](https://github.com/bit-hack/softgl) is a software renderer based on OpenGL 1.x.
-* [TinyGL.js](https://github.com/humu2009/tinygl.js) is based upon TinyGL's implementation written in C and compiled to JavaScript via Emscripten. It only uses software rasterization and does not require WebGL to run.
-* [scummvm/graphics/tinygl](https://github.com/scummvm/scummvm/tree/master/graphics/tinygl) contains a series of aggressive modifications against the original TinyGL.
+* [PortableGL](https://github.com/rswinkle/PortableGL) - OpenGL 3.x core in clean C99 as a single header library
+* [TinyGLES](https://github.com/lunixbochs/tinygles) - software OpenGL ES driver
+* [Vincent ES](https://github.com/hmwill/GLESv20) - software renderer based on OpenGL ES 2.0 API
+* [softgl](https://github.com/bit-hack/softgl) - software renderer based on OpenGL 1.x
+* [TinyGL.js](https://github.com/humu2009/tinygl.js) - TinyGL compiled to JavaScript via Emscripten
+* [scummvm/graphics/tinygl](https://github.com/scummvm/scummvm/tree/master/graphics/tinygl) - ScummVM's TinyGL fork with extensive modifications
+
+## License
+TinyGL is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+Note: The upstream TinyGL [changed its license](https://bellard.org/TinyGL/changelog.html) from Zlib-like to MIT in 2022.
