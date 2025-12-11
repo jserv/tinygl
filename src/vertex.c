@@ -136,9 +136,8 @@ void glopBegin(GLParam *p)
     }
 }
 
-static void gl_transform_to_viewport_vertex_c(GLVertex *v)
+static void gl_transform_to_viewport_vertex_c(GLContext *c, GLVertex *v)
 {
-    GLContext *c = gl_get_context();
     {
         GLfloat winv = 1.0 / v->pc.W;
         v->zp.x = (GLint) (v->pc.X * winv * c->viewport.scale.X +
@@ -186,10 +185,8 @@ int gl_V3_Norm_Fast(V3 *a)
     return 0;
 }
 
-static void gl_vertex_transform(GLVertex *v)
+static void gl_vertex_transform(GLContext *c, GLVertex *v)
 {
-    GLContext *c = gl_get_context();
-
     if (c->lighting_enabled) {
         /* eye coordinates needed for lighting */
         GLfloat *m = &c->matrix_stack_ptr[0]->m[0][0];
@@ -268,7 +265,7 @@ void glopVertex(GLParam *p)
     v->coord.Z = p[3].f;
     v->coord.W = p[4].f;
 
-    gl_vertex_transform(v);
+    gl_vertex_transform(c, v);
 
     /* color */
 
@@ -296,7 +293,7 @@ void glopVertex(GLParam *p)
     if (v->clip_code == 0)
 #endif
     {
-        gl_transform_to_viewport_vertex_c(v);
+        gl_transform_to_viewport_vertex_c(c, v);
     }
 
     /* edge flag */

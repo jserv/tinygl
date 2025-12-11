@@ -10,9 +10,8 @@
 #define CLIP_ZMIN (1 << 4)
 #define CLIP_ZMAX (1 << 5)
 
-static void gl_transform_to_viewport_clip_c(GLVertex *v)
+static void gl_transform_to_viewport_clip_c(GLContext *c, GLVertex *v)
 { /* MARK: NOT_INLINED_IN_OG*/
-    GLContext *c = gl_get_context();
     /* coordinates */
     {
         GLfloat winv = 1.0 / v->pc.W;
@@ -204,8 +203,8 @@ void gl_draw_line(GLVertex *p1, GLVertex *p2)
             ClipLine1(-dz + dw, z1 - w1, &tmin, &tmax)) {
             GLinterpolate(&q1, p1, p2, tmin);
             GLinterpolate(&q2, p1, p2, tmax);
-            gl_transform_to_viewport_clip_c(&q1);
-            gl_transform_to_viewport_clip_c(&q2);
+            gl_transform_to_viewport_clip_c(c, &q1);
+            gl_transform_to_viewport_clip_c(c, &q2);
 #if TGL_HAS(ALT_RENDERMODES)
             if (c->render_mode == GL_SELECT) {
                 gl_add_select1(q1.zp.z, q2.zp.z, q2.zp.z);
@@ -225,7 +224,11 @@ void gl_draw_line(GLVertex *p1, GLVertex *p2)
 
 /*Triangles*/
 
-static void updateTmp(GLVertex *q, GLVertex *p0, GLVertex *p1, GLfloat t)
+static void updateTmp(GLContext *c,
+                      GLVertex *q,
+                      GLVertex *p0,
+                      GLVertex *p1,
+                      GLfloat t)
 {
     {
         q->color.v[0] = p0->color.v[0] + (p1->color.v[0] - p0->color.v[0]) * t;
@@ -245,17 +248,22 @@ static void updateTmp(GLVertex *q, GLVertex *p0, GLVertex *p1, GLfloat t)
 
     q->clip_code = gl_clipcode(q->pc.X, q->pc.Y, q->pc.Z, q->pc.W);
     if (q->clip_code == 0)
-        gl_transform_to_viewport_clip_c(q);
+        gl_transform_to_viewport_clip_c(c, q);
 }
 
-static void gl_draw_triangle_clip(GLVertex *p0,
+static void gl_draw_triangle_clip(GLContext *c,
+                                  GLVertex *p0,
                                   GLVertex *p1,
                                   GLVertex *p2,
                                   GLint clip_bit);
 
-void gl_draw_triangle(GLVertex *p0, GLVertex *p1, GLVertex *p2)
+/* Internal helper that takes context - avoids redundant gl_get_context() in hot
+ * paths */
+static void gl_draw_triangle_c(GLContext *c,
+                               GLVertex *p0,
+                               GLVertex *p1,
+                               GLVertex *p2)
 {
-    GLContext *c = gl_get_context();
     GLint co, cc[3], front;
 
     cc[0] = p0->clip_code;
@@ -303,12 +311,19 @@ void gl_draw_triangle(GLVertex *p0, GLVertex *p1, GLVertex *p2)
         /* GLint c_and = cc[0] & cc[1] & cc[2];*/
         if ((cc[0] & cc[1] & cc[2]) ==
             0) { /* Don't draw a triangle with no points*/
-            gl_draw_triangle_clip(p0, p1, p2, 0);
+            gl_draw_triangle_clip(c, p0, p1, p2, 0);
         }
     }
 }
 
-static void gl_draw_triangle_clip(GLVertex *p0,
+/* Public entry point - fetches context once */
+void gl_draw_triangle(GLVertex *p0, GLVertex *p1, GLVertex *p2)
+{
+    gl_draw_triangle_c(gl_get_context(), p0, p1, p2);
+}
+
+static void gl_draw_triangle_clip(GLContext *c,
+                                  GLVertex *p0,
                                   GLVertex *p1,
                                   GLVertex *p2,
                                   GLint clip_bit)
@@ -323,7 +338,7 @@ static void gl_draw_triangle_clip(GLVertex *p0,
 
     co = cc[0] | cc[1] | cc[2];
     if (co == 0) {
-        gl_draw_triangle(p0, p1, p2);
+        gl_draw_triangle_c(c, p0, p1, p2);
     } else {
         c_and = cc[0] & cc[1] & cc[2];
         /* the triangle is completely outside */
@@ -363,20 +378,20 @@ static void gl_draw_triangle_clip(GLVertex *p0,
                 GLVertex tmp1, tmp2;
                 GLfloat tt;
                 tt = clip_proc[clip_bit](&tmp1.pc, &q[0]->pc, &q[1]->pc);
-                updateTmp(&tmp1, q[0], q[1], tt);
+                updateTmp(c, &tmp1, q[0], q[1], tt);
 
                 tt = clip_proc[clip_bit](&tmp2.pc, &q[0]->pc, &q[2]->pc);
-                updateTmp(&tmp2, q[0], q[2], tt);
+                updateTmp(c, &tmp2, q[0], q[2], tt);
 
                 tmp1.edge_flag = q[0]->edge_flag;
                 edge_flag_tmp = q[2]->edge_flag;
                 q[2]->edge_flag = 0;
-                gl_draw_triangle_clip(&tmp1, q[1], q[2], clip_bit + 1);
+                gl_draw_triangle_clip(c, &tmp1, q[1], q[2], clip_bit + 1);
 
                 tmp2.edge_flag = 1;
                 tmp1.edge_flag = 0;
                 q[2]->edge_flag = edge_flag_tmp;
-                gl_draw_triangle_clip(&tmp2, &tmp1, q[2], clip_bit + 1);
+                gl_draw_triangle_clip(c, &tmp2, &tmp1, q[2], clip_bit + 1);
             }
         } else {
             /* two points outside */
@@ -398,14 +413,14 @@ static void gl_draw_triangle_clip(GLVertex *p0,
                 GLVertex tmp1, tmp2;
                 GLfloat tt;
                 tt = clip_proc[clip_bit](&tmp1.pc, &q[0]->pc, &q[1]->pc);
-                updateTmp(&tmp1, q[0], q[1], tt);
+                updateTmp(c, &tmp1, q[0], q[1], tt);
 
                 tt = clip_proc[clip_bit](&tmp2.pc, &q[0]->pc, &q[2]->pc);
-                updateTmp(&tmp2, q[0], q[2], tt);
+                updateTmp(c, &tmp2, q[0], q[2], tt);
 
                 tmp1.edge_flag = 1;
                 tmp2.edge_flag = q[2]->edge_flag;
-                gl_draw_triangle_clip(q[0], &tmp1, &tmp2, clip_bit + 1);
+                gl_draw_triangle_clip(c, q[0], &tmp1, &tmp2, clip_bit + 1);
             }
         }
     }
