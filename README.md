@@ -23,10 +23,10 @@ TinyGL includes the following safety features:
 ## Portability
 
 TinyGL is written in pure C99 with minimal standard library dependencies.
-It does not require `malloc` or `free` directly; instead, allocation calls are aliased to `gl_malloc()` and `gl_free()`,
-allowing replacement with custom memory management.
+It does not require `malloc` or `free` directly; allocation calls are aliased to `gl_malloc()` and `gl_free()`,
+so you can drop in a custom allocator.
 
-You can test compiling TinyGL by executing `make raw-examples`, which requires only the C standard library.
+Sanity-check portability from the repo root with `make raw_examples`, which builds the raw demos using only the C standard library.
 
 The raw examples use these standard library headers:
 ```c
@@ -87,26 +87,10 @@ Code Quality:
 * Fixed buffer overflow in `glDrawText`
 * Extensive compile-time configuration options
 
-Note that this softrast is not GL 1.1 compliant and does not constitute a complete GL implementation.
-
-## Limitations
-* Texture size and format are fixed at compile time (configurable in `zfeatures.h`)
-* Many GL 1.1 prototypes are missing
-* `glPolygonOffset` is a no-op (multiplier is 0)
-* No stencil buffer
-* Blending does not use alpha values; the rasterizer has no concept of alpha
-* No mipmapping, antialiasing, or texture filtering
-* No edge clamping; S and T coordinates are wrapped
-* Infinite display list nesting will crash
-* Lit triangles use current material properties even when textured (black diffuse = black textured triangles)
-* Textured triangles are affected by vertex colors (call `glColor3f(1,1,1)` before rendering textured objects for expected results)
-* Rendering window X dimension must be a multiple of 4
-* Line rendering is not blended
-* Point smoothing is not implemented (points are solid-color squares)
-* `glCopyTexImage2D` only works with the compile-time texture size
+Note that this software rasterizer is not GL 1.1 compliant and does not constitute a complete GL implementation.
 
 ## Integration
-TinyGL is not header-only; it consists of C source files, internal headers, and external headers. The internal headers are only used while compiling the library. The external headers (`gl.h`, `zfeatures.h`, `zbuffer.h`) are required to use the library. You can also compile the library along with your program into a single compilation unit.
+TinyGL is not header-only. It ships C sources plus internal headers (build-only) and public headers (`gl.h`, `zfeatures.h`, `zbuffer.h`). You can build it as a static library or compile the sources directly into your program.
 
 Basic usage:
 ```c
@@ -129,8 +113,6 @@ ZB_close(frameBuffer);
 glClose();
 ```
 
-Note: `ZB_resize()` exists but is not well tested.
-
 ### Requirements
 * C99 compliant compiler
 * 32-bit signed and unsigned integer types
@@ -149,7 +131,7 @@ OpenMP is used on supported platforms to parallelize certain operations:
 * `glCopyTexImage2D` - each scanline copied by a separate thread
 * `ZB_copyBuffer` - each scanline copied by a separate thread
 
-Compile with `-fopenmp` to enable (enabled by default in `config.mk`). Multithreading is not required to use TinyGL.
+Compile with `-fopenmp` to enable. This is optional (disabled in `config.mk` by default) and not required to use TinyGL.
 
 ## Extension Functions
 Functions not in the GL 1.1 spec, added for convenience. These cannot be added to display lists unless noted.
@@ -208,6 +190,47 @@ Other notable options:
 * `TGL_FEATURE_ERROR_CHECK` - enable `glGetError()` functionality
 * `TGL_FEATURE_DISPLAYLISTS` - enable display list support
 * `TGL_FEATURE_DIRTY_RECTANGLE` - enable dirty rectangle optimization
+
+## Limitations
+* Texture size and format are fixed at compile time (configurable in `zfeatures.h`)
+* Many GL 1.1 prototypes are missing
+* `glPolygonOffset` is a no-op (multiplier is 0)
+* No stencil buffer
+* Blending does not use alpha values; the rasterizer has no concept of alpha
+* No mipmapping, antialiasing, or texture filtering
+* No edge clamping; S and T coordinates are wrapped
+* Infinite display list nesting will crash
+* Lit triangles use current material properties even when textured (black diffuse = black textured triangles)
+* Textured triangles are affected by vertex colors (call `glColor3f(1,1,1)` before rendering textured objects for expected results)
+* Rendering window X dimension must be a multiple of 4
+* Line rendering is not blended
+* Point smoothing is not implemented (points are solid-color squares)
+* `glCopyTexImage2D` only works with the compile-time texture size
+
+## FAQ
+
+**What can I use TinyGL for?**
+- Lightweight graphics library when you cannot rely on a GPU.
+- Cross-platform rendering on almost any target with IEEE 754 floats and 32-bit integers.
+- Server-side rendering where you stream the framebuffer.
+- Pre-rendered graphics pipelines you can customize entirely on the CPU.
+- Porting projects with an OpenGL-like API to niche architectures (TinyGL is not OpenGL compliant).
+
+**TinyGL uses too much memory**
+- Tune the limits for textures, display lists, lights, and related features in `include/zgl.h` or `include/zfeatures.h`.
+- Lower the texture size (e.g., 64x64 or 32x32) via `TGL_FEATURE_TEXTURE_POW2` for tighter footprints.
+
+**How do I use 16-bit color?**
+Set the feature flags in `include/zfeatures.h`:
+```c
+#define TGL_NO_COPY_COLOR 0xff00ff
+#define TGL_NO_DRAW_COLOR 0xff00ff
+#define TGL_COLOR_MASK    0x00ffffff
+
+#define TGL_FEATURE_16_BITS 0
+#define TGL_FEATURE_32_BITS 1
+```
+Flip `TGL_FEATURE_16_BITS` to `1` and `TGL_FEATURE_32_BITS` to `0` for 16-bit output. Adjust the NO_COPY/NO_DRAW constants to match your chosen format if you disable drawing or copying.
 
 ## Related Projects
 * [PortableGL](https://github.com/rswinkle/PortableGL) - OpenGL 3.x core in clean C99 as a single header library
