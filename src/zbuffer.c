@@ -60,6 +60,10 @@ ZBuffer *ZB_open(GLint xsize,
 
     zb->current_texture = NULL;
 
+#if TGL_HAS(DIRTY_RECTANGLE)
+    zb->dirty_rect.valid = 0;
+#endif
+
     return zb;
 error:
     gl_free(zb);
@@ -120,6 +124,11 @@ GLint ZB_resize(ZBuffer *zb, void *frame_buffer, GLint xsize, GLint ysize)
         zb->frame_buffer_allocated = 0;
     }
 
+#if TGL_HAS(DIRTY_RECTANGLE)
+    /* Reset dirty rectangle after resize to avoid stale bounds */
+    ZB_resetDirtyRect(zb);
+#endif
+
     return 0;
 }
 
@@ -133,12 +142,124 @@ PIXEL pxReverse32(PIXEL x)
 }
 #endif
 
+/*
+ * Dirty rectangle tracking functions
+ */
+#if TGL_HAS(DIRTY_RECTANGLE)
+
+/* Mark a rectangular region as dirty (needs to be copied) */
+void ZB_markDirty(ZBuffer *zb, GLint xmin, GLint ymin, GLint xmax, GLint ymax)
+{
+    /* Clamp to framebuffer bounds */
+    if (xmin < 0)
+        xmin = 0;
+    if (ymin < 0)
+        ymin = 0;
+    if (xmax >= zb->xsize)
+        xmax = zb->xsize - 1;
+    if (ymax >= zb->ysize)
+        ymax = zb->ysize - 1;
+
+    /* Skip invalid regions */
+    if (xmin > xmax || ymin > ymax)
+        return;
+
+    if (!zb->dirty_rect.valid) {
+        /* First dirty region - initialize */
+        zb->dirty_rect.xmin = xmin;
+        zb->dirty_rect.ymin = ymin;
+        zb->dirty_rect.xmax = xmax;
+        zb->dirty_rect.ymax = ymax;
+        zb->dirty_rect.valid = 1;
+    } else {
+        /* Merge with existing dirty region */
+        if (xmin < zb->dirty_rect.xmin)
+            zb->dirty_rect.xmin = xmin;
+        if (ymin < zb->dirty_rect.ymin)
+            zb->dirty_rect.ymin = ymin;
+        if (xmax > zb->dirty_rect.xmax)
+            zb->dirty_rect.xmax = xmax;
+        if (ymax > zb->dirty_rect.ymax)
+            zb->dirty_rect.ymax = ymax;
+    }
+}
+
+/* Reset the dirty rectangle (called after frame copy) */
+void ZB_resetDirtyRect(ZBuffer *zb)
+{
+    zb->dirty_rect.valid = 0;
+}
+
+/* Mark entire framebuffer as dirty */
+void ZB_markFullDirty(ZBuffer *zb)
+{
+    zb->dirty_rect.xmin = 0;
+    zb->dirty_rect.ymin = 0;
+    zb->dirty_rect.xmax = zb->xsize - 1;
+    zb->dirty_rect.ymax = zb->ysize - 1;
+    zb->dirty_rect.valid = 1;
+}
+
+#endif /* TGL_HAS(DIRTY_RECTANGLE) */
+
 static void ZB_copyBuffer(ZBuffer *zb, void *buf, GLint linesize)
 {
     GLint y;
 #if TGL_HAS(NO_COPY_COLOR)
     GLint i;
 #endif
+
+#if TGL_HAS(DIRTY_RECTANGLE)
+    /* Selective copy: only copy dirty region if valid */
+    GLint y_start, y_end, x_start, x_end, copy_width;
+
+    if (!zb->dirty_rect.valid) {
+        /* No dirty region - nothing to copy */
+        return;
+    }
+
+    y_start = zb->dirty_rect.ymin;
+    y_end = zb->dirty_rect.ymax + 1;
+    x_start = zb->dirty_rect.xmin;
+    x_end = zb->dirty_rect.xmax + 1;
+    copy_width = (x_end - x_start) * PSZB;
+
+#if TGL_HAS(MULTITHREADED_ZB_COPYBUFFER)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (y = y_start; y < y_end; y++) {
+        PIXEL *q = zb->pbuf + y * zb->xsize + x_start;
+        GLubyte *p1 = (GLubyte *) buf + y * linesize + x_start * PSZB;
+#if TGL_HAS(NO_COPY_COLOR)
+        for (i = 0; i < (x_end - x_start); i++) {
+            if ((*(q + i) & TGL_COLOR_MASK) != TGL_NO_COPY_COLOR)
+                *(((PIXEL *) p1) + i) = *(q + i);
+        }
+#else
+        memcpy(p1, q, copy_width);
+#endif
+    }
+#else
+    for (y = y_start; y < y_end; y++) {
+        PIXEL *q = zb->pbuf + y * zb->xsize + x_start;
+        GLubyte *p1 = (GLubyte *) buf + y * linesize + x_start * PSZB;
+#if TGL_HAS(NO_COPY_COLOR)
+        for (i = 0; i < (x_end - x_start); i++) {
+            if ((*(q + i) & TGL_COLOR_MASK) != TGL_NO_COPY_COLOR)
+                *(((PIXEL *) p1) + i) = *(q + i);
+        }
+#else
+        memcpy(p1, q, copy_width);
+#endif
+    }
+#endif
+
+    /* Reset dirty rectangle for next frame */
+    ZB_resetDirtyRect(zb);
+
+#else /* !TGL_HAS(DIRTY_RECTANGLE) - original full-frame copy */
+
 #if TGL_HAS(MULTITHREADED_ZB_COPYBUFFER)
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -173,6 +294,8 @@ static void ZB_copyBuffer(ZBuffer *zb, void *buf, GLint linesize)
 #endif
     }
 #endif
+
+#endif /* TGL_HAS(DIRTY_RECTANGLE) */
 }
 
 #if TGL_FEATURE_RENDER_BITS == 16
@@ -250,6 +373,14 @@ void ZB_clear(ZBuffer *zb,
     GLuint color;
     GLint y;
     PIXEL *pp;
+
+#if TGL_HAS(DIRTY_RECTANGLE)
+    /* Mark entire framebuffer as dirty when clearing color buffer */
+    if (clear_color) {
+        ZB_markFullDirty(zb);
+    }
+#endif
+
     if (clear_z) {
         GLint zbuf_size = zb->xsize * zb->ysize;
         if (z == 0) {

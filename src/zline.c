@@ -3,6 +3,12 @@
 
 #define ZCMP(z, zpix) (!(zbdt) || z >= (zpix))
 
+/* Dirty rectangle helper macros */
+#if TGL_HAS(DIRTY_RECTANGLE)
+#define TGL_MIN2(a, b) (((a) < (b)) ? (a) : (b))
+#define TGL_MAX2(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
 /* TODO: Implement point size. */
 /* TODO: Implement blending for lines and points. */
 
@@ -12,6 +18,20 @@ void ZB_plot(ZBuffer *zb, ZBufferPoint *p)
     GLubyte zbdw = zb->depth_write;
     GLubyte zbdt = zb->depth_test;
     GLfloat zbps = zb->pointsize;
+
+#if TGL_HAS(DIRTY_RECTANGLE)
+    /* Mark dirty region for point (may have point size) */
+    if (zbps <= 1.0f) {
+        ZB_markDirty(zb, p->x, p->y, p->x, p->y);
+    } else {
+        GLfloat hzbps = zbps / 2.0f;
+        GLint xmin = (GLint) ((GLfloat) p->x - hzbps);
+        GLint xmax = (GLint) ((GLfloat) p->x + hzbps);
+        GLint ymin = (GLint) ((GLfloat) p->y - hzbps);
+        GLint ymax = (GLint) ((GLfloat) p->y + hzbps);
+        ZB_markDirty(zb, xmin, ymin, xmax, ymax);
+    }
+#endif
     TGL_BLEND_VARS
     zz = p->z >> ZB_POINT_Z_FRAC_BITS;
 
@@ -108,6 +128,15 @@ void ZB_line_z(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2)
 {
     GLint color1, color2;
 
+#if TGL_HAS(DIRTY_RECTANGLE)
+    /* Mark dirty region for line bounding box */
+    GLint xmin = TGL_MIN2(p1->x, p2->x);
+    GLint xmax = TGL_MAX2(p1->x, p2->x);
+    GLint ymin = TGL_MIN2(p1->y, p2->y);
+    GLint ymax = TGL_MAX2(p1->y, p2->y);
+    ZB_markDirty(zb, xmin, ymin, xmax, ymax);
+#endif
+
     color1 = RGB_TO_PIXEL(p1->r, p1->g, p1->b);
     color2 = RGB_TO_PIXEL(p2->r, p2->g, p2->b);
 
@@ -122,6 +151,15 @@ void ZB_line_z(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2)
 void ZB_line(ZBuffer *zb, ZBufferPoint *p1, ZBufferPoint *p2)
 {
     GLint color1, color2;
+
+#if TGL_HAS(DIRTY_RECTANGLE)
+    /* Mark dirty region for line bounding box */
+    GLint xmin = TGL_MIN2(p1->x, p2->x);
+    GLint xmax = TGL_MAX2(p1->x, p2->x);
+    GLint ymin = TGL_MIN2(p1->y, p2->y);
+    GLint ymax = TGL_MAX2(p1->y, p2->y);
+    ZB_markDirty(zb, xmin, ymin, xmax, ymax);
+#endif
 
     color1 = RGB_TO_PIXEL(p1->r, p1->g, p1->b);
     color2 = RGB_TO_PIXEL(p2->r, p2->g, p2->b);

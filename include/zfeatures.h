@@ -87,6 +87,12 @@
 #define TGL_FEATURE_MULTITHREADED_ZB_COPYBUFFER 0
 
 /*
+ * Dirty rectangle optimization - track modified screen regions and only copy
+ * changed portions to the destination framebuffer.
+ */
+#define TGL_FEATURE_DIRTY_RECTANGLE 1
+
+/*
  * TGL_FEATURE_ALIGNAS assumes that the implementation's malloc (AND REALLOC)
  * are 16-byte aligned.
  *

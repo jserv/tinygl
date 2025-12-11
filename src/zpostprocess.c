@@ -7,6 +7,10 @@ void glPostProcess(
 {
     GLint i, j;
     GLContext *c = gl_get_context();
+#if TGL_HAS(DIRTY_RECTANGLE)
+    /* Post-processing modifies the entire framebuffer */
+    ZB_markFullDirty(c->zb);
+#endif
 #ifdef _OPENMP
 #pragma omp parallel for collapse(2)
 #endif

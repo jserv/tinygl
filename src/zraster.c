@@ -171,6 +171,17 @@ void glopDrawPixels(GLParam *p)
     if (!c->rasterposvalid)
         return;
 
+#if TGL_HAS(DIRTY_RECTANGLE)
+    /* Mark dirty region for the pixel rectangle being drawn */
+    {
+        GLint xmin = (GLint) rastpos.v[0];
+        GLint xmax = (GLint) (rastpos.v[0] + (GLfloat) w * pzoomx);
+        GLint ymin = (GLint) (rastpos.v[1] - (GLfloat) h * pzoomy);
+        GLint ymax = (GLint) rastpos.v[1];
+        ZB_markDirty(zb, xmin, ymin, xmax, ymax);
+    }
+#endif
+
 #if TGL_HAS(ALT_RENDERMODES)
     if (c->render_mode == GL_SELECT) {
         gl_add_select(zz, zz);

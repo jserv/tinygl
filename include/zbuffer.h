@@ -265,6 +265,14 @@ typedef GLushort PIXEL;
     }
 #endif
 
+/* Dirty rectangle for tracking modified screen regions */
+#if TGL_HAS(DIRTY_RECTANGLE)
+typedef struct {
+    GLint xmin, ymin, xmax, ymax;
+    GLubyte valid; /* 1 if dirty region is set, 0 otherwise */
+} ZBDirtyRect;
+#endif
+
 typedef struct {
     GLushort *zbuf;
     PIXEL *pbuf;
@@ -286,6 +294,9 @@ typedef struct {
     GLint depth_test;
     GLint depth_write;
     GLubyte frame_buffer_allocated;
+#if TGL_HAS(DIRTY_RECTANGLE)
+    ZBDirtyRect dirty_rect;
+#endif
 } ZBuffer;
 
 typedef struct {
@@ -319,6 +330,13 @@ void ZB_clear(ZBuffer *zb,
               GLint b);
 /* linesize is in BYTES */
 void ZB_copyFrameBuffer(ZBuffer *zb, void *buf, GLint linesize);
+
+/* Dirty rectangle functions */
+#if TGL_HAS(DIRTY_RECTANGLE)
+void ZB_markDirty(ZBuffer *zb, GLint xmin, GLint ymin, GLint xmax, GLint ymax);
+void ZB_resetDirtyRect(ZBuffer *zb);
+void ZB_markFullDirty(ZBuffer *zb);
+#endif
 
 /* zdither.c */
 

@@ -1231,6 +1231,23 @@ void ZB_fillTriangleMappingPerspectiveNOBLEND_DT1_DW1(ZBuffer *zb,
  * specialized variant based on runtime state.
  */
 
+/* Dirty rectangle helper macros */
+#if TGL_HAS(DIRTY_RECTANGLE)
+#define TGL_MIN3(a, b, c) \
+    (((a) < (b)) ? (((a) < (c)) ? (a) : (c)) : (((b) < (c)) ? (b) : (c)))
+#define TGL_MAX3(a, b, c) \
+    (((a) > (b)) ? (((a) > (c)) ? (a) : (c)) : (((b) > (c)) ? (b) : (c)))
+
+#define MARK_TRIANGLE_DIRTY(zb, p0, p1, p2)               \
+    do {                                                  \
+        GLint xmin = TGL_MIN3((p0)->x, (p1)->x, (p2)->x); \
+        GLint xmax = TGL_MAX3((p0)->x, (p1)->x, (p2)->x); \
+        GLint ymin = TGL_MIN3((p0)->y, (p1)->y, (p2)->y); \
+        GLint ymax = TGL_MAX3((p0)->y, (p1)->y, (p2)->y); \
+        ZB_markDirty((zb), xmin, ymin, xmax, ymax);       \
+    } while (0)
+#endif
+
 void ZB_fillTriangleFlat(ZBuffer *zb,
                          ZBufferPoint *p0,
                          ZBufferPoint *p1,
@@ -1239,6 +1256,10 @@ void ZB_fillTriangleFlat(ZBuffer *zb,
     GLint dt = zb->depth_test != 0;
     GLint dw = zb->depth_write != 0;
     int idx = (dt << 1) | dw;
+
+#if TGL_HAS(DIRTY_RECTANGLE)
+    MARK_TRIANGLE_DIRTY(zb, p0, p1, p2);
+#endif
 
     switch (idx) {
     case 0:
@@ -1265,6 +1286,10 @@ void ZB_fillTriangleFlatNOBLEND(ZBuffer *zb,
     GLint dw = zb->depth_write != 0;
     int idx = (dt << 1) | dw;
 
+#if TGL_HAS(DIRTY_RECTANGLE)
+    MARK_TRIANGLE_DIRTY(zb, p0, p1, p2);
+#endif
+
     switch (idx) {
     case 0:
         ZB_fillTriangleFlatNOBLEND_DT0_DW0(zb, p0, p1, p2);
@@ -1289,6 +1314,10 @@ void ZB_fillTriangleSmooth(ZBuffer *zb,
     GLint dt = zb->depth_test != 0;
     GLint dw = zb->depth_write != 0;
     int idx = (dt << 1) | dw;
+
+#if TGL_HAS(DIRTY_RECTANGLE)
+    MARK_TRIANGLE_DIRTY(zb, p0, p1, p2);
+#endif
 
     switch (idx) {
     case 0:
@@ -1315,6 +1344,10 @@ void ZB_fillTriangleSmoothNOBLEND(ZBuffer *zb,
     GLint dw = zb->depth_write != 0;
     int idx = (dt << 1) | dw;
 
+#if TGL_HAS(DIRTY_RECTANGLE)
+    MARK_TRIANGLE_DIRTY(zb, p0, p1, p2);
+#endif
+
     switch (idx) {
     case 0:
         ZB_fillTriangleSmoothNOBLEND_DT0_DW0(zb, p0, p1, p2);
@@ -1340,6 +1373,10 @@ void ZB_fillTriangleMappingPerspective(ZBuffer *zb,
     GLint dw = zb->depth_write != 0;
     int idx = (dt << 1) | dw;
 
+#if TGL_HAS(DIRTY_RECTANGLE)
+    MARK_TRIANGLE_DIRTY(zb, p0, p1, p2);
+#endif
+
     switch (idx) {
     case 0:
         ZB_fillTriangleMappingPerspective_DT0_DW0(zb, p0, p1, p2);
@@ -1364,6 +1401,10 @@ void ZB_fillTriangleMappingPerspectiveNOBLEND(ZBuffer *zb,
     GLint dt = zb->depth_test != 0;
     GLint dw = zb->depth_write != 0;
     int idx = (dt << 1) | dw;
+
+#if TGL_HAS(DIRTY_RECTANGLE)
+    MARK_TRIANGLE_DIRTY(zb, p0, p1, p2);
+#endif
 
     switch (idx) {
     case 0:

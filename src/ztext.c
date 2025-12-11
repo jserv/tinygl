@@ -45,9 +45,15 @@ static void renderchar(GLbyte *bitmap, GLint _x, GLint _y, GLuint p)
 void glopPlotPixel(GLParam *p)
 {
     GLContext *c = gl_get_context();
-    GLint x = p[1].i;
+    GLint idx = p[1].i;
     PIXEL pix = p[2].ui;
-    c->zb->pbuf[x] = pix;
+#if TGL_HAS(DIRTY_RECTANGLE)
+    /* Convert linear index back to x,y for dirty marking */
+    GLint px = idx % c->zb->xsize;
+    GLint py = idx / c->zb->xsize;
+    ZB_markDirty(c->zb, px, py, px, py);
+#endif
+    c->zb->pbuf[idx] = pix;
 }
 
 void glPlotPixel(GLint x, GLint y, GLuint pix)
