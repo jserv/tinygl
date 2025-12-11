@@ -320,7 +320,7 @@ int main(int argc, char **argv)
     GLuint buffers[4];  // pos,color,normal,texcoord
     int dlExists = 0;
     int doTextures = 1;
-    char *modelName = "extrude.obj";
+    char *modelName = "assets/extrude.obj";
     unsigned int fps = 0;
     if (argc > 1) {
         char *larg = argv[0];
@@ -555,9 +555,9 @@ int main(int argc, char **argv)
     if (doTextures) {
         int sw = 0, sh = 0, sc = 0;  // sc goes unused.
 #if TGL_FEATURE_NO_DRAW_COLOR == 1
-        uchar *source_data = stbi_load("tex_hole.png", &sw, &sh, &sc, 3);
+        uchar *source_data = stbi_load("assets/tex_hole.png", &sw, &sh, &sc, 3);
 #else
-        uchar *source_data = stbi_load("tex.jpg", &sw, &sh, &sc, 3);
+        uchar *source_data = stbi_load("assets/tex.jpg", &sw, &sh, &sc, 3);
 #endif
         if (source_data) {
             tex = loadRGBTexture(source_data, sw, sh);

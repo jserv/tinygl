@@ -10,17 +10,17 @@
 # Ignore build outputs
 *.o
 .*.o.d
-lib/*.a
+lib/
 
 # Examples
-examples/raw/render.png
-examples/raw/gears
-examples/sdl/game
-examples/sdl/gears
-examples/sdl/hello
-examples/sdl/menu
-examples/sdl/model
-examples/sdl/texture
+render.png
+gears
+game
+gears_sdl
+hello
+menu
+model
+texture
 
 # Downloaded files
 examples/stb_image.h

@@ -95,7 +95,7 @@ void initScene()
     /*
     {
         int sw = 0, sh = 0, sc = 0; //sc goes unused.
-        uchar* source_data = stbi_load("texture.png", &sw, &sh, &sc, 3);
+        uchar* source_data = stbi_load("assets/texture.png", &sw, &sh, &sc, 3);
         if(source_data){
             tex = loadRGBTexture(source_data, sw, sh);
             free(source_data);

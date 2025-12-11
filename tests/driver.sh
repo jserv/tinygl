@@ -173,7 +173,7 @@ fi
 
 printf "  %-40s " "raw examples build..."
 if make -s raw_examples >/dev/null 2>&1; then
-    if [ -x examples/raw/gears ]; then
+    if [ -x ./gears ]; then
         log_pass "raw examples build"
     else
         log_fail "raw examples build" "gears executable not found"
@@ -188,7 +188,7 @@ echo ""
 echo "--- Rendering Tests ---"
 
 printf "  %-40s " "gears render..."
-cd "$PROJECT_DIR/examples/raw"
+cd "$PROJECT_DIR"
 rm -f render.png
 
 if ./gears >/dev/null 2>&1; then
@@ -216,8 +216,6 @@ if ./gears >/dev/null 2>&1; then
 else
     log_fail "gears render" "execution failed"
 fi
-
-cd "$PROJECT_DIR"
 echo ""
 
 # API coverage tests
