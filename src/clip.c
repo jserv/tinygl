@@ -1,5 +1,6 @@
 #include "msghandling.h"
 #include "zgl.h"
+#include "ztriangle_variants.h"
 
 /* fill triangle profile */
 /* #define PROFILE */
@@ -446,8 +447,12 @@ int count_triangles, count_triangles_textured, count_pixels;
 void gl_draw_triangle_fill(GLVertex *p0, GLVertex *p1, GLVertex *p2)
 {
     GLContext *c = gl_get_context();
+    ZBuffer *zb = c->zb;
+    GLint dt = zb->depth_test;
+    GLint dw = zb->depth_write;
+    ZB_fillTriangleFunc func;
+
     if (c->texture_2d_enabled) {
-        /* if(c->current_texture)*/
 #if TGL_HAS(LIT_TEXTURES)
         if (c->current_shade_model != GL_SMOOTH) {
             p1->zp.r = p2->zp.r;
@@ -459,37 +464,40 @@ void gl_draw_triangle_fill(GLVertex *p0, GLVertex *p1, GLVertex *p2)
             p0->zp.b = p2->zp.b;
         }
 #endif
-
-        ZB_setTexture(c->zb, c->current_texture->images[0].pixmap);
+        ZB_setTexture(zb, c->current_texture->images[0].pixmap);
 #if TGL_HAS(BLEND)
-        if (c->zb->enable_blend)
-            ZB_fillTriangleMappingPerspective(c->zb, &p0->zp, &p1->zp, &p2->zp);
+        if (zb->enable_blend)
+            func = ZB_getTriangleFunc(zb_triangle_dispatch.textured, dt, dw);
         else
-            ZB_fillTriangleMappingPerspectiveNOBLEND(c->zb, &p0->zp, &p1->zp,
-                                                     &p2->zp);
+            func = ZB_getTriangleFunc(zb_triangle_dispatch.textured_noblend, dt,
+                                      dw);
 #else
-        ZB_fillTriangleMappingPerspectiveNOBLEND(c->zb, &p0->zp, &p1->zp,
-                                                 &p2->zp);
+        func =
+            ZB_getTriangleFunc(zb_triangle_dispatch.textured_noblend, dt, dw);
 #endif
     } else if (c->current_shade_model == GL_SMOOTH) {
 #if TGL_HAS(BLEND)
-        if (c->zb->enable_blend)
-            ZB_fillTriangleSmooth(c->zb, &p0->zp, &p1->zp, &p2->zp);
+        if (zb->enable_blend)
+            func = ZB_getTriangleFunc(zb_triangle_dispatch.smooth, dt, dw);
         else
-            ZB_fillTriangleSmoothNOBLEND(c->zb, &p0->zp, &p1->zp, &p2->zp);
+            func =
+                ZB_getTriangleFunc(zb_triangle_dispatch.smooth_noblend, dt, dw);
 #else
-        ZB_fillTriangleSmoothNOBLEND(c->zb, &p0->zp, &p1->zp, &p2->zp);
+        func = ZB_getTriangleFunc(zb_triangle_dispatch.smooth_noblend, dt, dw);
 #endif
     } else {
 #if TGL_HAS(BLEND)
-        if (c->zb->enable_blend)
-            ZB_fillTriangleFlat(c->zb, &p0->zp, &p1->zp, &p2->zp);
+        if (zb->enable_blend)
+            func = ZB_getTriangleFunc(zb_triangle_dispatch.flat, dt, dw);
         else
-            ZB_fillTriangleFlatNOBLEND(c->zb, &p0->zp, &p1->zp, &p2->zp);
+            func =
+                ZB_getTriangleFunc(zb_triangle_dispatch.flat_noblend, dt, dw);
 #else
-        ZB_fillTriangleFlatNOBLEND(c->zb, &p0->zp, &p1->zp, &p2->zp);
+        func = ZB_getTriangleFunc(zb_triangle_dispatch.flat_noblend, dt, dw);
 #endif
     }
+
+    func(zb, &p0->zp, &p1->zp, &p2->zp);
 }
 
 /* Render a clipped triangle in line mode */
