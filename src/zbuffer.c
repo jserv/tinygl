@@ -251,7 +251,17 @@ void ZB_clear(ZBuffer *zb,
     GLint y;
     PIXEL *pp;
     if (clear_z) {
-        memset_s(zb->zbuf, z, zb->xsize * zb->ysize);
+        GLint zbuf_size = zb->xsize * zb->ysize;
+        if (z == 0) {
+            /* All bytes 0x00 - use optimized memset */
+            memset(zb->zbuf, 0, zbuf_size * sizeof(GLushort));
+        } else if ((z & 0xFFFF) == 0xFFFF) {
+            /* All bytes 0xFF - use optimized memset (catches -1 and 0xFFFF) */
+            memset(zb->zbuf, 0xFF, zbuf_size * sizeof(GLushort));
+        } else {
+            /* Arbitrary 16-bit value - use manual loop */
+            memset_s(zb->zbuf, z, zbuf_size);
+        }
     }
     if (clear_color) {
         pp = zb->pbuf;
