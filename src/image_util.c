@@ -37,6 +37,24 @@ void gl_convertRGB_to_8A8R8G8B(GLuint *pixmap,
 }
 
 /*
+ * Convert RGBA (4 bytes/pixel) to internal 0xAARRGGBB format,
+ * preserving the alpha channel.
+ */
+void gl_convertRGBA_to_8A8R8G8B(GLuint *pixmap,
+                                GLubyte *rgba,
+                                GLint xsize,
+                                GLint ysize)
+{
+    GLubyte *p = rgba;
+    GLint n = xsize * ysize;
+    for (GLint i = 0; i < n; i++) {
+        pixmap[i] = (((GLuint) p[3]) << 24) | (((GLuint) p[0]) << 16) |
+                    (((GLuint) p[1]) << 8) | (((GLuint) p[2]));
+        p += 4;
+    }
+}
+
+/*
  * linear GLinterpolation with xf,yf normalized to 2^16
  */
 
@@ -131,6 +149,41 @@ void gl_resizeImageNoInterpolate(GLubyte *dest,
             pix[2] = pix1[2];
 
             pix += 3;
+            x1 += x1inc;
+        }
+        y1 += y1inc;
+    }
+}
+
+/* resizing RGBA (4 channels) with no interpolation */
+
+void gl_resizeImageNoInterpolate4(GLubyte *dest,
+                                  GLint xsize_dest,
+                                  GLint ysize_dest,
+                                  GLubyte *src,
+                                  GLint xsize_src,
+                                  GLint ysize_src)
+{
+    GLubyte *pix = dest, *pix_src = src;
+
+    GLint x1inc =
+        (GLint) ((GLfloat) ((xsize_src) << FRAC_BITS) / (GLfloat) (xsize_dest));
+    GLint y1inc =
+        (GLint) ((GLfloat) ((ysize_src) << FRAC_BITS) / (GLfloat) (ysize_dest));
+
+    GLint y1 = 0;
+    for (GLint y = 0; y < ysize_dest; y++) {
+        GLint x1 = 0;
+        for (GLint x = 0; x < xsize_dest; x++) {
+            GLint xi = x1 >> FRAC_BITS, yi = y1 >> FRAC_BITS;
+            GLubyte *pix1 = pix_src + (yi * xsize_src + xi) * 4;
+
+            pix[0] = pix1[0];
+            pix[1] = pix1[1];
+            pix[2] = pix1[2];
+            pix[3] = pix1[3];
+
+            pix += 4;
             x1 += x1inc;
         }
         y1 += y1inc;

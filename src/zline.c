@@ -47,7 +47,7 @@ void ZB_plot(ZBuffer *zb, ZBufferPoint *p)
             if (!zb->enable_blend)
                 *pp = RGB_TO_PIXEL(p->r, p->g, p->b);
             else
-                TGL_BLEND_FUNC_RGB(p->r, p->g, p->b, (*pp))
+                TGL_BLEND_FUNC_RGB(p->r, p->g, p->b, p->a, (*pp))
 #else
             *pp = RGB_TO_PIXEL(p->r, p->g, p->b);
 #endif
@@ -76,7 +76,7 @@ void ZB_plot(ZBuffer *zb, ZBufferPoint *p)
                     if (!zb->enable_blend)
                         *pp = col;
                     else
-                        TGL_BLEND_FUNC_RGB(p->r, p->g, p->b, (*pp))
+                        TGL_BLEND_FUNC_RGB(p->r, p->g, p->b, p->a, (*pp))
 #else
                     *pp = col;
 #endif

@@ -25,3 +25,4 @@ texture
 # Downloaded files
 examples/stb_image.h
 examples/stb_image_write.h
+*.d

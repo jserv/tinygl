@@ -344,26 +344,32 @@ void glopTexImage2D(GLParam *p)
     void *pixels = p[9].p;
     GLubyte *pixels1;
     GLint do_free = 0;
+    GLint is_rgba = (format == GL_RGBA && components == 4);
     GLContext *c = gl_get_context();
     {
 #if TGL_HAS(ERROR_CHECK)
         if (!(c->current_texture != NULL && target == GL_TEXTURE_2D &&
-              level == 0 && components == 3 && border == 0 &&
-              format == GL_RGB && type == GL_UNSIGNED_BYTE))
+              level == 0 &&
+              ((components == 3 && format == GL_RGB) ||
+               (components == 4 && format == GL_RGBA)) &&
+              border == 0 && type == GL_UNSIGNED_BYTE))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 
 #else
         if (!(c->current_texture != NULL && target == GL_TEXTURE_2D &&
-              level == 0 && components == 3 && border == 0 &&
-              format == GL_RGB && type == GL_UNSIGNED_BYTE))
+              level == 0 &&
+              ((components == 3 && format == GL_RGB) ||
+               (components == 4 && format == GL_RGBA)) &&
+              border == 0 && type == GL_UNSIGNED_BYTE))
             gl_fatal_error(
                 "glTexImage2D: combination of parameters not handled!!");
 #endif
     }
     if (width != TGL_FEATURE_TEXTURE_DIM || height != TGL_FEATURE_TEXTURE_DIM) {
+        GLint bpp = is_rgba ? 4 : 3;
         pixels1 = gl_malloc(TGL_FEATURE_TEXTURE_DIM * TGL_FEATURE_TEXTURE_DIM *
-                            3); /* GUARDED*/
+                            bpp); /* GUARDED*/
         if (!pixels1) {
 #if TGL_HAS(ERROR_CHECK)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
@@ -375,9 +381,14 @@ void glopTexImage2D(GLParam *p)
         /* no GLinterpolation is done here to respect the original image
          * aliasing ! */
 
-        gl_resizeImageNoInterpolate(pixels1, TGL_FEATURE_TEXTURE_DIM,
-                                    TGL_FEATURE_TEXTURE_DIM, pixels, width,
-                                    height);
+        if (is_rgba)
+            gl_resizeImageNoInterpolate4(pixels1, TGL_FEATURE_TEXTURE_DIM,
+                                         TGL_FEATURE_TEXTURE_DIM, pixels, width,
+                                         height);
+        else
+            gl_resizeImageNoInterpolate(pixels1, TGL_FEATURE_TEXTURE_DIM,
+                                        TGL_FEATURE_TEXTURE_DIM, pixels, width,
+                                        height);
         do_free = 1;
         width = TGL_FEATURE_TEXTURE_DIM;
         height = TGL_FEATURE_TEXTURE_DIM;
@@ -389,7 +400,10 @@ void glopTexImage2D(GLParam *p)
     im->xsize = width;
     im->ysize = height;
 #if TGL_FEATURE_RENDER_BITS == 32
-    gl_convertRGB_to_8A8R8G8B(im->pixmap, pixels1, width, height);
+    if (is_rgba)
+        gl_convertRGBA_to_8A8R8G8B(im->pixmap, pixels1, width, height);
+    else
+        gl_convertRGB_to_8A8R8G8B(im->pixmap, pixels1, width, height);
 #elif TGL_FEATURE_RENDER_BITS == 16
     gl_convertRGB_to_5R6G5B(im->pixmap, pixels1, width, height);
 #else

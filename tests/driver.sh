@@ -600,6 +600,354 @@ int main(void) {
 echo ""
 fi
 
+# Alpha blending tests
+if [ "$RUN_API" -eq 1 ]; then
+echo "--- Alpha Blending Tests ---"
+
+# Common header for alpha tests - includes direct framebuffer access
+ALPHA_HEADER='
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <TGL/gl.h>
+#include "zbuffer.h"
+
+static ZBuffer *zb;
+static void setup(void) {
+    zb = ZB_open(64, 64, ZB_MODE_RGBA, NULL);
+    if (!zb) exit(1);
+    glInit(zb);
+    glViewport(0, 0, 64, 64);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+    glShadeModel(GL_FLAT);
+}
+static void teardown(void) {
+    ZB_close(zb);
+    glClose();
+}
+/* Read pixel at (x,y) from framebuffer. Returns 0xAARRGGBB. */
+static unsigned int read_pixel(int x, int y) {
+    return ((unsigned int *)zb->pbuf)[y * zb->xsize + x];
+}
+/* Check if two color channel values are close enough (tolerance for rounding) */
+static int channel_close(int a, int b, int tol) {
+    int diff = a - b;
+    if (diff < 0) diff = -diff;
+    return diff <= tol;
+}
+'
+
+# Test: alpha=0 should be fully transparent (untextured)
+run_test "alpha_zero_transparent" "$ALPHA_HEADER
+int main(void) {
+    unsigned int pix;
+    setup();
+
+    /* Red background */
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    /* Draw green triangle with alpha=0 (should be invisible) */
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-0.8f, -0.8f, 0.0f);
+    glVertex3f( 0.8f, -0.8f, 0.0f);
+    glVertex3f( 0.0f,  0.8f, 0.0f);
+    glEnd();
+
+    /* Center pixel should still be red background */
+    pix = read_pixel(32, 32);
+    /* Check red=255, green=0, blue=0 */
+    if (((pix >> 16) & 0xFF) < 250 || ((pix >> 8) & 0xFF) > 5 || (pix & 0xFF) > 5) {
+        fprintf(stderr, \"alpha=0 not transparent: pixel=0x%08X\\n\", pix);
+        teardown();
+        return 1;
+    }
+
+    teardown();
+    return 0;
+}"
+
+# Test: alpha=255 should be fully opaque (untextured)
+run_test "alpha_full_opaque" "$ALPHA_HEADER
+int main(void) {
+    unsigned int pix;
+    setup();
+
+    /* Red background */
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    /* Draw green triangle with alpha=1.0 (fully opaque) */
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-0.8f, -0.8f, 0.0f);
+    glVertex3f( 0.8f, -0.8f, 0.0f);
+    glVertex3f( 0.0f,  0.8f, 0.0f);
+    glEnd();
+
+    /* Center pixel should be green */
+    pix = read_pixel(32, 32);
+    if (((pix >> 16) & 0xFF) > 5 || ((pix >> 8) & 0xFF) < 250 || (pix & 0xFF) > 5) {
+        fprintf(stderr, \"alpha=1 not opaque: pixel=0x%08X\\n\", pix);
+        teardown();
+        return 1;
+    }
+
+    teardown();
+    return 0;
+}"
+
+# Test: alpha=0.5 should blend 50/50 (untextured)
+run_test "alpha_half_blend" "$ALPHA_HEADER
+int main(void) {
+    unsigned int pix;
+    int r, g;
+    setup();
+
+    /* Red background */
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    /* Draw green triangle with alpha=0.5 */
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.0f, 1.0f, 0.0f, 0.5f);
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-0.8f, -0.8f, 0.0f);
+    glVertex3f( 0.8f, -0.8f, 0.0f);
+    glVertex3f( 0.0f,  0.8f, 0.0f);
+    glEnd();
+
+    /* Center pixel should be ~(127,127,0) - blend of red and green */
+    pix = read_pixel(32, 32);
+    r = (pix >> 16) & 0xFF;
+    g = (pix >> 8) & 0xFF;
+    /* Both red and green should be roughly half intensity */
+    if (!channel_close(r, 127, 10) || !channel_close(g, 127, 10)) {
+        fprintf(stderr, \"alpha=0.5 blend wrong: pixel=0x%08X (r=%d g=%d)\\n\", pix, r, g);
+        teardown();
+        return 1;
+    }
+
+    teardown();
+    return 0;
+}"
+
+# Test: smooth shading with alpha interpolation
+run_test "alpha_smooth_interp" "$ALPHA_HEADER
+int main(void) {
+    unsigned int pix;
+    int r;
+    setup();
+
+    /* Red background */
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    /* Triangle: bottom-left fully opaque blue, bottom-right fully opaque blue,
+       top fully transparent blue. Center should have partial transparency. */
+    glBegin(GL_TRIANGLES);
+    glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+    glVertex3f(-0.8f, -0.8f, 0.0f);
+    glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+    glVertex3f( 0.8f, -0.8f, 0.0f);
+    glColor4f(0.0f, 0.0f, 1.0f, 0.0f);
+    glVertex3f( 0.0f,  0.8f, 0.0f);
+    glEnd();
+
+    /* Center pixel should have some red bleeding through (partial alpha) */
+    pix = read_pixel(32, 32);
+    r = (pix >> 16) & 0xFF;
+    /* Red should be non-zero (background shows through) but not full red */
+    if (r < 20 || r > 235) {
+        fprintf(stderr, \"smooth alpha interp failed: pixel=0x%08X (r=%d)\\n\", pix, r);
+        teardown();
+        return 1;
+    }
+
+    teardown();
+    return 0;
+}"
+
+# Test: RGBA texture alpha=0 should be transparent
+run_test "alpha_texture_transparent" "$ALPHA_HEADER
+#define TEX_SIZE 256
+int main(void) {
+    static unsigned char rgba[TEX_SIZE * TEX_SIZE * 4];
+    unsigned int pix;
+    GLuint tex;
+    int i;
+    setup();
+
+    /* Fill texture: green with alpha=0 (fully transparent) */
+    for (i = 0; i < TEX_SIZE * TEX_SIZE; i++) {
+        rgba[i*4+0] = 0;    /* R */
+        rgba[i*4+1] = 255;  /* G */
+        rgba[i*4+2] = 0;    /* B */
+        rgba[i*4+3] = 0;    /* A = fully transparent */
+    }
+
+    /* Red background */
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, 4, TEX_SIZE, TEX_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    glBegin(GL_TRIANGLES);
+    glTexCoord2f(0, 0); glVertex3f(-0.8f, -0.8f, 0.0f);
+    glTexCoord2f(1, 0); glVertex3f( 0.8f, -0.8f, 0.0f);
+    glTexCoord2f(0.5f, 1); glVertex3f( 0.0f,  0.8f, 0.0f);
+    glEnd();
+
+    /* Center pixel should still be red (texture is fully transparent) */
+    pix = read_pixel(32, 32);
+    if (((pix >> 16) & 0xFF) < 250 || ((pix >> 8) & 0xFF) > 5 || (pix & 0xFF) > 5) {
+        fprintf(stderr, \"RGBA tex alpha=0 not transparent: pixel=0x%08X\\n\", pix);
+        glDeleteTextures(1, &tex);
+        teardown();
+        return 1;
+    }
+
+    glDeleteTextures(1, &tex);
+    teardown();
+    return 0;
+}"
+
+# Test: RGBA texture alpha=255 should be fully opaque
+run_test "alpha_texture_opaque" "$ALPHA_HEADER
+#define TEX_SIZE 256
+int main(void) {
+    static unsigned char rgba[TEX_SIZE * TEX_SIZE * 4];
+    unsigned int pix;
+    GLuint tex;
+    int i;
+    setup();
+
+    /* Fill texture: blue with alpha=255 (fully opaque) */
+    for (i = 0; i < TEX_SIZE * TEX_SIZE; i++) {
+        rgba[i*4+0] = 0;    /* R */
+        rgba[i*4+1] = 0;    /* G */
+        rgba[i*4+2] = 255;  /* B */
+        rgba[i*4+3] = 255;  /* A = fully opaque */
+    }
+
+    /* Red background */
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, 4, TEX_SIZE, TEX_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    glBegin(GL_TRIANGLES);
+    glTexCoord2f(0, 0); glVertex3f(-0.8f, -0.8f, 0.0f);
+    glTexCoord2f(1, 0); glVertex3f( 0.8f, -0.8f, 0.0f);
+    glTexCoord2f(0.5f, 1); glVertex3f( 0.0f,  0.8f, 0.0f);
+    glEnd();
+
+    /* Center pixel should be blue (texture is fully opaque) */
+    pix = read_pixel(32, 32);
+    if (((pix >> 16) & 0xFF) > 5 || ((pix >> 8) & 0xFF) > 5 || (pix & 0xFF) < 250) {
+        fprintf(stderr, \"RGBA tex alpha=255 not opaque: pixel=0x%08X\\n\", pix);
+        glDeleteTextures(1, &tex);
+        teardown();
+        return 1;
+    }
+
+    glDeleteTextures(1, &tex);
+    teardown();
+    return 0;
+}"
+
+# Test: RGBA texture with partial alpha should blend
+run_test "alpha_texture_half_blend" "$ALPHA_HEADER
+#define TEX_SIZE 256
+int main(void) {
+    static unsigned char rgba[TEX_SIZE * TEX_SIZE * 4];
+    unsigned int pix;
+    GLuint tex;
+    int i, r, b;
+    setup();
+
+    /* Fill texture: blue with alpha=128 (half transparent) */
+    for (i = 0; i < TEX_SIZE * TEX_SIZE; i++) {
+        rgba[i*4+0] = 0;    /* R */
+        rgba[i*4+1] = 0;    /* G */
+        rgba[i*4+2] = 255;  /* B */
+        rgba[i*4+3] = 128;  /* A = half */
+    }
+
+    /* Red background */
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, 4, TEX_SIZE, TEX_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    glBegin(GL_TRIANGLES);
+    glTexCoord2f(0, 0); glVertex3f(-0.8f, -0.8f, 0.0f);
+    glTexCoord2f(1, 0); glVertex3f( 0.8f, -0.8f, 0.0f);
+    glTexCoord2f(0.5f, 1); glVertex3f( 0.0f,  0.8f, 0.0f);
+    glEnd();
+
+    /* Center pixel should be ~(127, 0, 127) - blend of red bg and blue tex */
+    pix = read_pixel(32, 32);
+    r = (pix >> 16) & 0xFF;
+    b = pix & 0xFF;
+    if (!channel_close(r, 127, 10) || !channel_close(b, 127, 10)) {
+        fprintf(stderr, \"RGBA tex alpha=0.5 blend wrong: pixel=0x%08X (r=%d b=%d)\\n\", pix, r, b);
+        glDeleteTextures(1, &tex);
+        teardown();
+        return 1;
+    }
+
+    glDeleteTextures(1, &tex);
+    teardown();
+    return 0;
+}"
+
+echo ""
+fi
+
 # Regression tests
 if [ "$RUN_REGRESSION" -eq 1 ]; then
 echo "--- Regression Tests ---"

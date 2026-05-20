@@ -106,9 +106,16 @@ typedef GLushort PIXEL;
 #endif
 
 #if TGL_HAS(LIT_TEXTURES)
+#if TGL_FEATURE_RENDER_BITS == 32
+/* Preserve alpha from the texture pixel through the color mix */
+#define RGB_MIX_FUNC(rr, gg, bb, tpix)                                       \
+    (RGB_TO_PIXEL(((rr * GET_RED(tpix)) >> 8), ((gg * GET_GREEN(tpix)) >> 8), \
+                 ((bb * GET_BLUE(tpix)) >> 8)) | ((tpix) & 0xFF000000))
+#else
 #define RGB_MIX_FUNC(rr, gg, bb, tpix)                                       \
     RGB_TO_PIXEL(((rr * GET_RED(tpix)) >> 8), ((gg * GET_GREEN(tpix)) >> 8), \
                  ((bb * GET_BLUE(tpix)) >> 8))
+#endif
 #else
 #define RGB_MIX_FUNC(rr, gg, bb, tpix) (tpix)
 #endif
@@ -162,22 +169,33 @@ typedef GLushort PIXEL;
         break;                                              \
     }
 
+/* Alpha blending helper: multiply 8.16 fixed-point color by [0,255] factor.
+ * Uses (factor + (factor >> 7)) to map [0,255] -> [0,256] so that
+ * factor=255 yields identity and factor=0 yields zero. */
+#define TGL_ALPHA_MUL(val, factor) \
+    ((((val) >> 16) * ((factor) + ((factor) >> 7))) << 8)
+
 #define TGL_BLEND_FUNC(source, dest)                    \
-    {{GLuint sr, sg, sb, dr, dg, db;                    \
+    {{GLuint sr, sg, sb, dr, dg, db, sa;                \
     {                                                   \
         GLuint temp = source;                           \
         sr = GET_REDDER(temp);                          \
         sg = GET_GREENER(temp);                         \
         sb = GET_BLUEER(temp);                          \
+        sa = (temp >> 24) & 0xFF;                       \
         temp = dest;                                    \
         dr = GET_REDDER(temp);                          \
         dg = GET_GREENER(temp);                         \
         db = GET_BLUEER(temp);                          \
     }                                                   \
-    /*printf("\nShould never reach this point!");*/     \
     switch (sfactor) {                                  \
     case GL_ONE:                                        \
     default:                                            \
+        break;                                          \
+    case GL_SRC_ALPHA:                                  \
+        sr = TGL_ALPHA_MUL(sr, sa);                     \
+        sg = TGL_ALPHA_MUL(sg, sa);                     \
+        sb = TGL_ALPHA_MUL(sb, sa);                     \
         break;                                          \
     case GL_ONE_MINUS_SRC_COLOR:                        \
         sr = ~sr & COLOR_MASK;                          \
@@ -194,6 +212,12 @@ typedef GLushort PIXEL;
     case GL_ONE:                                        \
     default:                                            \
         break;                                          \
+    case GL_ONE_MINUS_SRC_ALPHA:                        \
+        {GLuint inv_sa = 255 - sa;                      \
+        dr = TGL_ALPHA_MUL(dr, inv_sa);                 \
+        dg = TGL_ALPHA_MUL(dg, inv_sa);                 \
+        db = TGL_ALPHA_MUL(db, inv_sa);}                \
+        break;                                          \
     case GL_ONE_MINUS_DST_COLOR:                        \
         dr = ~dr & COLOR_MASK;                          \
         dg = ~dg & COLOR_MASK;                          \
@@ -209,19 +233,24 @@ typedef GLushort PIXEL;
     }                                                   \
     }
 
-#define TGL_BLEND_FUNC_RGB(rr, gg, bb, dest)                                  \
+#define TGL_BLEND_FUNC_RGB(rr, gg, bb, aa, dest)                               \
     {{GLint sr = rr & COLOR_MASK, sg = gg & COLOR_MASK, sb = bb & COLOR_MASK, \
       dr, dg, db;                                                             \
+    GLuint sa = ((aa) >> 16) & 0xFF;                                          \
     {                                                                         \
         GLuint temp = dest;                                                   \
         dr = GET_REDDER(temp);                                                \
         dg = GET_GREENER(temp);                                               \
         db = GET_BLUEER(temp);                                                \
     }                                                                         \
-    /*printf("\nShould never reach this point!");*/                           \
     switch (sfactor) {                                                        \
     case GL_ONE:                                                              \
     default:                                                                  \
+        break;                                                                \
+    case GL_SRC_ALPHA:                                                        \
+        sr = TGL_ALPHA_MUL(sr, sa);                                           \
+        sg = TGL_ALPHA_MUL(sg, sa);                                           \
+        sb = TGL_ALPHA_MUL(sb, sa);                                           \
         break;                                                                \
     case GL_ONE_MINUS_SRC_COLOR:                                              \
         sr = ~sr & COLOR_MASK;                                                \
@@ -237,6 +266,12 @@ typedef GLushort PIXEL;
     switch (dfactor) {                                                        \
     case GL_ONE:                                                              \
     default:                                                                  \
+        break;                                                                \
+    case GL_ONE_MINUS_SRC_ALPHA:                                              \
+        {GLuint inv_sa = 255 - sa;                                            \
+        dr = TGL_ALPHA_MUL(dr, inv_sa);                                       \
+        dg = TGL_ALPHA_MUL(dg, inv_sa);                                       \
+        db = TGL_ALPHA_MUL(db, inv_sa);}                                      \
         break;                                                                \
     case GL_ONE_MINUS_DST_COLOR:                                              \
         dr = ~dr & COLOR_MASK;                                                \
@@ -259,9 +294,9 @@ typedef GLushort PIXEL;
     {                                \
         dest = source;               \
     }
-#define TGL_BLEND_FUNC_RGB(rr, gg, bb, dest) \
-    {                                        \
-        dest = RGB_TO_PIXEL(rr, gg, bb);     \
+#define TGL_BLEND_FUNC_RGB(rr, gg, bb, aa, dest) \
+    {                                            \
+        dest = RGB_TO_PIXEL(rr, gg, bb);         \
     }
 #endif
 
@@ -303,6 +338,7 @@ typedef struct {
     GLint x, y, z; /* integer coordinates in the zbuffer */
     GLint s, t;    /* coordinates for the mapping */
     GLint r, g, b; /* color indexes */
+    GLint a;       /* alpha (8.16 fixed-point, same format as r,g,b) */
 
     GLfloat sz, tz; /* temporary coordinates for mapping */
 } ZBufferPoint;

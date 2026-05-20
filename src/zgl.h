@@ -419,6 +419,10 @@ void gl_convertRGB_to_8A8R8G8B(GLuint *pixmap,
                                GLubyte *rgb,
                                GLint xsize,
                                GLint ysize);
+void gl_convertRGBA_to_8A8R8G8B(GLuint *pixmap,
+                                GLubyte *rgba,
+                                GLint xsize,
+                                GLint ysize);
 void gl_resizeImage(GLubyte *dest,
                     GLint xsize_dest,
                     GLint ysize_dest,
@@ -431,6 +435,12 @@ void gl_resizeImageNoInterpolate(GLubyte *dest,
                                  GLubyte *src,
                                  GLint xsize_src,
                                  GLint ysize_src);
+void gl_resizeImageNoInterpolate4(GLubyte *dest,
+                                  GLint xsize_dest,
+                                  GLint ysize_dest,
+                                  GLubyte *src,
+                                  GLint xsize_src,
+                                  GLint ysize_src);
 
 void gl_fatal_error(char *format, ...);
 

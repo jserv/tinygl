@@ -158,6 +158,11 @@ static void gl_transform_to_viewport_vertex_c(GLContext *c, GLVertex *v)
         (GLint) (v->color.v[2] * COLOR_CORRECTED_MULT_MASK + COLOR_MIN_MULT) &
         COLOR_MASK;
 
+    /* Propagate alpha in the same 8.16 fixed-point format as r,g,b */
+    v->zp.a =
+        (GLint) (v->color.v[3] * COLOR_CORRECTED_MULT_MASK + COLOR_MIN_MULT) &
+        COLOR_MASK;
+
     if (c->texture_2d_enabled) {
         v->zp.s = (GLint) (v->tex_coord.X * (ZB_POINT_S_MAX - ZB_POINT_S_MIN) +
                            ZB_POINT_S_MIN);

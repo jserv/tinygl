@@ -61,6 +61,7 @@ void ZB_setTexture(ZBuffer *zb, PIXEL *texture)
 /* Variant DT0_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -78,9 +79,10 @@ void ZB_fillTriangleFlat_DT0_DW0(ZBuffer *zb,
 
 #define INTERP_Z
 
-#define DRAW_INIT()                                \
-    {                                              \
-        color = RGB_TO_PIXEL(p2->r, p2->g, p2->b); \
+#define DRAW_INIT()                                                         \
+    {                                                                       \
+        color = RGB_TO_PIXEL(p2->r, p2->g, p2->b) |                         \
+                ((GLuint)((p2->a >> 16) & 0xFF) << 24);                      \
     }
 
 #define PUT_PIXEL(_a)                                   \
@@ -100,6 +102,7 @@ void ZB_fillTriangleFlat_DT0_DW0(ZBuffer *zb,
 /* Variant DT0_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -117,9 +120,10 @@ void ZB_fillTriangleFlat_DT0_DW1(ZBuffer *zb,
 
 #define INTERP_Z
 
-#define DRAW_INIT()                                \
-    {                                              \
-        color = RGB_TO_PIXEL(p2->r, p2->g, p2->b); \
+#define DRAW_INIT()                                                         \
+    {                                                                       \
+        color = RGB_TO_PIXEL(p2->r, p2->g, p2->b) |                         \
+                ((GLuint)((p2->a >> 16) & 0xFF) << 24);                      \
     }
 
 #define PUT_PIXEL(_a)                                   \
@@ -140,6 +144,7 @@ void ZB_fillTriangleFlat_DT0_DW1(ZBuffer *zb,
 /* Variant DT1_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -157,9 +162,10 @@ void ZB_fillTriangleFlat_DT1_DW0(ZBuffer *zb,
 
 #define INTERP_Z
 
-#define DRAW_INIT()                                \
-    {                                              \
-        color = RGB_TO_PIXEL(p2->r, p2->g, p2->b); \
+#define DRAW_INIT()                                                         \
+    {                                                                       \
+        color = RGB_TO_PIXEL(p2->r, p2->g, p2->b) |                         \
+                ((GLuint)((p2->a >> 16) & 0xFF) << 24);                      \
     }
 
 #define PUT_PIXEL(_a)                                   \
@@ -179,6 +185,7 @@ void ZB_fillTriangleFlat_DT1_DW0(ZBuffer *zb,
 /* Variant DT1_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -196,9 +203,10 @@ void ZB_fillTriangleFlat_DT1_DW1(ZBuffer *zb,
 
 #define INTERP_Z
 
-#define DRAW_INIT()                                \
-    {                                              \
-        color = RGB_TO_PIXEL(p2->r, p2->g, p2->b); \
+#define DRAW_INIT()                                                         \
+    {                                                                       \
+        color = RGB_TO_PIXEL(p2->r, p2->g, p2->b) |                         \
+                ((GLuint)((p2->a >> 16) & 0xFF) << 24);                      \
     }
 
 #define PUT_PIXEL(_a)                                   \
@@ -225,6 +233,7 @@ void ZB_fillTriangleFlat_DT1_DW1(ZBuffer *zb,
 /* Variant DT0_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -260,6 +269,7 @@ void ZB_fillTriangleFlatNOBLEND_DT0_DW0(ZBuffer *zb,
 /* Variant DT0_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -296,6 +306,7 @@ void ZB_fillTriangleFlatNOBLEND_DT0_DW1(ZBuffer *zb,
 /* Variant DT1_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -331,6 +342,7 @@ void ZB_fillTriangleFlatNOBLEND_DT1_DW0(ZBuffer *zb,
 /* Variant DT1_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -375,6 +387,7 @@ void ZB_fillTriangleFlatNOBLEND_DT1_DW1(ZBuffer *zb,
 /* Variant DT0_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -391,21 +404,23 @@ void ZB_fillTriangleSmooth_DT0_DW0(ZBuffer *zb,
 
 #define INTERP_Z
 #define INTERP_RGB
+#define INTERP_A
 
 #define DRAW_INIT() \
     {               \
     }
 
-#define PUT_PIXEL(_a)                                    \
-    {                                                    \
-        register GLuint zz = z >> ZB_POINT_Z_FRAC_BITS;  \
-        if (1 STIPTEST(_a)) {                            \
-            TGL_BLEND_FUNC_RGB(or1, og1, ob1, (pp[_a])); \
-        }                                                \
-        z += dzdx;                                       \
-        og1 += dgdx;                                     \
-        or1 += drdx;                                     \
-        ob1 += dbdx;                                     \
+#define PUT_PIXEL(_a)                                        \
+    {                                                        \
+        register GLuint zz = z >> ZB_POINT_Z_FRAC_BITS;      \
+        if (1 STIPTEST(_a)) {                                \
+            TGL_BLEND_FUNC_RGB(or1, og1, ob1, oa1, (pp[_a])); \
+        }                                                    \
+        z += dzdx;                                           \
+        og1 += dgdx;                                         \
+        or1 += drdx;                                         \
+        ob1 += dbdx;                                         \
+        oa1 += dadx;                                         \
     }
 
 #include "ztriangle.h"
@@ -414,6 +429,7 @@ void ZB_fillTriangleSmooth_DT0_DW0(ZBuffer *zb,
 /* Variant DT0_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -430,22 +446,24 @@ void ZB_fillTriangleSmooth_DT0_DW1(ZBuffer *zb,
 
 #define INTERP_Z
 #define INTERP_RGB
+#define INTERP_A
 
 #define DRAW_INIT() \
     {               \
     }
 
-#define PUT_PIXEL(_a)                                    \
-    {                                                    \
-        register GLuint zz = z >> ZB_POINT_Z_FRAC_BITS;  \
-        if (1 STIPTEST(_a)) {                            \
-            TGL_BLEND_FUNC_RGB(or1, og1, ob1, (pp[_a])); \
-            pz[_a] = zz;                                 \
-        }                                                \
-        z += dzdx;                                       \
-        og1 += dgdx;                                     \
-        or1 += drdx;                                     \
-        ob1 += dbdx;                                     \
+#define PUT_PIXEL(_a)                                        \
+    {                                                        \
+        register GLuint zz = z >> ZB_POINT_Z_FRAC_BITS;      \
+        if (1 STIPTEST(_a)) {                                \
+            TGL_BLEND_FUNC_RGB(or1, og1, ob1, oa1, (pp[_a])); \
+            pz[_a] = zz;                                     \
+        }                                                    \
+        z += dzdx;                                           \
+        og1 += dgdx;                                         \
+        or1 += drdx;                                         \
+        ob1 += dbdx;                                         \
+        oa1 += dadx;                                         \
     }
 
 #include "ztriangle.h"
@@ -454,6 +472,7 @@ void ZB_fillTriangleSmooth_DT0_DW1(ZBuffer *zb,
 /* Variant DT1_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -470,21 +489,23 @@ void ZB_fillTriangleSmooth_DT1_DW0(ZBuffer *zb,
 
 #define INTERP_Z
 #define INTERP_RGB
+#define INTERP_A
 
 #define DRAW_INIT() \
     {               \
     }
 
-#define PUT_PIXEL(_a)                                    \
-    {                                                    \
-        register GLuint zz = z >> ZB_POINT_Z_FRAC_BITS;  \
-        if ((zz >= pz[_a]) STIPTEST(_a)) {               \
-            TGL_BLEND_FUNC_RGB(or1, og1, ob1, (pp[_a])); \
-        }                                                \
-        z += dzdx;                                       \
-        og1 += dgdx;                                     \
-        or1 += drdx;                                     \
-        ob1 += dbdx;                                     \
+#define PUT_PIXEL(_a)                                        \
+    {                                                        \
+        register GLuint zz = z >> ZB_POINT_Z_FRAC_BITS;      \
+        if ((zz >= pz[_a]) STIPTEST(_a)) {                   \
+            TGL_BLEND_FUNC_RGB(or1, og1, ob1, oa1, (pp[_a])); \
+        }                                                    \
+        z += dzdx;                                           \
+        og1 += dgdx;                                         \
+        or1 += drdx;                                         \
+        ob1 += dbdx;                                         \
+        oa1 += dadx;                                         \
     }
 
 #include "ztriangle.h"
@@ -493,6 +514,7 @@ void ZB_fillTriangleSmooth_DT1_DW0(ZBuffer *zb,
 /* Variant DT1_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -509,22 +531,24 @@ void ZB_fillTriangleSmooth_DT1_DW1(ZBuffer *zb,
 
 #define INTERP_Z
 #define INTERP_RGB
+#define INTERP_A
 
 #define DRAW_INIT() \
     {               \
     }
 
-#define PUT_PIXEL(_a)                                    \
-    {                                                    \
-        register GLuint zz = z >> ZB_POINT_Z_FRAC_BITS;  \
-        if ((zz >= pz[_a]) STIPTEST(_a)) {               \
-            TGL_BLEND_FUNC_RGB(or1, og1, ob1, (pp[_a])); \
-            pz[_a] = zz;                                 \
-        }                                                \
-        z += dzdx;                                       \
-        og1 += dgdx;                                     \
-        or1 += drdx;                                     \
-        ob1 += dbdx;                                     \
+#define PUT_PIXEL(_a)                                        \
+    {                                                        \
+        register GLuint zz = z >> ZB_POINT_Z_FRAC_BITS;      \
+        if ((zz >= pz[_a]) STIPTEST(_a)) {                   \
+            TGL_BLEND_FUNC_RGB(or1, og1, ob1, oa1, (pp[_a])); \
+            pz[_a] = zz;                                     \
+        }                                                    \
+        z += dzdx;                                           \
+        og1 += dgdx;                                         \
+        or1 += drdx;                                         \
+        ob1 += dbdx;                                         \
+        oa1 += dadx;                                         \
     }
 
 #include "ztriangle.h"
@@ -539,6 +563,7 @@ void ZB_fillTriangleSmooth_DT1_DW1(ZBuffer *zb,
 /* Variant DT0_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -577,6 +602,7 @@ void ZB_fillTriangleSmoothNOBLEND_DT0_DW0(ZBuffer *zb,
 /* Variant DT0_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -616,6 +642,7 @@ void ZB_fillTriangleSmoothNOBLEND_DT0_DW1(ZBuffer *zb,
 /* Variant DT1_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -654,6 +681,7 @@ void ZB_fillTriangleSmoothNOBLEND_DT1_DW0(ZBuffer *zb,
 /* Variant DT1_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -790,6 +818,7 @@ void ZB_fillTriangleSmoothNOBLEND_DT1_DW1(ZBuffer *zb,
 /* Variant DT0_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -844,6 +873,7 @@ void ZB_fillTriangleMappingPerspective_DT0_DW0(ZBuffer *zb,
 /* Variant DT0_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -899,6 +929,7 @@ void ZB_fillTriangleMappingPerspective_DT0_DW1(ZBuffer *zb,
 /* Variant DT1_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -953,6 +984,7 @@ void ZB_fillTriangleMappingPerspective_DT1_DW0(ZBuffer *zb,
 /* Variant DT1_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -1014,6 +1046,7 @@ void ZB_fillTriangleMappingPerspective_DT1_DW1(ZBuffer *zb,
 /* Variant DT0_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -1066,6 +1099,7 @@ void ZB_fillTriangleMappingPerspectiveNOBLEND_DT0_DW0(ZBuffer *zb,
 /* Variant DT0_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -1119,6 +1153,7 @@ void ZB_fillTriangleMappingPerspectiveNOBLEND_DT0_DW1(ZBuffer *zb,
 /* Variant DT1_DW0 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
@@ -1171,6 +1206,7 @@ void ZB_fillTriangleMappingPerspectiveNOBLEND_DT1_DW0(ZBuffer *zb,
 /* Variant DT1_DW1 */
 #undef INTERP_Z
 #undef INTERP_RGB
+#undef INTERP_A
 #undef INTERP_ST
 #undef INTERP_STZ
 #undef DRAW_INIT
